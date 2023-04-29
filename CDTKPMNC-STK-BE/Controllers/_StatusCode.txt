@@ -1,0 +1,22 @@
+﻿100 Continue: Server đã nhận được phần đầu của request và đang chờ client gửi tiếp phần còn lại.
+
+200 OK: yêu cầu được xử lý thành công.
+
+201 Created: yêu cầu đã được tạo tài nguyên thành công.
+202 Accepted: yêu cầu hợp lệ, được chấp nhận và đang xử lý nhưng chưa thể trả về kết quả.
+204 No Content: yêu cầu được xử lý thành công nhưng không có dữ liệu để trả về.
+
+301 Moved Permanently: tài nguyên yêu cầu đã được chuyển hướng tới địa chỉ mới.
+302 Found: Tài nguyên yêu cầu đã được chuyển hướng tạm thời đến một địa chỉ URL mới.
+
+400 Bad Request: yêu cầu không hợp lệ do các tham số không hợp lệ, kiểu dữ liệu không đúng, v.v.
+401 Unauthorized: yêu cầu không được xác thực hoặc thiếu thông tin xác thực.
+403 Forbidden: yêu cầu không được cho phép do các hạn chế quyền truy cập.
+404 Not Found: yêu cầu không tìm thấy tài nguyên.
+409 Conflict: yêu cầu không được xử lý do xung đột dữ liệu hoặc trạng thái không hợp lệ.
+408 RequestTimeout
+415 UnsupportedMediaType
+
+422 Unprocessable Entity: yêu cầu hợp lệ nhưng không thể xử lý do dữ liệu không hợp lệ.
+
+500 Internal Server Error: lỗi xảy ra trên server khi xử lý yêu cầu.
