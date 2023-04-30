@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 
 namespace CDTKPMNC_STK_BE.Utilities
 {
-    static public class StringExtension
+    static public class StringHelper
     {
         static public string ToTitleCase(this string s)
         {
@@ -19,6 +19,12 @@ namespace CDTKPMNC_STK_BE.Utilities
             byte[] hashBytes = sha256.ComputeHash(inputBytes);
             string hashString = Convert.ToBase64String(hashBytes);
             return hashString;
+        }
+
+        static public Guid? ToGuid(this string s)
+        {
+            if (s == null) { return null; }
+            return new Guid(s);
         }
     }
 }

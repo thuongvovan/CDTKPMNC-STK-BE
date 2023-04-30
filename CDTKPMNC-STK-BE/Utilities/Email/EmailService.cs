@@ -6,9 +6,9 @@ using CDTKPMNC_STK_BE.Models;
 
 namespace CDTKPMNC_STK_BE.Utilities.Email
 {
-    public class EmailService:IEmailService
+    public class EmailService: IEmailService
     {
-        public string EmailSender { get; set; }
+        public string Email { get; set; }
         public string Password { get; set; }
         public string SMTPServer { get; set; }
         public int Port { get; set; }
@@ -16,12 +16,11 @@ namespace CDTKPMNC_STK_BE.Utilities.Email
 
         private readonly IConfiguration _configuration;
 
-        // public EmailService(string from = "cd.tkpmnc@outlook.com", string password = "Mnbvcxz@7654321")
         public EmailService(IConfiguration configuration)
         {
             _configuration = configuration;
             var emailInfo = _configuration.GetSection("Email");
-            EmailSender = emailInfo.GetValue<string>("Email");
+            Email = emailInfo.GetValue<string>("Email");
             Password = emailInfo.GetValue<string>("Password");
             SMTPServer = emailInfo.GetValue<string>("SMTPServer");
             Port = emailInfo.GetValue<int>("Port");
@@ -34,7 +33,7 @@ namespace CDTKPMNC_STK_BE.Utilities.Email
             {
                 // create message
                 var email = new MimeMessage();
-                email.From.Add(MailboxAddress.Parse(EmailSender));
+                email.From.Add(MailboxAddress.Parse(Email));
                 email.To.Add(MailboxAddress.Parse(to));
                 email.Subject = subject;
                 email.Body = new TextPart(TextFormat.Html) { Text = html };
@@ -43,7 +42,7 @@ namespace CDTKPMNC_STK_BE.Utilities.Email
                 using var smtp = new SmtpClient();
                 // smtp.Connect("smtp.office365.com", 587, SecureSocketOptions.StartTls);
                 smtp.Connect(SMTPServer, Port, SecureSocketOption);
-                smtp.Authenticate(EmailSender, Password);
+                smtp.Authenticate(Email, Password);
                 smtp.Send(email);
                 smtp.Disconnect(true);
                 return true;
@@ -52,8 +51,6 @@ namespace CDTKPMNC_STK_BE.Utilities.Email
             {
                 return false;
             }
-            
-            
         }
 
         public void SendRegisterOTP(EndUserAccount userAccount)
@@ -63,7 +60,6 @@ namespace CDTKPMNC_STK_BE.Utilities.Email
                 Dear {userAccount.Name},<br/>
                 <br/>
                 Your OTP is {userAccount.OTP?.RegisterOTP}.<br/>
-                <br/>
                 Please enter this code on our application to verify your account.<br/>
                 <br/>
                 Thanks you,<br/>
@@ -82,7 +78,6 @@ namespace CDTKPMNC_STK_BE.Utilities.Email
                 Dear {userAccount.Name},<br/>
                 <br/>
                 Your OTP is {userAccount.OTP?.ResetPasswordOTP}.<br/>
-                <br/>
                 Please enter this code on our application to verify your password changed.<br/>
                 <br/>
                 Thanks you,<br/>
