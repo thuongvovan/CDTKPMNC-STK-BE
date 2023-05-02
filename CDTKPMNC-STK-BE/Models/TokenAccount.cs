@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace CDTKPMNC_STK_BE.Models
 {
     public record RefreshToken(string Token);
-    public class UserToken
+    public class TokenAccount
     {
         [JsonIgnore]
         [ForeignKey("Account")]
@@ -15,6 +15,6 @@ namespace CDTKPMNC_STK_BE.Models
         [Required]
         public string? RefreshToken { get; set; }
         [JsonIgnore]
-        public virtual EndUserAccount? Account { get; set; }
+        public virtual Account? Account { get; set; }
     }
 }

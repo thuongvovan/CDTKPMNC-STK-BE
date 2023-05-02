@@ -3,15 +3,15 @@ using FluentValidation;
 
 namespace CDTKPMNC_STK_BE.Utilities.Account
 {
-    public class UserAccountValidation : AbstractValidator<RegisteredAccount>
+    public class AccountUserValidation : AbstractValidator<RegisteredAccount>
     {
-        public UserAccountValidation()
+        public AccountUserValidation()
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
 
-            RuleFor(user => user.Account)
-                .NotEmpty().WithMessage("Account is required.")
-                .EmailAddress().WithMessage("Account is not valid (email required).");
+            RuleFor(user => user.UserName)
+                .NotEmpty().WithMessage("UserName is required.")
+                .EmailAddress().WithMessage("UserName is not valid (email required).");
 
             RuleFor(user => user.Password)
                 .NotEmpty().WithMessage("Password is required.")
@@ -20,11 +20,11 @@ namespace CDTKPMNC_STK_BE.Utilities.Account
                 .Matches("[A-Z]").WithMessage("Password must be at least 8 characters long, contain lowercase, uppercase and digit.")
                 .Matches("[0-9]").WithMessage("Password must be at least 8 characters long, contain lowercase, uppercase and digit.");
 
-            RuleFor(user => user.ConfirmPassword)
+/*            RuleFor(user => user.ConfirmPassword)
                 .NotEmpty().WithMessage("Confirm password is required.")
                 .Must((user, confirmPassword) => confirmPassword == user.Password)
                     .WithMessage("Passwords do not match.");
-
+*/
             RuleFor(user => user.Name)
                 .NotEmpty().WithMessage("Name is required.");
 

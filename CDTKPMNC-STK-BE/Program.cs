@@ -1,4 +1,6 @@
 using CDTKPMNC_STK_BE.DataAccess;
+using CDTKPMNC_STK_BE.DatabaseContext;
+using CDTKPMNC_STK_BE.Models;
 using CDTKPMNC_STK_BE.Utilities;
 using CDTKPMNC_STK_BE.Utilities.Email;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +16,7 @@ namespace CDTKPMNC_STK_BE
             // Add services to the container.
             builder.Services.AddControllers();
 
-            builder.Services.AddDbContext<AppDBContext>(options =>
+            builder.Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Default"))
                 .UseLazyLoadingProxies();
@@ -23,7 +25,7 @@ namespace CDTKPMNC_STK_BE
             // builder.Services.AddSingleton(builder.Configuration);
             builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
-            //var dbContext = new AppDBContext(builder.Configuration);
+            //var dbContext = new AppDbContext(builder.Configuration);
             //builder.Services.AddSingleton(dbContext);
 
             builder.Services.AddTransient<IEmailService, EmailService>();
@@ -56,6 +58,14 @@ namespace CDTKPMNC_STK_BE
 
             if (true || app.Environment.IsDevelopment())
             {
+                using var dbContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
+                // Delete the database if it exists
+                dbContext.Database.EnsureDeleted();
+                Console.WriteLine("Delete the database if it exists");
+                // Create the database and its tables
+                dbContext.Database.EnsureCreated();
+                Console.WriteLine("Create the database and its tables");
+
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {

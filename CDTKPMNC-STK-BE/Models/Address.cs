@@ -8,17 +8,9 @@ namespace CDTKPMNC_STK_BE.Models
     [Owned]
     public class Address
     {
-        [Column("Province")]
-        [Required]
-        public string? Province { get; set; }
-        [Column("District")]
-        [Required]
-        public string? District { get; set; }
-        [Column("Ward")]
-        [Required]
-        public string? Ward { get; set; }
-        [Column("Street")]
-        [Required]
+        public virtual AddressProvince? Province { get; set; }
+        public virtual AddressDistrict? District { get; set; }
+        public virtual AddressWard? Ward { get; set; }
         public string? Street { get; set; }
 
     }

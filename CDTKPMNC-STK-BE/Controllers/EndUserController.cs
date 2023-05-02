@@ -13,12 +13,12 @@ namespace CDTKPMNC_STK_BE.Controllers
     [Route("/[controller]")]
     [ApiController]
     
-    public class UserController : ControllerBase
+    public class EndUserController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _mailler;
         private readonly JwtAuthen _jwtAuthen;
-        public UserController(IUnitOfWork unitOfWork, IEmailService mailler, JwtAuthen jwtAuthen)
+        public EndUserController(IUnitOfWork unitOfWork, IEmailService mailler, JwtAuthen jwtAuthen)
         {
             _unitOfWork = unitOfWork;
             _mailler = mailler;
@@ -29,23 +29,23 @@ namespace CDTKPMNC_STK_BE.Controllers
         [HttpPost("Register")]
         public IActionResult Register([FromBody] RegisteredAccount account)
         {
-            if (account.Account?.StartsWith("test@") ?? false)
+            if (account.UserName?.StartsWith("test@") ?? false)
             {
-                EndUserAccount? currAccountTest = _unitOfWork.EndUserAccountRepository.GetByAccount(account.Account);
+                AccountEndUser? currAccountTest = _unitOfWork.EndUserAccountRepository.GetByUserName(account.UserName);
                 if (currAccountTest != null)
                 {
                     if (currAccountTest?.IsVerified == true)
-                        return Conflict(new ResponseMessage { Success = false, Message = "Account already exists." });
+                        return Conflict(new ResponseMessage { Success = false, Message = "UserName already exists." });
                     _unitOfWork.EndUserAccountRepository.Delete(currAccountTest!);
                 }
 
-                var testAccount = new EndUserAccount 
+                var testAccount = new AccountEndUser 
                     {
-                        Account = account.Account,
+                        UserName = account.UserName,
                         Name = "Tài Khoản Test",
                         Password = "123456".ToHashSHA256(),
-                        OTP = new UserOTP { RegisterOTP = 123456, RegisterExpiresOn = DateTime.Now.AddHours(2400) },
-                        DateOfBirth = DateTime.Now,
+                        Otp = new OtpAccount { RegisterOtp = 123456, RegisterExpiresOn = DateTime.Now.AddHours(2) },
+                        DateOfBirth = DateOnly.FromDateTime(DateTime.Now),
                         Gender = Gender.Others
                     };
                 _unitOfWork.EndUserAccountRepository.Add(testAccount);
@@ -53,13 +53,13 @@ namespace CDTKPMNC_STK_BE.Controllers
                 return Ok(new ResponseMessage 
                     { 
                         Success = true, 
-                        Message = "Test account RegisterOTP & Password is: 123456", 
+                        Message = "Test account RegisterOtp & Password is: 123456", 
                         Data = new { UserAccount = testAccount }
                     });
             }
             else
             {
-                var validator = new UserAccountValidation();
+                var validator = new AccountUserValidation();
                 ValidationResult? validateResult;
                 try
                 {
@@ -77,20 +77,20 @@ namespace CDTKPMNC_STK_BE.Controllers
                     return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
                 }
 
-                EndUserAccount? currAccount = _unitOfWork.EndUserAccountRepository.GetByAccount(account.Account!);
+                AccountEndUser? currAccount = _unitOfWork.EndUserAccountRepository.GetByUserName(account.UserName!);
                 if (currAccount != null)
                 {
                     if (currAccount?.IsVerified == true)
-                        return Conflict(new ResponseMessage {Success = false, Message = "Account already exists." });
+                        return Conflict(new ResponseMessage {Success = false, Message = "UserName already exists." });
                     else
                         _unitOfWork.EndUserAccountRepository.Delete(currAccount!);
                 }
 
-                EndUserAccount? newAccount = account.CreateUserAccount();
+                AccountEndUser? newAccount = account.CreateUserAccount();
 
-                // int otp = new Cryptography(_configuration).GenerateOTP();
-                int otp = OTPHelper.GenerateOTP();
-                newAccount.OTP = new UserOTP { RegisterOTP = otp, RegisterExpiresOn = DateTime.Now.AddMinutes(10) };
+                // int otp = new Cryptography(_configuration).GenerateOtp();
+                int otp = OTPHelper.GenerateOtp();
+                newAccount.Otp = new OtpAccount { RegisterOtp = otp, RegisterExpiresOn = DateTime.Now.AddMinutes(10) };
                 _unitOfWork.EndUserAccountRepository.Add(newAccount);
                 _mailler.SendRegisterOTP(newAccount);
                 _unitOfWork.Commit();
@@ -106,19 +106,19 @@ namespace CDTKPMNC_STK_BE.Controllers
 
         // POST /<UserController>/VerifyRegister/AB8D4730-8895-4C18-F0F8-08DB439AD21D
         [HttpPost("VerifyRegister/{userId:Guid}")]
-        public IActionResult VerifyRegister(Guid userId, [FromBody] OTP otp)
+        public IActionResult VerifyRegister(Guid userId, [FromBody] Otp otp)
         {
-            EndUserAccount? userAccount = _unitOfWork.EndUserAccountRepository.GetById(userId);
+            AccountEndUser? userAccount = _unitOfWork.EndUserAccountRepository.GetById(userId);
             if (userAccount == null)
-                return BadRequest(new ResponseMessage {Success = false, Message = "Account registration is required." });
+                return BadRequest(new ResponseMessage {Success = false, Message = "UserId is required." });
             if (userAccount != null && userAccount?.IsVerified == false)
             {
                 
-                if (userAccount?.OTP?.RegisterOTP == otp.OTPValue && userAccount.OTP.RegisterExpiresOn >= DateTime.Now)
+                if (userAccount?.Otp?.RegisterOtp == otp.OtpValue && userAccount.Otp.RegisterExpiresOn >= DateTime.Now)
                 {
                     userAccount.IsVerified = true;
-                    UserToken userToken = _jwtAuthen.GenerateUserToken(userAccount.Id, UserType.EndUser);
-                    userAccount.Token = userToken;
+                    TokenAccount userToken = _jwtAuthen.GenerateUserToken(userAccount.Id, UserType.EndUser);
+                    userAccount.AccountToken = userToken;
                     _unitOfWork.EndUserAccountRepository.Update(userAccount);
                     _unitOfWork.Commit();
                     return Ok(new ResponseMessage 
@@ -128,7 +128,7 @@ namespace CDTKPMNC_STK_BE.Controllers
                             Data = userToken
                         });
                 }
-                else return BadRequest(new ResponseMessage {Success = false, Message = "Your RegisterOTP is not correct or expiresed" });
+                else return BadRequest(new ResponseMessage {Success = false, Message = "Your RegisterOtp is not correct or expiresed" });
             }
             return Conflict(new ResponseMessage {Success = false, Message = "Verification failed." });
         }
@@ -137,17 +137,17 @@ namespace CDTKPMNC_STK_BE.Controllers
         [HttpPost("Login")]
         public IActionResult Login([FromBody] LoginedAccount account)
         {
-            EndUserAccount? currAccount = _unitOfWork.EndUserAccountRepository.GetByAccount(account.Account);
+            AccountEndUser? currAccount = _unitOfWork.EndUserAccountRepository.GetByUserName(account.UserName);
             if (currAccount != null && currAccount.Password == account.Password.ToHashSHA256() && currAccount.IsVerified)
             {
-                UserToken userToken = _jwtAuthen.GenerateUserToken(currAccount.Id, UserType.EndUser);
-                currAccount.Token!.AccessToken = userToken.AccessToken;
-                currAccount.Token.RefreshToken = userToken.RefreshToken;
+                TokenAccount userToken = _jwtAuthen.GenerateUserToken(currAccount.Id, UserType.EndUser);
+                currAccount.AccountToken!.AccessToken = userToken.AccessToken;
+                currAccount.AccountToken.RefreshToken = userToken.RefreshToken;
                 _unitOfWork.EndUserAccountRepository.Update(currAccount);
                 _unitOfWork.Commit();
                 return Ok(new ResponseMessage {Success = true, Message = "Login successfull.", Data = userToken });
             }
-            return BadRequest(new ResponseMessage { Success = false, Message = "Login information is incorrect." });
+            return BadRequest(new ResponseMessage { Success = false, Message = "UserName or password is incorrect." });
         }
 
         // POST /<UserController>/RefreshToken
@@ -155,22 +155,22 @@ namespace CDTKPMNC_STK_BE.Controllers
         [Authorize(AuthenticationSchemes = "EndUserNoLifetime")]
         public IActionResult Refresh([FromBody] RefreshToken refreshToken)
         {
-            var currentUserToken = new UserToken
+            var currentUserToken = new TokenAccount
             {
                 RefreshToken = refreshToken.Token,
                 AccessToken = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "")
             };
 
             var userId = HttpContext.Items["UserId"]!.ToString()!.ToGuid();
-            EndUserAccount? account = _unitOfWork.EndUserAccountRepository.GetById(userId!.Value);
-            if (account == null || account.Token!.AccessToken != currentUserToken.AccessToken || account.Token.RefreshToken != currentUserToken.RefreshToken)
+            AccountEndUser? account = _unitOfWork.EndUserAccountRepository.GetById(userId!.Value);
+            if (account == null || account.AccountToken!.AccessToken != currentUserToken.AccessToken || account.AccountToken.RefreshToken != currentUserToken.RefreshToken)
             {
-                return BadRequest(new ResponseMessage { Success = false, Message = "Invalid Refresh Token." });
+                return BadRequest(new ResponseMessage { Success = false, Message = "Invalid Refresh AccountToken." });
             }
 
-            UserToken userToken = _jwtAuthen.GenerateUserToken(account.Id, UserType.EndUser);
-            account!.Token!.AccessToken = userToken.AccessToken;
-            account.Token.RefreshToken = userToken.RefreshToken;
+            TokenAccount userToken = _jwtAuthen.GenerateUserToken(account.Id, UserType.EndUser);
+            account!.AccountToken!.AccessToken = userToken.AccessToken;
+            account.AccountToken.RefreshToken = userToken.RefreshToken;
             _unitOfWork.EndUserAccountRepository.Update(account);
             _unitOfWork.Commit();
             return Ok(new ResponseMessage { Success = true, Message = "token refresh successful", Data = userToken });
@@ -180,7 +180,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         [HttpPut("ChangePassword")]
         public IActionResult ChangePassword(ChangePasswordAccount changePasswordAccount)
         {
-            var validator = new UserChangePasswordValidation();
+            var validator = new ChangePasswordValidation();
             ValidationResult? validateResult;
             try
             {
@@ -197,7 +197,7 @@ namespace CDTKPMNC_STK_BE.Controllers
                 string? ErrorMessage = validateResult.Errors?.FirstOrDefault()?.ErrorMessage;
                 return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
             }
-            EndUserAccount? currAccount = _unitOfWork.EndUserAccountRepository.GetByAccount(changePasswordAccount.Account);
+            AccountEndUser? currAccount = _unitOfWork.EndUserAccountRepository.GetByUserName(changePasswordAccount.UserName);
             if (currAccount == null || currAccount.Password != changePasswordAccount.OldPassword.ToHashSHA256() || !currAccount.IsVerified)
             {
                 return BadRequest(new ResponseMessage { Success = false, Message = "Current account or password is incorrect" });
@@ -212,7 +212,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         [HttpPost("ResetPassword")]
         public IActionResult ResetPassword(ResetPasswordAccount resetPasswordAccount)
         {
-            var validator = new UserResetPasswordValidation();
+            var validator = new ResetPasswordValidation();
             ValidationResult? validateResult = null;
             try
             {
@@ -229,17 +229,17 @@ namespace CDTKPMNC_STK_BE.Controllers
                 string? ErrorMessage = validateResult.Errors?.FirstOrDefault()?.ErrorMessage;
                 return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
             }
-            EndUserAccount? currAccount = _unitOfWork.EndUserAccountRepository.GetByAccount(resetPasswordAccount.Account);
+            AccountEndUser? currAccount = _unitOfWork.EndUserAccountRepository.GetByUserName(resetPasswordAccount.UserName);
             if (currAccount == null || !currAccount.IsVerified)
             {
-                return BadRequest(new ResponseMessage { Success = false, Message = "Account does not exist" });
+                return BadRequest(new ResponseMessage { Success = false, Message = "UserName does not exist" });
             }
             else
             {
                 currAccount.NewPassword = resetPasswordAccount.NewPassword.ToHashSHA256();
-                int resetPasswordOTP = OTPHelper.GenerateOTP();
-                currAccount.OTP!.ResetPasswordOTP = resetPasswordOTP;
-                currAccount.OTP.ResetPasswordExpiresOn = DateTime.Now.AddMinutes(10);
+                int resetPasswordOTP = OTPHelper.GenerateOtp();
+                currAccount.Otp!.ResetPasswordOtp = resetPasswordOTP;
+                currAccount.Otp.ResetPasswordExpiresOn = DateTime.Now.AddMinutes(10);
                 // _unitOfWork.EndUserAccountRepository.Update(currAccount);
                 _unitOfWork.Commit();
                 var emailTask = Task.Run(() =>
@@ -255,12 +255,12 @@ namespace CDTKPMNC_STK_BE.Controllers
         [HttpPost("VerifyResetPassword")]
         public IActionResult VerifyResetPassword([FromBody] VerifyResetPwAccount verifyReset)
         {
-            EndUserAccount? userAccount = _unitOfWork.EndUserAccountRepository.GetByAccount(verifyReset.Account);
+            AccountEndUser? userAccount = _unitOfWork.EndUserAccountRepository.GetByUserName(verifyReset.UserName);
             if (userAccount == null || userAccount.IsVerified == false ||
                 userAccount.NewPassword == null ||
-                userAccount.OTP == null || userAccount.OTP.ResetPasswordOTP == null || userAccount.OTP.ResetPasswordExpiresOn == null)
+                userAccount.Otp == null || userAccount.Otp.ResetPasswordOtp == null || userAccount.Otp.ResetPasswordExpiresOn == null)
                 return BadRequest(new ResponseMessage { Success = false, Message = "Verify reset password failed." });
-            if (userAccount.OTP.ResetPasswordOTP == verifyReset.OTP && userAccount.OTP.ResetPasswordExpiresOn >= DateTime.Now)
+            if (userAccount.Otp.ResetPasswordOtp == verifyReset.Otp && userAccount.Otp.ResetPasswordExpiresOn >= DateTime.Now)
             {
                 userAccount.Password = userAccount.NewPassword;
                 userAccount.NewPassword = null;

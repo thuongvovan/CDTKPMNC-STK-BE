@@ -55,11 +55,11 @@ namespace CDTKPMNC_STK_BE.Utilities
             string jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
             return jwtToken;
         }
-        public UserToken GenerateUserToken(Guid userId, UserType userType)
+        public TokenAccount GenerateUserToken(Guid userId, UserType userType)
         {
             string accessToken = GenerateAccessToken(userId, userType);
             string refreshToken = GenerateRefreshToken(userId, userType);
-            return new UserToken {AccessToken = accessToken, RefreshToken = refreshToken };
+            return new TokenAccount {AccessToken = accessToken, RefreshToken = refreshToken };
         }
         public string GenerateAccessToken(Guid userId, UserType userType)
         {

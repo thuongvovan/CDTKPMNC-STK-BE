@@ -53,39 +53,39 @@ namespace CDTKPMNC_STK_BE.Utilities.Email
             }
         }
 
-        public void SendRegisterOTP(EndUserAccount userAccount)
+        public void SendRegisterOTP(AccountEndUser userAccount)
         {
             string subject = "Your verification code for register account CĐ-TKPMNC";
             string html = @$"
                 Dear {userAccount.Name},<br/>
                 <br/>
-                Your OTP is {userAccount.OTP?.RegisterOTP}.<br/>
+                Your Otp is {userAccount.Otp?.RegisterOtp}.<br/>
                 Please enter this code on our application to verify your account.<br/>
                 <br/>
                 Thanks you,<br/>
                 Thương - Khôi - Sơn
                 ";
-            if (userAccount.Account is not null)
+            if (userAccount.UserName is not null)
             {
-                Send(userAccount.Account, subject, html);
+                Send(userAccount.UserName, subject, html);
             }
         }
 
-        public void SendResetPasswordOTP(EndUserAccount userAccount)
+        public void SendResetPasswordOTP(AccountEndUser userAccount)
         {
             string subject = "Your verification code for reset password CĐ-TKPMNC";
             string html = @$"
                 Dear {userAccount.Name},<br/>
                 <br/>
-                Your OTP is {userAccount.OTP?.ResetPasswordOTP}.<br/>
+                Your Otp is {userAccount.Otp?.ResetPasswordOtp}.<br/>
                 Please enter this code on our application to verify your password changed.<br/>
                 <br/>
                 Thanks you,<br/>
                 Thương - Khôi - Sơn
                 ";
-            if (userAccount.Account is not null)
+            if (userAccount.UserName is not null)
             {
-                Send(userAccount.Account, subject, html);
+                Send(userAccount.UserName, subject, html);
             }
         }
     }
