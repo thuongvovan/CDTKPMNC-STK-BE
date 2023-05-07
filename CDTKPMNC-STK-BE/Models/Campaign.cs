@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace CDTKPMNC_STK_BE.Models
 {
@@ -23,11 +23,11 @@ namespace CDTKPMNC_STK_BE.Models
         [Column(TypeName = "date")]
         public DateOnly EndDate { get; set; }
         public CampaignStatus Status { get; set; }
-        public virtual Store Store { get; set; }
-        public virtual Game Game { get; set; }
+        public virtual Store Store { get; set; } = null!;
+        public virtual Game Game { get; set; } = null!;
         [JsonIgnore]
-        public virtual ICollection<VoucherSeries> VoucherSeries { get; set; }
+        public virtual ICollection<VoucherSeries> VoucherSeries { get; set; } = new List<VoucherSeries>();
         [JsonIgnore]
-        public virtual ICollection<Voucher> Vouchers { get; set; }
+        public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
     }
 }

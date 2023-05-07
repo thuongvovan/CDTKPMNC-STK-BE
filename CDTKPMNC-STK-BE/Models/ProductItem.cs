@@ -1,4 +1,6 @@
-﻿namespace CDTKPMNC_STK_BE.Models
+﻿using Newtonsoft.Json;
+
+namespace CDTKPMNC_STK_BE.Models
 {
     public class ProductItem
     {
@@ -8,6 +10,7 @@
         public virtual ProductCategory Category { get; set; } = null!;
         public float Price { get; set; }
         public DateTime CreatedAt { get; set; }
+        [JsonIgnore]    
         public virtual Store Store { get; set; } = null!;
         //public ICollection<AccountEndUser> EndUsers { get; set; }
     }

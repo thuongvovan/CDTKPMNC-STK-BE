@@ -1,16 +1,18 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace CDTKPMNC_STK_BE.Models
 {
-    public enum PertnerType
+    public enum PartnerType
     {
         Personal,
         Company
     }
+
+
     public class AccountPartner : Account
     {
-        public virtual Address? Address { get; set; }
-        public PertnerType PertnerType { get; set; }
+        public virtual Address Address { get; set; } = null!;
+        public PartnerType PertnerType { get; set; }
         [JsonIgnore]
         public virtual Company? Company { get; set; }
         [JsonIgnore]

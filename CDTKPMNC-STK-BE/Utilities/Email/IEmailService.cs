@@ -11,7 +11,7 @@ namespace CDTKPMNC_STK_BE.Utilities.Email
         int Port { get; set; }
         SecureSocketOptions SecureSocketOption { get; set; }
         bool Send(string to, string subject, string html);
-        void SendRegisterOTP(AccountEndUser userAccount);
-        void SendResetPasswordOTP(AccountEndUser userAccount);
+        void SendRegisterOTP(Account account);
+        void SendResetPasswordOTP(Account account);
     }
 }

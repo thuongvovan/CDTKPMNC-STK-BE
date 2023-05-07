@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CDTKPMNC_STK_BE.Models
 {
-
     [Owned]
     public class Address
     {
@@ -15,3 +14,4 @@ namespace CDTKPMNC_STK_BE.Models
 
     }
 }
+ 

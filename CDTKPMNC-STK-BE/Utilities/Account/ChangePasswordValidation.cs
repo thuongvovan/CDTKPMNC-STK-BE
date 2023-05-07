@@ -1,17 +1,13 @@
 ﻿using FluentValidation;
 using CDTKPMNC_STK_BE.Models;
 
-namespace CDTKPMNC_STK_BE.Utilities.Account
+namespace CDTKPMNC_STK_BE.Utilities.AccountUtils
 {
     public class ChangePasswordValidation : AbstractValidator<ChangePasswordAccount>
     {
         public ChangePasswordValidation()
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
-            RuleFor(user => user.UserName)
-               .NotEmpty().WithMessage("UserName is required.")
-               .EmailAddress().WithMessage("UserName is not valid (email required).");
-
             RuleFor(user => user.OldPassword)
                 .NotEmpty().WithMessage("Your current password is required.");
 

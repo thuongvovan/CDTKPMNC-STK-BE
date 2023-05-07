@@ -8,6 +8,7 @@ namespace CDTKPMNC_STK_BE.Utilities
         public DateOnlyConverter() : base(dateOnly => dateOnly.ToDateTime(TimeOnly.MinValue), dateTime => DateOnly.FromDateTime(dateTime))
         {
         }
+
     }
 
     public class DateOnlyComparer : ValueComparer<DateOnly>

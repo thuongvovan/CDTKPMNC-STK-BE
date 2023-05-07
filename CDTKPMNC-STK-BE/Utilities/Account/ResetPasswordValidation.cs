@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using CDTKPMNC_STK_BE.Models;
 
-namespace CDTKPMNC_STK_BE.Utilities.Account
+namespace CDTKPMNC_STK_BE.Utilities.AccountUtils
 {
     public class ResetPasswordValidation : AbstractValidator<ResetPasswordAccount>
     {

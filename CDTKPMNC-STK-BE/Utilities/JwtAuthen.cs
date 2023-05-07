@@ -16,7 +16,7 @@ namespace CDTKPMNC_STK_BE.Utilities
     public enum UserType
     {
         Admin,
-        Parner,
+        Partner,
         EndUser,
     }
 

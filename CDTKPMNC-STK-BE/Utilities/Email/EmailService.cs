@@ -53,7 +53,7 @@ namespace CDTKPMNC_STK_BE.Utilities.Email
             }
         }
 
-        public void SendRegisterOTP(AccountEndUser userAccount)
+        public void SendRegisterOTP(Account userAccount)
         {
             string subject = "Your verification code for register account CĐ-TKPMNC";
             string html = @$"
@@ -71,7 +71,7 @@ namespace CDTKPMNC_STK_BE.Utilities.Email
             }
         }
 
-        public void SendResetPasswordOTP(AccountEndUser userAccount)
+        public void SendResetPasswordOTP(Account userAccount)
         {
             string subject = "Your verification code for reset password CĐ-TKPMNC";
             string html = @$"

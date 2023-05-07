@@ -1,7 +1,7 @@
 ﻿using CDTKPMNC_STK_BE.DatabaseContext;
 using CDTKPMNC_STK_BE.Models;
 
-namespace CDTKPMNC_STK_BE.DataAccess
+namespace CDTKPMNC_STK_BE.Repositories
 {
     public class AccountEndUserRepository : IAccountEndUserRepository
     {
@@ -22,7 +22,7 @@ namespace CDTKPMNC_STK_BE.DataAccess
 
         public AccountEndUser? GetByUserName(string account)
         {
-            return _context.AccountEndUsers.SingleOrDefault(u => u.UserName == account);
+            return _context.AccountEndUsers.SingleOrDefault(u => u.UserName == account.ToLower());
         }
 
         public void Add(AccountEndUser endUser)

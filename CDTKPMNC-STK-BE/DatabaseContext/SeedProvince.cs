@@ -13,6 +13,9 @@ namespace CDTKPMNC_STK_BE.DatabaseContext
             public void Configure(EntityTypeBuilder<AddressProvince> builder)
             {
                 builder.HasData( new AddressProvince { Id = "79", Name = "Hồ Chí Minh", FullName = "Thành phố Hồ Chí Minh", NameEN = "Ho Chi Minh", FullNameEN = "Ho Chi Minh City" } );
+/*                builder.ToSqlQuery(@"INSERT INTO Provinces (Id,Name,FullName,NameEN,FullNameEN) VALUES
+	                                (N'01',N'Hà Nội',N'Thành phố Hà Nội',N'Ha Noi',N'Ha Noi City');");
+*/
             }
         }
     }

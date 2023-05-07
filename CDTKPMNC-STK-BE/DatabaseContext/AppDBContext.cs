@@ -7,7 +7,7 @@ namespace CDTKPMNC_STK_BE.DatabaseContext
 {
     public class AppDbContext : DbContext
     {
-        public DbSet<Account> Accounts { get; set; }
+        public DbSet<AccountEndUser> Accounts { get; set; }
         public DbSet<AccountEndUser> AccountEndUsers { get; set; }
         public DbSet<OtpAccount> UserOTPs { get; set; }
         public DbSet<TokenAccount> UserTokens { get; set; }

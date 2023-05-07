@@ -1,9 +1,13 @@
-﻿namespace CDTKPMNC_STK_BE.DataAccess
+﻿namespace CDTKPMNC_STK_BE.Repositories
 {
     public interface IUnitOfWork
     {
-        IAccountEndUserRepository EndUserAccountRepository { get; }
-        IAccountAdminRepository AdminAccountRepository { get; }
+        IAccountEndUserRepository AccountEndUserRepository { get; }
+        IAccountAdminRepository AccountAdminRepository { get; }
+        IAccountPartnerRepository AccountPartnerRepository { get; }
+        IAddressRepository AddressRepository { get; }
+        ICompanyRepository CompanyRepository { get; }
+        IStoreRepository StoreRepository { get; }
         void Commit();
     }
 }

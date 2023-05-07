@@ -1,7 +1,7 @@
 ﻿using CDTKPMNC_STK_BE.DatabaseContext;
 using CDTKPMNC_STK_BE.Models;
 
-namespace CDTKPMNC_STK_BE.DataAccess
+namespace CDTKPMNC_STK_BE.Repositories
 {
     public class AccountAdminRepository : IAccountAdminRepository
     {
@@ -20,7 +20,7 @@ namespace CDTKPMNC_STK_BE.DataAccess
         }
         public AccountAdmin? GetByUserName(string account)
         {
-            return _dbContext.AdminAccounts.SingleOrDefault(a => a.UserName == account);
+            return _dbContext.AdminAccounts.SingleOrDefault(a => a.UserName == account.ToLower());
         }
         public void Add(AccountAdmin adminAccount)
         { 

@@ -1,4 +1,4 @@
-using CDTKPMNC_STK_BE.DataAccess;
+using CDTKPMNC_STK_BE.Repositories;
 using CDTKPMNC_STK_BE.DatabaseContext;
 using CDTKPMNC_STK_BE.Models;
 using CDTKPMNC_STK_BE.Utilities;
@@ -40,6 +40,11 @@ namespace CDTKPMNC_STK_BE
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddCors();
+            builder.Services.AddControllers().AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                });
+
 
             builder.Services.AddAuthentication()
                 .AddJwtBearer("EndUser", jwtAuthen.CreateAuthenSchema(TokenType.Access, UserType.EndUser, true));
@@ -50,9 +55,9 @@ namespace CDTKPMNC_STK_BE
             builder.Services.AddAuthentication()
                .AddJwtBearer("AdminNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, UserType.Admin, false));
             builder.Services.AddAuthentication()
-                .AddJwtBearer("Parner", jwtAuthen.CreateAuthenSchema(TokenType.Access, UserType.Parner, true));
+                .AddJwtBearer("Partner", jwtAuthen.CreateAuthenSchema(TokenType.Access, UserType.Partner, true));
             builder.Services.AddAuthentication()
-               .AddJwtBearer("ParnerNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, UserType.Parner, false));
+               .AddJwtBearer("PartnerNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, UserType.Partner, false));
 
             var app = builder.Build();
 

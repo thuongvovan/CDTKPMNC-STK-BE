@@ -1,6 +1,6 @@
 ﻿using CDTKPMNC_STK_BE.Models;
 
-namespace CDTKPMNC_STK_BE.DataAccess
+namespace CDTKPMNC_STK_BE.Repositories
 {
     public interface IAccountEndUserRepository
     {

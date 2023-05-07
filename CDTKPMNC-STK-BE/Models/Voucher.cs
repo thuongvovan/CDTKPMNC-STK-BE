@@ -11,5 +11,6 @@ namespace CDTKPMNC_STK_BE.Models
         public DateTime CreatedAt { get; set; }
         [Key]
         public Guid VoucherCode { get; set; } = Guid.NewGuid();
+        public bool IsUsed { get; set; }
     }
 }

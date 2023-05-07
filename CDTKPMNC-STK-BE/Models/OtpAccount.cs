@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace CDTKPMNC_STK_BE.Models
 {
@@ -8,10 +8,15 @@ namespace CDTKPMNC_STK_BE.Models
     public class OtpAccount
     {
         [ForeignKey("Account")]
+        [JsonIgnore]
         public Guid Id { get; set; }
+        [JsonIgnore]
         public int? RegisterOtp { get; set; }
+        [JsonIgnore]
         public DateTime? RegisterExpiresOn { get; set; }
+        [JsonIgnore]
         public int? ResetPasswordOtp { get; set; }
+        [JsonIgnore]
         public DateTime? ResetPasswordExpiresOn { get; set; }
         [JsonIgnore]
         public virtual Account? Account { get; set; }
