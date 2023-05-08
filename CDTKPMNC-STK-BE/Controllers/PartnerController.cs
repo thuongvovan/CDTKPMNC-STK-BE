@@ -181,7 +181,7 @@ namespace CDTKPMNC_STK_BE.Controllers
                 {
                     userAccount.IsVerified = true;
                     userAccount.VerifiedAt = DateTime.Now;
-                    TokenAccount userToken = _jwtAuthen.GenerateUserToken(userAccount.Id, UserType.EndUser);
+                    TokenAccount userToken = _jwtAuthen.GenerateUserToken(userAccount.Id, UserType.Partner);
                     userAccount.AccountToken = userToken;
                     _unitOfWork.AccountPartnerRepository.Update(userAccount);
                     _unitOfWork.Commit();
@@ -291,6 +291,109 @@ namespace CDTKPMNC_STK_BE.Controllers
                 });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid information." });
+        }
+
+        // PUT /<UserController>/ChangePassword
+        [HttpPut("ChangePassword")]
+        [Authorize(AuthenticationSchemes = "Partner")]
+        public IActionResult ChangePassword(ChangePasswordAccount changePasswordAccount)
+        {
+            if (changePasswordAccount == null)
+            {
+                return BadRequest(new ResponseMessage { Success = false, Message = "Missing information." });
+            }
+            var validator = new ChangePasswordValidation();
+            ValidationResult? validateResult;
+            try
+            {
+                validateResult = validator.Validate(changePasswordAccount);
+            }
+            catch (Exception)
+            {
+
+                return BadRequest(new ResponseMessage { Success = false, Message = "Unable to verify data" });
+            }
+
+            if (!validateResult.IsValid)
+            {
+                string? ErrorMessage = validateResult.Errors?.FirstOrDefault()?.ErrorMessage;
+                return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
+            }
+            Guid? userId = HttpContext.Items["UserId"]!.ToString()!.ToGuid();
+            AccountPartner? currAccount = _unitOfWork.AccountPartnerRepository.GetById(userId!.Value);
+            if (currAccount != null && currAccount.Password == changePasswordAccount.OldPassword.ToHashSHA256() && currAccount.IsVerified)
+            {
+                currAccount.Password = changePasswordAccount.NewPassword.ToHashSHA256();
+                _unitOfWork.AccountPartnerRepository.Update(currAccount);
+                _unitOfWork.Commit();
+                return Ok(new ResponseMessage { Success = true, Message = "Change password successful" });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Your current password is incorrect." });
+        }
+
+        // POST /<UserController>/ResetPassword
+        [HttpPost("ResetPassword")]
+        public IActionResult ResetPassword(ResetPasswordAccount resetPasswordAccount)
+        {
+            if (resetPasswordAccount == null)
+            {
+                return BadRequest(new ResponseMessage { Success = false, Message = "Missing information." });
+            }
+            var validator = new ResetPasswordValidation();
+            ValidationResult? validateResult = null;
+            try
+            {
+                validateResult = validator.Validate(resetPasswordAccount);
+            }
+            catch (Exception)
+            {
+
+                return BadRequest(new ResponseMessage { Success = false, Message = "Unable to verify data" });
+            }
+
+            if (!validateResult.IsValid)
+            {
+                string? ErrorMessage = validateResult.Errors?.FirstOrDefault()?.ErrorMessage;
+                return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
+            }
+            AccountPartner? currAccount = _unitOfWork.AccountPartnerRepository.GetByUserName(resetPasswordAccount.UserName);
+            if (currAccount != null && currAccount.IsVerified)
+            {
+                currAccount.NewPassword = resetPasswordAccount.NewPassword.ToHashSHA256();
+                int resetPasswordOTP = OTPHelper.GenerateOtp();
+                currAccount.Otp!.ResetPasswordOtp = resetPasswordOTP;
+                currAccount.Otp.ResetPasswordExpiresOn = DateTime.Now.AddMinutes(10);
+                _unitOfWork.AccountPartnerRepository.Update(currAccount);
+                _unitOfWork.Commit();
+                var emailTask = Task.Run(() =>
+                {
+                    _mailler.SendResetPasswordOTP(currAccount);
+                });
+                emailTask.Wait();
+                return Ok(new ResponseMessage { Success = true, Message = "Please check your email to verify this change." });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "UserName does not exist" });
+        }
+
+        // POST /<UserController>/VerifyResetPassword
+        [HttpPost("VerifyResetPassword")]
+        public IActionResult VerifyResetPassword([FromBody] VerifyResetPwAccount verifyReset)
+        {
+            if (verifyReset == null)
+            {
+                return BadRequest(new ResponseMessage { Success = false, Message = "Missing information." });
+            }
+            AccountPartner? userAccount = _unitOfWork.AccountPartnerRepository.GetByUserName(verifyReset.UserName);
+            if (userAccount != null && userAccount.IsVerified && userAccount.NewPassword != null &&
+                userAccount.Otp != null && userAccount.Otp.ResetPasswordOtp == verifyReset.Otp && userAccount.Otp.ResetPasswordExpiresOn > DateTime.Now)
+            {
+                userAccount.Password = userAccount.NewPassword;
+                userAccount.NewPassword = null;
+                _unitOfWork.AccountPartnerRepository.Update(userAccount);
+                _unitOfWork.Commit();
+                return Ok(new ResponseMessage { Success = true, Message = "Verify successfull. Your password has been changed." });
+            }    
+            return BadRequest(new ResponseMessage { Success = false, Message = "Verify reset password failed." });
         }
     }
 

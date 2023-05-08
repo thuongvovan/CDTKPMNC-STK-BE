@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace CDTKPMNC_STK_BE.Models
 {
@@ -12,6 +13,7 @@ namespace CDTKPMNC_STK_BE.Models
     public class AccountPartner : Account
     {
         public virtual Address Address { get; set; } = null!;
+        [JsonConverter(typeof(StringEnumConverter))]
         public PartnerType PertnerType { get; set; }
         [JsonIgnore]
         public virtual Company? Company { get; set; }

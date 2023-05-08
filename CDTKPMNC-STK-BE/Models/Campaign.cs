@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace CDTKPMNC_STK_BE.Models
 {
@@ -22,6 +23,7 @@ namespace CDTKPMNC_STK_BE.Models
         public DateOnly StartDate { get; set; }
         [Column(TypeName = "date")]
         public DateOnly EndDate { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
         public CampaignStatus Status { get; set; }
         public virtual Store Store { get; set; } = null!;
         public virtual Game Game { get; set; } = null!;

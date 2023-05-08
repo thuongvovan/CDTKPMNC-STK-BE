@@ -65,8 +65,8 @@ namespace CDTKPMNC_STK_BE
             {
                 using var dbContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
                 // Delete the database if it exists
-                dbContext.Database.EnsureDeleted();
-                Console.WriteLine("Delete the database if it exists");
+                // dbContext.Database.EnsureDeleted();
+                // Console.WriteLine("Delete the database if it exists");
                 // Create the database and its tables
                 dbContext.Database.EnsureCreated();
                 Console.WriteLine("Create the database and its tables");

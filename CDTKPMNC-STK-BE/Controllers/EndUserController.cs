@@ -235,7 +235,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Your current password is incorrect." });
         }
 
-        // POST /<UserController>/ChangePassword
+        // POST /<UserController>/ResetPassword
         [HttpPost("ResetPassword")]
         public IActionResult ResetPassword(ResetPasswordAccount resetPasswordAccount)
         {
@@ -261,11 +261,7 @@ namespace CDTKPMNC_STK_BE.Controllers
                 return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
             }
             AccountEndUser? currAccount = _unitOfWork.AccountEndUserRepository.GetByUserName(resetPasswordAccount.UserName);
-            if (currAccount == null || !currAccount.IsVerified)
-            {
-                return BadRequest(new ResponseMessage { Success = false, Message = "UserName does not exist" });
-            }
-            else
+            if (currAccount != null && currAccount.IsVerified)
             {
                 currAccount.NewPassword = resetPasswordAccount.NewPassword.ToHashSHA256();
                 int resetPasswordOTP = OTPHelper.GenerateOtp();
@@ -280,9 +276,10 @@ namespace CDTKPMNC_STK_BE.Controllers
                 emailTask.Wait();
                 return Ok(new ResponseMessage { Success = true, Message = "Please check your email to verify this change." });
             }
+            return BadRequest(new ResponseMessage { Success = false, Message = "UserName does not exist" });
         }
 
-        // POST /<UserController>/VerifyRegister/AB8D4730-8895-4C18-F0F8-08DB439AD21D
+        // POST /<UserController>/VerifyResetPassword
         [HttpPost("VerifyResetPassword")]
         public IActionResult VerifyResetPassword([FromBody] VerifyResetPwAccount verifyReset)
         {
@@ -291,17 +288,14 @@ namespace CDTKPMNC_STK_BE.Controllers
                 return BadRequest(new ResponseMessage { Success = false, Message = "Missing information." });
             }
             AccountEndUser? userAccount = _unitOfWork.AccountEndUserRepository.GetByUserName(verifyReset.UserName);
-            if (userAccount == null || userAccount.IsVerified == false ||
-                userAccount.NewPassword == null ||
-                userAccount.Otp == null || userAccount.Otp.ResetPasswordOtp == null || userAccount.Otp.ResetPasswordExpiresOn == null)
-                return BadRequest(new ResponseMessage { Success = false, Message = "Verify reset password failed." });
-            if (userAccount.Otp.ResetPasswordOtp == verifyReset.Otp && userAccount.Otp.ResetPasswordExpiresOn >= DateTime.Now)
+            if (userAccount != null && userAccount.IsVerified && userAccount.NewPassword != null &&
+                userAccount.Otp != null && userAccount.Otp.ResetPasswordOtp == verifyReset.Otp && userAccount.Otp.ResetPasswordExpiresOn > DateTime.Now)
             {
                 userAccount.Password = userAccount.NewPassword;
                 userAccount.NewPassword = null;
                 _unitOfWork.AccountEndUserRepository.Update(userAccount);
                 _unitOfWork.Commit();
-                return Ok(new ResponseMessage { Success = true, Message = "Verify successfull." });
+                return Ok(new ResponseMessage { Success = true, Message = "Verify successfull. Your password has been changed." });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Verify reset password failed." });
         }
