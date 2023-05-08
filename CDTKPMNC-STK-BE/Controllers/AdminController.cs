@@ -36,10 +36,10 @@ namespace CDTKPMNC_STK_BE.Controllers
             {
                 var accountToken = _jwtAuthen.GenerateUserToken(adminAccount.Id, UserType.Admin);
                 var userToken = new TokenAccount
-                        {
-                            AccessToken = accountToken.AccessToken,
-                            RefreshToken = accountToken.RefreshToken
-                        };
+                {
+                    AccessToken = accountToken.AccessToken,
+                    RefreshToken = accountToken.RefreshToken
+                };
                 if (adminAccount.AccountToken == null)
                 {
                     adminAccount.AccountToken = userToken;
@@ -114,6 +114,83 @@ namespace CDTKPMNC_STK_BE.Controllers
                 return Ok(new ResponseMessage { Success = true, Message = "Change password successful" });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Your current password is incorrect." });
+        }
+
+        // GET /<UserController>/Partners
+        [HttpGet("Partners")]
+        [Authorize(AuthenticationSchemes = "Admin")]
+        public IActionResult GetPartners()
+        {
+            var partners = _unitOfWork.AccountPartnerRepository.GetAll();
+            return Ok(new ResponseMessage { Success = true, Message = "Get the list of all partners successfully.", Data = new { Partners = partners } }); 
+        }
+
+        // GET /<UserController>/Store/All
+        [HttpGet("Store/All")]
+        [Authorize(AuthenticationSchemes = "Admin")]
+        public IActionResult GetAllStores()
+        {
+            var stores = _unitOfWork.StoreRepository.GetAll();
+            return Ok(new ResponseMessage { Success = true, Message = "Get the list of all stores successfully.", Data = new { Stores = stores } });
+        }
+
+        // GET /<UserController>/Store/Approved
+        [HttpGet("Store/Approved")]
+        [Authorize(AuthenticationSchemes = "Admin")]
+        public IActionResult GetApprovedStores()
+        {
+            var stores = _unitOfWork.StoreRepository.GetApproved();
+            return Ok(new ResponseMessage { Success = true, Message = "Get the list of approved stores successfully.", Data = new { Stores = stores } });
+        }
+
+        // GET /<UserController>/Store/Rejected
+        [HttpGet("Store/Rejected")]
+        [Authorize(AuthenticationSchemes = "Admin")]
+        public IActionResult GetRejectedStores()
+        {
+            var stores = _unitOfWork.StoreRepository.GetRejected();
+            return Ok(new ResponseMessage { Success = true, Message = "Get the list of rejected stores successfully.", Data = new { Stores = stores } });
+        }
+
+        // GET /<UserController>/Store/NeedApproval
+        [HttpGet("Store/NeedApproval")]
+        [Authorize(AuthenticationSchemes = "Admin")]
+        public IActionResult GetNeedApprovalStores()
+        {
+            var stores = _unitOfWork.StoreRepository.GetNeedApproval();
+            return Ok(new ResponseMessage { Success = true, Message = "Get the list of need approval stores successfully.", Data = new { Stores = stores } });
+        }
+
+        // PUT /<UserController>/Store/Approve/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        [HttpPut("Store/Approve/{storeId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Admin")]
+        public IActionResult ApproveStore(Guid storeId)
+        {
+            var store = _unitOfWork.StoreRepository.GetStoreById(storeId);
+            if (store != null)
+            {
+                _unitOfWork.StoreRepository.ApproveStore(store);
+                _unitOfWork.Commit();
+                return Ok(new ResponseMessage { Success = true, Message = "Approved store successfully.", Data = new { Store = store } });
+
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "storeId is not valid." });
+        }
+
+        // PUT /<UserController>/Store/Reject/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        [HttpPut("Store/Reject/{storeId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Admin")]
+        public IActionResult RejectStore(Guid storeId)
+        {
+            var store = _unitOfWork.StoreRepository.GetStoreById(storeId);
+            if (store != null)
+            {
+                _unitOfWork.StoreRepository.RejectStore(store);
+                _unitOfWork.Commit();
+                return Ok(new ResponseMessage { Success = true, Message = "Reject store successfully.", Data = new { Store = store } });
+
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "storeId is not valid." });
         }
     }
 }

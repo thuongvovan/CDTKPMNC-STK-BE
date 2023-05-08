@@ -189,7 +189,7 @@ namespace CDTKPMNC_STK_BE.Controllers
                     {
                         Success = true,
                         Message = "Verify successfull.",
-                        Data = userToken
+                        Data = userAccount
                     });
                 }
                 else return BadRequest(new ResponseMessage { Success = false, Message = "Not fully registered or invalid OTP." });
@@ -245,52 +245,6 @@ namespace CDTKPMNC_STK_BE.Controllers
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid Refresh AccountToken." });
 
-        }
-
-        // POST /<UserController>/RefreshToken
-        [HttpPost("RegisterStore")]
-        [Authorize(AuthenticationSchemes = "Partner")]
-        public IActionResult RegisterStore([FromBody] StoreRegistrationInfo storeInfo)
-        {
-            var validator = new StoreValidation();
-            ValidationResult? validateResult;
-            try
-            {
-                validateResult = validator.Validate(storeInfo);
-            }
-            catch (Exception)
-            {
-
-                return BadRequest(new ResponseMessage { Success = false, Message = "Unable to verify data" });
-            }
-
-            if (!validateResult.IsValid)
-            {
-                string? ErrorMessage = validateResult.Errors?.FirstOrDefault()?.ErrorMessage;
-                return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
-            }
-
-            var userId = HttpContext.Items["UserId"]!.ToString()!.ToGuid();
-            AccountPartner? account = _unitOfWork.AccountPartnerRepository.GetById(userId!.Value);
-            AddressWard? storeWard = _unitOfWork.AddressRepository.GetWardById(storeInfo.Address.WardId);
-            Store? currStore = _unitOfWork.StoreRepository.GetStoreByName(storeInfo.Name);
-            if (currStore == null && storeWard != null && account != null)
-            {
-                Store newStore = storeInfo.CreateStore(storeWard);
-                account.Store = newStore;
-                _unitOfWork.AccountPartnerRepository.Update(account);
-                _unitOfWork.Commit();
-                return Ok(new ResponseMessage
-                {
-                    Success = true,
-                    Message = "Store created successfully. The Store will operate if approved by admin.",
-                    Data = new
-                    {
-                        NewStore = account.Store
-                    }
-                });
-            }
-            return BadRequest(new ResponseMessage { Success = false, Message = "Invalid information." });
         }
 
         // PUT /<UserController>/ChangePassword
@@ -394,6 +348,96 @@ namespace CDTKPMNC_STK_BE.Controllers
                 return Ok(new ResponseMessage { Success = true, Message = "Verify successfull. Your password has been changed." });
             }    
             return BadRequest(new ResponseMessage { Success = false, Message = "Verify reset password failed." });
+        }
+
+        // POST /<UserController>/Store/Register
+        [HttpPost("Store/Register")]
+        [Authorize(AuthenticationSchemes = "Partner")]
+        public IActionResult RegisterStore([FromBody] StoreRegistrationInfo storeInfo)
+        {
+            var validator = new StoreValidation();
+            ValidationResult? validateResult;
+            try
+            {
+                validateResult = validator.Validate(storeInfo);
+            }
+            catch (Exception)
+            {
+
+                return BadRequest(new ResponseMessage { Success = false, Message = "Unable to verify data" });
+            }
+
+            if (!validateResult.IsValid)
+            {
+                string? ErrorMessage = validateResult.Errors?.FirstOrDefault()?.ErrorMessage;
+                return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
+            }
+
+            var userId = HttpContext.Items["UserId"]!.ToString()!.ToGuid();
+            AccountPartner? account = _unitOfWork.AccountPartnerRepository.GetById(userId!.Value);
+            AddressWard? storeWard = _unitOfWork.AddressRepository.GetWardById(storeInfo.Address.WardId);
+            Store? currStore = _unitOfWork.StoreRepository.GetStoreByName(storeInfo.Name);
+            if (currStore == null && storeWard != null && account != null)
+            {
+                Store newStore = storeInfo.CreateStore(storeWard);
+                account.Store = newStore;
+                _unitOfWork.AccountPartnerRepository.Update(account);
+                _unitOfWork.Commit();
+                return Ok(new ResponseMessage
+                {
+                    Success = true,
+                    Message = "Store created successfully. The Store will operate if approved by admin.",
+                    Data = new
+                    {
+                        NewStore = account.Store
+                    }
+                });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Invalid information." });
+        }
+
+        // PUT /<UserController>/Store/Enable/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        [HttpPut("Store/Enable/{storeId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Partner")]
+        public IActionResult ApproveStore(Guid storeId)
+        {
+            var store = _unitOfWork.StoreRepository.GetStoreById(storeId);
+            if (store == null)
+            {
+                return BadRequest(new ResponseMessage { Success = false, Message = "storeId is not valid." });
+            }
+            var userId = HttpContext.Items["UserId"]!.ToString()!.ToGuid();
+            AccountPartner? account = _unitOfWork.AccountPartnerRepository.GetById(userId!.Value);
+            if (store.AccountPartner.Id == account!.Id)
+            {
+                _unitOfWork.StoreRepository.EnableStore(store);
+                _unitOfWork.Commit();
+                return Ok(new ResponseMessage { Success = true, Message = "Enabled store successfully.", Data = new { Store = store } });
+
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "storeId is not valid." });
+        }
+
+        // PUT /<UserController>/Store/Disbale/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        [HttpPut("Store/Disbale/{storeId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Partner")]
+        public IActionResult RejectStore(Guid storeId)
+        {
+            var store = _unitOfWork.StoreRepository.GetStoreById(storeId);
+            if (store == null)
+            {
+                return BadRequest(new ResponseMessage { Success = false, Message = "storeId is not valid." });
+            }
+            var userId = HttpContext.Items["UserId"]!.ToString()!.ToGuid();
+            AccountPartner? account = _unitOfWork.AccountPartnerRepository.GetById(userId!.Value);
+            if (store.AccountPartner.Id == account!.Id)
+            {
+                _unitOfWork.StoreRepository.DisableStore(store);
+                _unitOfWork.Commit();
+                return Ok(new ResponseMessage { Success = true, Message = "Enabled store successfully.", Data = new { Store = store } });
+
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "storeId is not valid." });
         }
     }
 

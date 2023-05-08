@@ -138,8 +138,8 @@ namespace CDTKPMNC_STK_BE.Controllers
                         { 
                             Success = true,
                             Message = "Verify successfull.", 
-                            Data = userToken
-                        });
+                            Data = userAccount
+                    });
                 }
                 else return BadRequest(new ResponseMessage {Success = false, Message = "Your RegisterOtp is not correct or expiresed" });
             }

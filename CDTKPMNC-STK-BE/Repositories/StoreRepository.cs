@@ -11,7 +11,16 @@ namespace CDTKPMNC_STK_BE.Repositories
             _dbContext = dbContext;
         }
 
-        public void ActiveStore(Store store)
+        public void Add(Store store)
+        {
+            if (store != null)
+            {
+                _dbContext.Stores.Add(store);
+                _dbContext.SaveChanges();
+            }
+        }
+
+        public void ApproveStore(Store store)
         {
             if (store != null)
             {
@@ -21,22 +30,10 @@ namespace CDTKPMNC_STK_BE.Repositories
             }
         }
 
-        public void AddStore(Store store)
+        public void RejectStore(Store store)
         {
-            if (store != null)
-            {
-                _dbContext.Stores.Add(store);
-                _dbContext.SaveChanges();
-            }
-        }
-
-        public void DeactiveStore(Store store)
-        {
-            if (store != null)
-            {
-                store.IsApproved = false;
-                _dbContext.SaveChanges();
-            }
+            store.IsApproved = false;
+            _dbContext.SaveChanges();
         }
 
         public void DeleteStore(Store store)
@@ -75,9 +72,24 @@ namespace CDTKPMNC_STK_BE.Repositories
             }
         }
 
-        public List<Store> GetAllCompanys()
+        public List<Store> GetAll()
         {
             return _dbContext.Stores.ToList();
+        }
+
+        public List<Store> GetApproved()
+        {
+            return _dbContext.Stores.Where(s => s.IsApproved ?? false).ToList();
+        }
+
+        public List<Store> GetRejected()
+        {
+            return _dbContext.Stores.Where(s => !s.IsApproved ?? false).ToList();
+        }
+
+        public List<Store> GetNeedApproval()
+        {
+            return _dbContext.Stores.Where(s => s.IsApproved == null).ToList();
         }
 
         public Store? GetStoreById(Guid Id)
@@ -89,5 +101,7 @@ namespace CDTKPMNC_STK_BE.Repositories
         {
             return _dbContext.Stores.SingleOrDefault(s => s.Name == name);
         }
+
+        
     }
 }
