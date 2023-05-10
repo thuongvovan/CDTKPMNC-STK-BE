@@ -3,11 +3,11 @@ using CDTKPMNC_STK_BE.Repositories;
 using FluentValidation;
 using System;
 
-namespace CDTKPMNC_STK_BE.Utilities.AccountUtils
+namespace CDTKPMNC_STK_BE.Utilities.Validator
 {
-    public class StoreValidation : AbstractValidator<StoreRegistrationInfo>
+    public class StoreValidator : AbstractValidator<StoreRegistrationInfo>
     {
-        public StoreValidation()
+        public StoreValidator()
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
 

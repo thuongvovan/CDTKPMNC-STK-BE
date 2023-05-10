@@ -2,11 +2,11 @@
 using CDTKPMNC_STK_BE.Repositories;
 using System.Runtime.CompilerServices;
 
-namespace CDTKPMNC_STK_BE.Utilities.AccountUtils
+namespace CDTKPMNC_STK_BE.Utilities
 {
-    static public class AccountUserUtilities
+    static public class AccountUtilities
     {
-        static public DateOnly  ToDateOnly(this Date date)
+        static public DateOnly ToDateOnly(this Date date)
         {
             return new DateOnly(date.Year, date.Month, date.Day);
         }
@@ -41,15 +41,15 @@ namespace CDTKPMNC_STK_BE.Utilities.AccountUtils
                 Name = registeredAccount.Name.ToTitleCase(),
                 Gender = registeredAccount.Gender,
                 DateOfBirth = registeredAccount.BirthDate.ToDateOnly(), // DateOnly.FromDateTime( new DateTime(registeredAccount.BirthYear, registeredAccount.BirthMonth, registeredAccount.BirthDate)),
-                PertnerType = registeredAccount.Type,
+                PartnerType = registeredAccount.Type,
                 CreatedAt = DateTime.Now,
-                Address = new Address 
-                    { 
-                        Province = ward!.Province,
-                        District = ward.District,
-                        Ward = ward,
-                        Street =registeredAccount.Address.Street.ToTitleCase()
-                    }
+                Address = new Address
+                {
+                    Province = ward!.Province,
+                    District = ward.District,
+                    Ward = ward,
+                    Street = registeredAccount.Address.Street.ToTitleCase()
+                }
             };
             return userAccount;
         }

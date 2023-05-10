@@ -15,7 +15,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         public AddressController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _addressRepository = _unitOfWork.AddressRepository;
+            _addressRepository = _unitOfWork.AddressRepo;
         }
 
         // GET api/<AddressController>/Provines

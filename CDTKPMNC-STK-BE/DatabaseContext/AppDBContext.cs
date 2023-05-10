@@ -9,8 +9,8 @@ namespace CDTKPMNC_STK_BE.DatabaseContext
     {
         public DbSet<AccountEndUser> Accounts { get; set; }
         public DbSet<AccountEndUser> AccountEndUsers { get; set; }
-        public DbSet<OtpAccount> UserOTPs { get; set; }
-        public DbSet<TokenAccount> UserTokens { get; set; }
+        public DbSet<AccountOtp> UserOTPs { get; set; }
+        public DbSet<AccountToken> UserTokens { get; set; }
         public DbSet<AccountAdmin> AdminAccounts { get; set; }
         public DbSet<AccountPartner> AccountPartners { get; set; }
         public DbSet<Company> Companys { get; set; }

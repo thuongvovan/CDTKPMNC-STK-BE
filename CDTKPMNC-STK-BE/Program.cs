@@ -47,17 +47,21 @@ namespace CDTKPMNC_STK_BE
 
 
             builder.Services.AddAuthentication()
-                .AddJwtBearer("EndUser", jwtAuthen.CreateAuthenSchema(TokenType.Access, UserType.EndUser, true));
+                .AddJwtBearer("EndUser", jwtAuthen.CreateAuthenSchema(TokenType.Access, true, UserType.EndUser));
             builder.Services.AddAuthentication()
-               .AddJwtBearer("EndUserNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, UserType.EndUser, false));
+               .AddJwtBearer("EndUserNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, UserType.EndUser));
             builder.Services.AddAuthentication()
-                .AddJwtBearer("Admin", jwtAuthen.CreateAuthenSchema(TokenType.Access, UserType.Admin, true));
+                .AddJwtBearer("Admin", jwtAuthen.CreateAuthenSchema(TokenType.Access, true, UserType.Admin));
             builder.Services.AddAuthentication()
-               .AddJwtBearer("AdminNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, UserType.Admin, false));
+               .AddJwtBearer("AdminNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, UserType.Admin));
             builder.Services.AddAuthentication()
-                .AddJwtBearer("Partner", jwtAuthen.CreateAuthenSchema(TokenType.Access, UserType.Partner, true));
+                .AddJwtBearer("Partner", jwtAuthen.CreateAuthenSchema(TokenType.Access, true, UserType.Partner));
             builder.Services.AddAuthentication()
-               .AddJwtBearer("PartnerNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, UserType.Partner, false));
+               .AddJwtBearer("PartnerNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, UserType.Partner));
+            builder.Services.AddAuthentication()
+               .AddJwtBearer("Admin&Partner", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, UserType.Admin, UserType.Partner));
+            builder.Services.AddAuthentication()
+               .AddJwtBearer("Account", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, UserType.Admin, UserType.Partner, UserType.EndUser));
 
             var app = builder.Build();
 
@@ -65,8 +69,8 @@ namespace CDTKPMNC_STK_BE
             {
                 using var dbContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
                 // Delete the database if it exists
-                // dbContext.Database.EnsureDeleted();
-                // Console.WriteLine("Delete the database if it exists");
+                dbContext.Database.EnsureDeleted();
+                Console.WriteLine("Delete the database if it exists");
                 // Create the database and its tables
                 dbContext.Database.EnsureCreated();
                 Console.WriteLine("Create the database and its tables");

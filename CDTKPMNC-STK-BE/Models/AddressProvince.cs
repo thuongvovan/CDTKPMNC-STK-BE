@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
 
 namespace CDTKPMNC_STK_BE.Models
 {
-	public class AddressProvince
+    [Table("Add_Provinces")]
+    public class AddressProvince
 	{
         public string Id { get; set; } = null!;
         public string Name { get; set; } = null!;

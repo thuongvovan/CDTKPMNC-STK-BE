@@ -5,7 +5,7 @@ using CDTKPMNC_STK_BE.Utilities;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using CDTKPMNC_STK_BE.Models;
-using CDTKPMNC_STK_BE.Utilities.AccountUtils;
+using CDTKPMNC_STK_BE.Utilities.Validator;
 using System.Security.Principal;
 using Microsoft.AspNetCore.Authorization;
 using System.Globalization;
@@ -27,7 +27,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             _mailler = mailler;
             _jwtAuthen = jwtAuthen;
         }
-
+        #region account
         [HttpPost("Register")]
         public IActionResult Register([FromBody] PartnerRegistrationInfo account)
         {
@@ -37,12 +37,12 @@ namespace CDTKPMNC_STK_BE.Controllers
             }
             if (account.UserName?.StartsWith("testpartner@") ?? false)
             {
-                AccountPartner? currAccountTest = _unitOfWork.AccountPartnerRepository.GetByUserName(account.UserName);
+                AccountPartner? currAccountTest = _unitOfWork.AccountPartnerRepo.GetByUserName(account.UserName);
                 if (currAccountTest != null)
                 {
                     if (currAccountTest?.IsVerified == true)
                         return Conflict(new ResponseMessage { Success = false, Message = "UserName already exists." });
-                    _unitOfWork.AccountPartnerRepository.Delete(currAccountTest!);
+                    _unitOfWork.AccountPartnerRepo.Delete(currAccountTest!);
                 }
 
                 var testAccount = new AccountPartner
@@ -50,12 +50,12 @@ namespace CDTKPMNC_STK_BE.Controllers
                     UserName = account.UserName,
                     Name = "Tài Khoản Test Partner",
                     Password = "123456".ToHashSHA256(),
-                    Otp = new OtpAccount { RegisterOtp = 123456, RegisterExpiresOn = DateTime.Now.AddHours(2) },
+                    Otp = new AccountOtp { RegisterOtp = 123456, RegisterExpiresOn = DateTime.Now.AddHours(2) },
                     DateOfBirth = DateOnly.FromDateTime(DateTime.Now),
                     Gender = Gender.Others,
                     CreatedAt = DateTime.Now
                 };
-                _unitOfWork.AccountPartnerRepository.Add(testAccount);
+                _unitOfWork.AccountPartnerRepo.Add(testAccount);
                 _unitOfWork.Commit();
                 return Ok(new ResponseMessage
                 {
@@ -66,7 +66,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             }
             else
             {
-                var validator = new AccountPartnerValidation();
+                var validator = new AccountPartnerValidator();
                 ValidationResult? validateResult;
                 try
                 {
@@ -84,24 +84,24 @@ namespace CDTKPMNC_STK_BE.Controllers
                     return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
                 }
 
-                AccountPartner? currAccount = _unitOfWork.AccountPartnerRepository.GetByUserName(account.UserName!);
+                AccountPartner? currAccount = _unitOfWork.AccountPartnerRepo.GetByUserName(account.UserName!);
                 if (currAccount != null)
                 {
                     if (currAccount?.IsVerified == true)
                         return Conflict(new ResponseMessage { Success = false, Message = "UserName already exists." });
                     else
-                        _unitOfWork.AccountPartnerRepository.Delete(currAccount!);
+                        _unitOfWork.AccountPartnerRepo.Delete(currAccount!);
                 }
 
-                AddressWard? ward = _unitOfWork.AddressRepository.GetWardById(account.Address.WardId);
+                AddressWard? ward = _unitOfWork.AddressRepo.GetWardById(account.Address.WardId);
                 if (ward != null)
                 {
                     AccountPartner? newAccount = account.CreateUserAccount(ward);
-                    if (newAccount.PertnerType == PartnerType.Personal)
+                    if (newAccount.PartnerType == PartnerType.Personal)
                     {
                         int otp = OTPHelper.GenerateOtp();
-                        newAccount.Otp = new OtpAccount { RegisterOtp = otp, RegisterExpiresOn = DateTime.Now.AddMinutes(10) };
-                        _unitOfWork.AccountPartnerRepository.Add(newAccount);
+                        newAccount.Otp = new AccountOtp { RegisterOtp = otp, RegisterExpiresOn = DateTime.Now.AddMinutes(10) };
+                        _unitOfWork.AccountPartnerRepo.Add(newAccount);
                         _mailler.SendRegisterOTP(newAccount);
                         _unitOfWork.Commit();
                         return Ok(new ResponseMessage
@@ -130,7 +130,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         [HttpPost("RegisterCompany/{userId:Guid}")]
         public IActionResult RegisterCompany(Guid userId, [FromBody] CompanyRegistrationInfo companyInfo)
         {
-            var validator = new CompanyValidation();
+            var validator = new CompanyValidator();
             ValidationResult? validateResult;
             try
             {
@@ -148,16 +148,16 @@ namespace CDTKPMNC_STK_BE.Controllers
                 return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
             }
 
-            Company? currCompany = _unitOfWork.CompanyRepository.GetCompanyByNameOrBusinessCode(companyInfo.Name, companyInfo.BusinessCode);
-            AddressWard? companyWard = _unitOfWork.AddressRepository.GetWardById(companyInfo.Address.WardId);
-            AccountPartner? currAccount = _unitOfWork.AccountPartnerRepository.GetById(userId);
+            Company? currCompany = _unitOfWork.CompanyRepo.GetByNameOrBusinessCode(companyInfo.Name, companyInfo.BusinessCode);
+            AddressWard? companyWard = _unitOfWork.AddressRepo.GetWardById(companyInfo.Address.WardId);
+            AccountPartner? currAccount = _unitOfWork.AccountPartnerRepo.GetById(userId);
             if (currCompany != null && companyWard != null && currAccount != null && currAccount.Company == null)
             {
                 Company company = companyInfo.CreateCompany(companyWard);
                 currAccount.Company = company;
                 int otp = OTPHelper.GenerateOtp();
-                currAccount.Otp = new OtpAccount { RegisterOtp = otp, RegisterExpiresOn = DateTime.Now.AddMinutes(10) };
-                _unitOfWork.AccountPartnerRepository.Add(currAccount);
+                currAccount.Otp = new AccountOtp { RegisterOtp = otp, RegisterExpiresOn = DateTime.Now.AddMinutes(10) };
+                _unitOfWork.AccountPartnerRepo.Add(currAccount);
                 _mailler.SendRegisterOTP(currAccount);
                 _unitOfWork.Commit();
                 return Ok(new ResponseMessage
@@ -174,16 +174,16 @@ namespace CDTKPMNC_STK_BE.Controllers
         [HttpPost("VerifyRegister/{userId:Guid}")]
         public IActionResult VerifyRegister(Guid userId, [FromBody] Otp otp)
         {
-            AccountPartner? userAccount = _unitOfWork.AccountPartnerRepository.GetById(userId);
+            AccountPartner? userAccount = _unitOfWork.AccountPartnerRepo.GetById(userId);
             if (userAccount != null && userAccount.IsVerified == false)
             {
                 if (userAccount.Otp != null && userAccount.Otp.RegisterOtp == otp.OtpValue && userAccount.Otp.RegisterExpiresOn >= DateTime.Now)
                 {
                     userAccount.IsVerified = true;
                     userAccount.VerifiedAt = DateTime.Now;
-                    TokenAccount userToken = _jwtAuthen.GenerateUserToken(userAccount.Id, UserType.Partner);
+                    AccountToken userToken = _jwtAuthen.GenerateUserToken(userAccount.Id, UserType.Partner);
                     userAccount.AccountToken = userToken;
-                    _unitOfWork.AccountPartnerRepository.Update(userAccount);
+                    _unitOfWork.AccountPartnerRepo.Update(userAccount);
                     _unitOfWork.Commit();
                     return Ok(new ResponseMessage
                     {
@@ -205,13 +205,13 @@ namespace CDTKPMNC_STK_BE.Controllers
             {
                 return BadRequest(new ResponseMessage { Success = false, Message = "Your information is missing." });
             }
-            AccountPartner? currAccount = _unitOfWork.AccountPartnerRepository.GetByUserName(account.UserName);
+            AccountPartner? currAccount = _unitOfWork.AccountPartnerRepo.GetByUserName(account.UserName);
             if (currAccount != null && currAccount.Password == account.Password.ToHashSHA256() && currAccount.IsVerified)
             {
-                TokenAccount userToken = _jwtAuthen.GenerateUserToken(currAccount.Id, UserType.Partner);
+                AccountToken userToken = _jwtAuthen.GenerateUserToken(currAccount.Id, UserType.Partner);
                 currAccount.AccountToken!.AccessToken = userToken.AccessToken;
                 currAccount.AccountToken.RefreshToken = userToken.RefreshToken;
-                _unitOfWork.AccountPartnerRepository.Update(currAccount);
+                _unitOfWork.AccountPartnerRepo.Update(currAccount);
                 _unitOfWork.Commit();
                 return Ok(new ResponseMessage { Success = true, Message = "Login successfull.", Data = currAccount });
             }
@@ -227,19 +227,19 @@ namespace CDTKPMNC_STK_BE.Controllers
             {
                 return BadRequest(new ResponseMessage { Success = false, Message = "Missing information." });
             }
-            var currentToken = new TokenAccount
+            var currentToken = new AccountToken
             {
                 RefreshToken = refreshToken.Token,
                 AccessToken = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "")
             };
             var userId = HttpContext.Items["UserId"]!.ToString()!.ToGuid();
-            AccountPartner? account = _unitOfWork.AccountPartnerRepository.GetById(userId!.Value);
+            AccountPartner? account = _unitOfWork.AccountPartnerRepo.GetById(userId!.Value);
             if (account != null && account.AccountToken!.AccessToken == currentToken.AccessToken && account.AccountToken.RefreshToken == currentToken.RefreshToken)
             {
-                TokenAccount userToken = _jwtAuthen.GenerateUserToken(account.Id, UserType.Partner);
+                AccountToken userToken = _jwtAuthen.GenerateUserToken(account.Id, UserType.Partner);
                 account!.AccountToken!.AccessToken = userToken.AccessToken;
                 account.AccountToken.RefreshToken = userToken.RefreshToken;
-                _unitOfWork.AccountPartnerRepository.Update(account);
+                _unitOfWork.AccountPartnerRepo.Update(account);
                 _unitOfWork.Commit();
                 return Ok(new ResponseMessage { Success = true, Message = "Token refresh successful", Data = userToken });
             }
@@ -256,7 +256,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             {
                 return BadRequest(new ResponseMessage { Success = false, Message = "Missing information." });
             }
-            var validator = new ChangePasswordValidation();
+            var validator = new ChangePasswordValidator();
             ValidationResult? validateResult;
             try
             {
@@ -274,11 +274,11 @@ namespace CDTKPMNC_STK_BE.Controllers
                 return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
             }
             Guid? userId = HttpContext.Items["UserId"]!.ToString()!.ToGuid();
-            AccountPartner? currAccount = _unitOfWork.AccountPartnerRepository.GetById(userId!.Value);
+            AccountPartner? currAccount = _unitOfWork.AccountPartnerRepo.GetById(userId!.Value);
             if (currAccount != null && currAccount.Password == changePasswordAccount.OldPassword.ToHashSHA256() && currAccount.IsVerified)
             {
                 currAccount.Password = changePasswordAccount.NewPassword.ToHashSHA256();
-                _unitOfWork.AccountPartnerRepository.Update(currAccount);
+                _unitOfWork.AccountPartnerRepo.Update(currAccount);
                 _unitOfWork.Commit();
                 return Ok(new ResponseMessage { Success = true, Message = "Change password successful" });
             }
@@ -293,7 +293,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             {
                 return BadRequest(new ResponseMessage { Success = false, Message = "Missing information." });
             }
-            var validator = new ResetPasswordValidation();
+            var validator = new ResetPasswordValidator();
             ValidationResult? validateResult = null;
             try
             {
@@ -310,14 +310,14 @@ namespace CDTKPMNC_STK_BE.Controllers
                 string? ErrorMessage = validateResult.Errors?.FirstOrDefault()?.ErrorMessage;
                 return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
             }
-            AccountPartner? currAccount = _unitOfWork.AccountPartnerRepository.GetByUserName(resetPasswordAccount.UserName);
+            AccountPartner? currAccount = _unitOfWork.AccountPartnerRepo.GetByUserName(resetPasswordAccount.UserName);
             if (currAccount != null && currAccount.IsVerified)
             {
                 currAccount.NewPassword = resetPasswordAccount.NewPassword.ToHashSHA256();
                 int resetPasswordOTP = OTPHelper.GenerateOtp();
                 currAccount.Otp!.ResetPasswordOtp = resetPasswordOTP;
                 currAccount.Otp.ResetPasswordExpiresOn = DateTime.Now.AddMinutes(10);
-                _unitOfWork.AccountPartnerRepository.Update(currAccount);
+                _unitOfWork.AccountPartnerRepo.Update(currAccount);
                 _unitOfWork.Commit();
                 var emailTask = Task.Run(() =>
                 {
@@ -337,25 +337,27 @@ namespace CDTKPMNC_STK_BE.Controllers
             {
                 return BadRequest(new ResponseMessage { Success = false, Message = "Missing information." });
             }
-            AccountPartner? userAccount = _unitOfWork.AccountPartnerRepository.GetByUserName(verifyReset.UserName);
+            AccountPartner? userAccount = _unitOfWork.AccountPartnerRepo.GetByUserName(verifyReset.UserName);
             if (userAccount != null && userAccount.IsVerified && userAccount.NewPassword != null &&
                 userAccount.Otp != null && userAccount.Otp.ResetPasswordOtp == verifyReset.Otp && userAccount.Otp.ResetPasswordExpiresOn > DateTime.Now)
             {
                 userAccount.Password = userAccount.NewPassword;
                 userAccount.NewPassword = null;
-                _unitOfWork.AccountPartnerRepository.Update(userAccount);
+                _unitOfWork.AccountPartnerRepo.Update(userAccount);
                 _unitOfWork.Commit();
                 return Ok(new ResponseMessage { Success = true, Message = "Verify successfull. Your password has been changed." });
             }    
             return BadRequest(new ResponseMessage { Success = false, Message = "Verify reset password failed." });
         }
+        #endregion
 
+        #region store
         // POST /<UserController>/Store/Register
         [HttpPost("Store/Register")]
         [Authorize(AuthenticationSchemes = "Partner")]
         public IActionResult RegisterStore([FromBody] StoreRegistrationInfo storeInfo)
         {
-            var validator = new StoreValidation();
+            var validator = new StoreValidator();
             ValidationResult? validateResult;
             try
             {
@@ -374,14 +376,14 @@ namespace CDTKPMNC_STK_BE.Controllers
             }
 
             var userId = HttpContext.Items["UserId"]!.ToString()!.ToGuid();
-            AccountPartner? account = _unitOfWork.AccountPartnerRepository.GetById(userId!.Value);
-            AddressWard? storeWard = _unitOfWork.AddressRepository.GetWardById(storeInfo.Address.WardId);
-            Store? currStore = _unitOfWork.StoreRepository.GetStoreByName(storeInfo.Name);
+            AccountPartner? account = _unitOfWork.AccountPartnerRepo.GetById(userId!.Value);
+            AddressWard? storeWard = _unitOfWork.AddressRepo.GetWardById(storeInfo.Address.WardId);
+            Store? currStore = _unitOfWork.StoreRepo.GetByName(storeInfo.Name);
             if (currStore == null && storeWard != null && account != null)
             {
                 Store newStore = storeInfo.CreateStore(storeWard);
                 account.Store = newStore;
-                _unitOfWork.AccountPartnerRepository.Update(account);
+                _unitOfWork.AccountPartnerRepo.Update(account);
                 _unitOfWork.Commit();
                 return Ok(new ResponseMessage
                 {
@@ -396,49 +398,71 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid information." });
         }
 
-        // PUT /<UserController>/Store/Enable/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
-        [HttpPut("Store/Enable/{storeId:Guid}")]
+        // PUT /<UserController>/Store/Enable
+        [HttpPut("Store/Enable")]
         [Authorize(AuthenticationSchemes = "Partner")]
-        public IActionResult ApproveStore(Guid storeId)
+        public IActionResult EnableStore()
         {
-            var store = _unitOfWork.StoreRepository.GetStoreById(storeId);
-            if (store == null)
-            {
-                return BadRequest(new ResponseMessage { Success = false, Message = "storeId is not valid." });
-            }
             var userId = HttpContext.Items["UserId"]!.ToString()!.ToGuid();
-            AccountPartner? account = _unitOfWork.AccountPartnerRepository.GetById(userId!.Value);
-            if (store.AccountPartner.Id == account!.Id)
+            AccountPartner? account = _unitOfWork.AccountPartnerRepo.GetById(userId!.Value);
+            var store = account!.Store;
+            if (store != null)
             {
-                _unitOfWork.StoreRepository.EnableStore(store);
+                _unitOfWork.StoreRepo.Enable(store);
                 _unitOfWork.Commit();
-                return Ok(new ResponseMessage { Success = true, Message = "Enabled store successfully.", Data = new { Store = store } });
+                return Ok(new ResponseMessage { Success = true, Message = "Store has been enabled.", Data = new { Store = store } });
 
             }
-            return BadRequest(new ResponseMessage { Success = false, Message = "storeId is not valid." });
+            return BadRequest(new ResponseMessage { Success = false, Message = "Enable is not valid. Please register store." });
         }
 
-        // PUT /<UserController>/Store/Disbale/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
-        [HttpPut("Store/Disbale/{storeId:Guid}")]
+        // PUT /<UserController>/Store/Disable
+        [HttpPut("Store/Disable")]
         [Authorize(AuthenticationSchemes = "Partner")]
-        public IActionResult RejectStore(Guid storeId)
+        public IActionResult DisableStore()
         {
-            var store = _unitOfWork.StoreRepository.GetStoreById(storeId);
-            if (store == null)
-            {
-                return BadRequest(new ResponseMessage { Success = false, Message = "storeId is not valid." });
-            }
             var userId = HttpContext.Items["UserId"]!.ToString()!.ToGuid();
-            AccountPartner? account = _unitOfWork.AccountPartnerRepository.GetById(userId!.Value);
-            if (store.AccountPartner.Id == account!.Id)
+            AccountPartner? account = _unitOfWork.AccountPartnerRepo.GetById(userId!.Value);
+            var store = account!.Store;
+            if (store != null)
             {
-                _unitOfWork.StoreRepository.DisableStore(store);
+                _unitOfWork.StoreRepo.Disable(store);
                 _unitOfWork.Commit();
-                return Ok(new ResponseMessage { Success = true, Message = "Enabled store successfully.", Data = new { Store = store } });
+                return Ok(new ResponseMessage { Success = true, Message = "Store has been disabled.", Data = new { Store = store } });
 
             }
-            return BadRequest(new ResponseMessage { Success = false, Message = "storeId is not valid." });
+            return BadRequest(new ResponseMessage { Success = false, Message = "Disable is not valid. Please register store." });
         }
+        #endregion
+        #region Game
+        // GET /<UserController>/Game/All
+        [HttpGet("Game/All")]
+        [Authorize(AuthenticationSchemes = "Partner")]
+        public IActionResult GetAllGame()
+        {
+            var games = _unitOfWork.GameRepo.GetAll();
+            if (games != null)
+            {
+                return Ok(new ResponseMessage { Success = true, Message = "Get the list of game successful.", Data = new { Games = games } });
+            }
+            games = new List<Game>();
+            return Accepted(new ResponseMessage { Success = true, Message = "The list is empty.", Data = new { Games = games } });
+        }
+
+        // GET /<UserController>/Game/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        [HttpGet("Game/{gameId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Partner")]
+        public IActionResult GetGame(Guid gameId)
+        {
+            var game = _unitOfWork.AccountEndUserRepo.GetById(gameId);
+            if (game != null)
+            {
+                return Ok(new ResponseMessage { Success = true, Message = "Get game detail successful.", Data = new { Game = game } });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "gameId is not valid." });
+        }
+
+        #endregion
     }
 
 }

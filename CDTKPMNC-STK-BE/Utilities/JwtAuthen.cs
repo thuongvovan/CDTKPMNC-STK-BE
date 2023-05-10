@@ -55,11 +55,11 @@ namespace CDTKPMNC_STK_BE.Utilities
             string jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
             return jwtToken;
         }
-        public TokenAccount GenerateUserToken(Guid userId, UserType userType)
+        public AccountToken GenerateUserToken(Guid userId, UserType userType)
         {
             string accessToken = GenerateAccessToken(userId, userType);
             string refreshToken = GenerateRefreshToken(userId, userType);
-            return new TokenAccount {AccessToken = accessToken, RefreshToken = refreshToken };
+            return new AccountToken {AccessToken = accessToken, RefreshToken = refreshToken };
         }
         public string GenerateAccessToken(Guid userId, UserType userType)
         {
@@ -114,10 +114,16 @@ namespace CDTKPMNC_STK_BE.Utilities
             return ValidateJwtToken(jwtToken, userType, TokenType.Refresh);
         }
 
-        public Action<JwtBearerOptions> CreateAuthenSchema(TokenType tokenType, UserType userType, bool validateLifetime)
+        public Action<JwtBearerOptions> CreateAuthenSchema(TokenType tokenType, bool validateLifetime, params UserType[] userTypes)
         {
             return new Action<JwtBearerOptions>(options =>
             {
+                var validUserTypes = new string[userTypes.Length];
+                for(int i = 0; i < validUserTypes.Length; i++)
+                {
+                    validUserTypes[i] = userTypes[i].ToString();
+                }    
+
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
@@ -125,7 +131,7 @@ namespace CDTKPMNC_STK_BE.Utilities
                     ValidateIssuer = true,
                     ValidIssuer = "Thương - Khôi - Sơn",
                     ValidateAudience = true,
-                    ValidAudience = userType.ToString(),
+                    ValidAudiences = validUserTypes,
                     ValidateLifetime = validateLifetime,
                     ClockSkew = TimeSpan.Zero,
                 };

@@ -51,6 +51,19 @@ namespace CDTKPMNC_STK_BE.Controllers
                 Data = new { UserTypeValue = userTypeValue }
             });
         }
+
+        // GET: /<ValuesController>/CampaignStatus
+        [HttpGet("CampaignStatus")]
+        public IActionResult GetCampaignStatus()
+        {
+            var campaignStatusValue = Enum.GetNames(typeof(CampaignStatus)).ToList();
+            return Ok(new ResponseMessage
+            {
+                Success = true,
+                Message = "OK",
+                Data = new { CampaignStatusValue = campaignStatusValue }
+            });
+        }
     }
 }
 

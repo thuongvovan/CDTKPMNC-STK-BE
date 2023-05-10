@@ -1,4 +1,5 @@
 ﻿using CDTKPMNC_STK_BE.DatabaseContext;
+using CDTKPMNC_STK_BE.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace CDTKPMNC_STK_BE.Repositories
@@ -12,6 +13,7 @@ namespace CDTKPMNC_STK_BE.Repositories
         public IAddressRepository _addressRepository;
         public ICompanyRepository _companyRepository;
         public IStoreRepository _storeRepository;
+        public IGameRepository _gameRepository;
         public UnitOfWork(AppDbContext context) 
         {  
             _context = context;
@@ -21,8 +23,9 @@ namespace CDTKPMNC_STK_BE.Repositories
             _addressRepository = new AddressRepository(_context);
             _companyRepository = new CompanyRepository(_context);
             _storeRepository = new StoreRepository(_context);
+            _gameRepository = new GameRepository(_context);
         }
-        public IAccountEndUserRepository AccountEndUserRepository
+        public IAccountEndUserRepository AccountEndUserRepo
         {
             get
             {
@@ -30,7 +33,7 @@ namespace CDTKPMNC_STK_BE.Repositories
                 return _accountEndUserRepository;
             }
         }
-        public IAddressRepository AddressRepository
+        public IAddressRepository AddressRepo
         { 
             get
             {
@@ -39,7 +42,7 @@ namespace CDTKPMNC_STK_BE.Repositories
             } 
         }
 
-        public IAccountPartnerRepository AccountPartnerRepository
+        public IAccountPartnerRepository AccountPartnerRepo
         {
             get
             {
@@ -48,7 +51,7 @@ namespace CDTKPMNC_STK_BE.Repositories
             }
         }
 
-        public IAccountAdminRepository AccountAdminRepository
+        public IAccountAdminRepository AccountAdminRepo
         {
             get
             {
@@ -57,7 +60,7 @@ namespace CDTKPMNC_STK_BE.Repositories
             }
         }
 
-        public ICompanyRepository CompanyRepository
+        public ICompanyRepository CompanyRepo
         {
             get
             {
@@ -66,12 +69,21 @@ namespace CDTKPMNC_STK_BE.Repositories
             }
         }
 
-        public IStoreRepository StoreRepository
+        public IStoreRepository StoreRepo
         {
             get
             {
                 _storeRepository ??= new StoreRepository(_context);
                 return _storeRepository;
+            }
+        }
+
+        public IGameRepository GameRepo
+        {
+            get
+            {
+                _gameRepository ??= new GameRepository(_context);
+                return _gameRepository;
             }
         }
 

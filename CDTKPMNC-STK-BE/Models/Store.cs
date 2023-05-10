@@ -1,4 +1,4 @@
-﻿using Castle.Components.DictionaryAdapter;
+﻿ using Castle.Components.DictionaryAdapter;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;

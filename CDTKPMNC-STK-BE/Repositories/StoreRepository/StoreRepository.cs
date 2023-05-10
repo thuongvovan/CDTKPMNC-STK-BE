@@ -20,7 +20,7 @@ namespace CDTKPMNC_STK_BE.Repositories
             }
         }
 
-        public void ApproveStore(Store store)
+        public void Approve(Store store)
         {
             if (store != null)
             {
@@ -30,13 +30,13 @@ namespace CDTKPMNC_STK_BE.Repositories
             }
         }
 
-        public void RejectStore(Store store)
+        public void Reject(Store store)
         {
             store.IsApproved = false;
             _dbContext.SaveChanges();
         }
 
-        public void DeleteStore(Store store)
+        public void Delete(Store store)
         {
             if (store != null)
             {
@@ -45,16 +45,16 @@ namespace CDTKPMNC_STK_BE.Repositories
             }
         }
 
-        public void DeleteStoreById(Guid id)
+        public void DeleteById(Guid id)
         {
-            Store? store = GetStoreById(id);
+            Store? store = GetById(id);
             if (store != null)
             {
-                DeleteStore(store);
+                Delete(store);
             }
         }
 
-        public void DisableStore(Store store)
+        public void Disable(Store store)
         {
             if(store != null)
             {
@@ -63,7 +63,7 @@ namespace CDTKPMNC_STK_BE.Repositories
             }    
         }
 
-        public void EnableStore(Store store)
+        public void Enable(Store store)
         {
             if (store != null)
             {
@@ -92,12 +92,12 @@ namespace CDTKPMNC_STK_BE.Repositories
             return _dbContext.Stores.Where(s => s.IsApproved == null).ToList();
         }
 
-        public Store? GetStoreById(Guid Id)
+        public Store? GetById(Guid Id)
         {
             return _dbContext.Stores.Find(Id);
         }
 
-        public Store? GetStoreByName(string name)
+        public Store? GetByName(string name)
         {
             return _dbContext.Stores.SingleOrDefault(s => s.Name == name);
         }

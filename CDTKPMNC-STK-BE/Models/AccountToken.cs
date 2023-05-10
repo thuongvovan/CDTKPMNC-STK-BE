@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace CDTKPMNC_STK_BE.Models
 {
-    public class TokenAccount
+    public class AccountToken
     {
         [JsonIgnore]
         [ForeignKey("Account")]

@@ -13,7 +13,7 @@ namespace CDTKPMNC_STK_BE.Repositories
             _dbContext = dbContext;
         }
 
-        public void AddCompany(Company? company)
+        public void Add(Company? company)
         {
             if (company != null)
             {
@@ -22,7 +22,7 @@ namespace CDTKPMNC_STK_BE.Repositories
             }
         }
 
-        public void DeleteCompany(Company? company)
+        public void Delete(Company? company)
         {
             if (company != null)
             {
@@ -32,18 +32,18 @@ namespace CDTKPMNC_STK_BE.Repositories
             }
         }
 
-        public void DeleteCompanyById(Guid id)
+        public void DeleteById(Guid id)
         {
             var company = _dbContext.Companys.SingleOrDefault(c => c.Id == id);
-            DeleteCompany(company);
+            Delete(company);
         }
 
-        public List<Company> GetAllCompanys()
+        public List<Company> GetAll()
         {
             return _dbContext.Companys.ToList();
         }
 
-        public Company? GetCompanyByBusinessCode(string code)
+        public Company? GetByBusinessCode(string code)
         {
             if (code != null)
             {
@@ -52,12 +52,12 @@ namespace CDTKPMNC_STK_BE.Repositories
             return null;
         }
 
-        public Company? GetCompanyById(Guid id)
+        public Company? GetById(Guid id)
         {
             return _dbContext.Companys.Find(id);
         }
 
-        public Company? GetCompanyByName(string name)
+        public Company? GetByName(string name)
         {
             if (name != null)
             {
@@ -66,7 +66,7 @@ namespace CDTKPMNC_STK_BE.Repositories
             return null;
         }
 
-        public Company? GetCompanyByNameOrBusinessCode(string name, string code)
+        public Company? GetByNameOrBusinessCode(string name, string code)
         {
             if (name != null && code != null) 
             {

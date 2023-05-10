@@ -9,14 +9,14 @@ namespace CDTKPMNC_STK_BE.Repositories
         List<Store> GetApproved();
         List<Store> GetRejected();
         List<Store> GetNeedApproval();
-        Store? GetStoreById(Guid id);
-        Store? GetStoreByName(string name);
-        void DeleteStore(Store store);
-        void DeleteStoreById(Guid id);
-        void ApproveStore(Store store);
-        void RejectStore(Store store);
-        void EnableStore(Store store);
-        void DisableStore(Store store);
+        Store? GetById(Guid id);
+        Store? GetByName(string name);
+        void Delete(Store store);
+        void DeleteById(Guid id);
+        void Approve(Store store);
+        void Reject(Store store);
+        void Enable(Store store);
+        void Disable(Store store);
         // void UpdateCompany(Store Store);
 
     }

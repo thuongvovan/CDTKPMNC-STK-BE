@@ -1,13 +1,16 @@
-﻿namespace CDTKPMNC_STK_BE.Repositories
+﻿using CDTKPMNC_STK_BE.Repositories;
+
+namespace CDTKPMNC_STK_BE.Repositories
 {
     public interface IUnitOfWork
     {
-        IAccountEndUserRepository AccountEndUserRepository { get; }
-        IAccountAdminRepository AccountAdminRepository { get; }
-        IAccountPartnerRepository AccountPartnerRepository { get; }
-        IAddressRepository AddressRepository { get; }
-        ICompanyRepository CompanyRepository { get; }
-        IStoreRepository StoreRepository { get; }
+        IAccountEndUserRepository AccountEndUserRepo { get; }
+        IAccountAdminRepository AccountAdminRepo { get; }
+        IAccountPartnerRepository AccountPartnerRepo { get; }
+        IAddressRepository AddressRepo { get; }
+        ICompanyRepository CompanyRepo { get; }
+        IStoreRepository StoreRepo { get; }
+        IGameRepository GameRepo { get; }
         void Commit();
     }
 }

@@ -1,12 +1,14 @@
 ﻿using CDTKPMNC_STK_BE.Models;
 using CDTKPMNC_STK_BE.Repositories;
 using FluentValidation;
+using System;
 
-namespace CDTKPMNC_STK_BE.Utilities.AccountUtils
+namespace CDTKPMNC_STK_BE.Utilities.Validator
 {
-    public class AccountUserValidation : AbstractValidator<EndUserRegistrationInfo>
+    public class AccountPartnerValidator : AbstractValidator<PartnerRegistrationInfo>
     {
-        public AccountUserValidation()
+
+        public AccountPartnerValidator()
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
 
@@ -36,12 +38,15 @@ namespace CDTKPMNC_STK_BE.Utilities.AccountUtils
                 .NotNull().WithMessage("Address is required.");
 
             RuleFor(user => user.Address.WardId)
-               .NotNull().WithMessage("Address is required.")
-               .Must(wardId => int.TryParse(wardId, out int id))
-               .WithMessage("Your address is incorect.");
+                .NotNull().WithMessage("Name is required.")
+                .Must(wardId => int.TryParse(wardId, out int id))
+                .WithMessage("Your address is incorect.");
 
             RuleFor(user => user.Address.Street)
                .NotNull().WithMessage("Address is required.");
+
+            RuleFor(user => user.Type)
+                .NotNull().WithMessage("Specify individual partner or business partner.");
 
             RuleFor(user => user.BirthDate.Year)
                 .NotNull().WithMessage("BirthYear is required.")
@@ -59,6 +64,12 @@ namespace CDTKPMNC_STK_BE.Utilities.AccountUtils
             /*RuleFor(user => new { user.BirthDate, user.BirthMonth, user.BirthYear })
                 .Must(DoB => DoB.BirthDate < 1 || DoB.BirthDate > DateTime.DaysInMonth(DoB.BirthYear, DoB.BirthMonth))
                     .WithMessage("Date does not match month and year.");*/
+
+
+
+
+
+
         }
     }
 }

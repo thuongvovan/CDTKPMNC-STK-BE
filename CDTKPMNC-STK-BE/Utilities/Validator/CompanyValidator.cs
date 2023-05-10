@@ -3,11 +3,11 @@ using CDTKPMNC_STK_BE.Repositories;
 using FluentValidation;
 using System;
 
-namespace CDTKPMNC_STK_BE.Utilities.AccountUtils
+namespace CDTKPMNC_STK_BE.Utilities.Validator
 {
-    public class CompanyValidation : AbstractValidator<CompanyRegistrationInfo>
+    public class CompanyValidator : AbstractValidator<CompanyRegistrationInfo>
     {
-        public CompanyValidation()
+        public CompanyValidator()
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
 

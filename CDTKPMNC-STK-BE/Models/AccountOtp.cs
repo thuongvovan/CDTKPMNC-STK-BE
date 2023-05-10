@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 namespace CDTKPMNC_STK_BE.Models
 {
     public record Otp(int OtpValue);
-    public class OtpAccount
+    public class AccountOtp
     {
         [ForeignKey("Account")]
         [JsonIgnore]

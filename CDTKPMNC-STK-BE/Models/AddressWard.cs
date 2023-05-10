@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
 
 namespace CDTKPMNC_STK_BE.Models;
-
+[Table("Add_Wards")]
 public class AddressWard
 {
     public string Id { get; set; } = null!;

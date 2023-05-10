@@ -4,7 +4,7 @@ using CDTKPMNC_STK_BE.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation.Results;
 using CDTKPMNC_STK_BE.Utilities.Email;
-using CDTKPMNC_STK_BE.Utilities.AccountUtils;
+using CDTKPMNC_STK_BE.Utilities.Validator;
 using Microsoft.AspNetCore.Authorization;
 using static System.Net.WebRequestMethods;
 
@@ -35,12 +35,12 @@ namespace CDTKPMNC_STK_BE.Controllers
             }
             if (account.UserName?.StartsWith("test@") ?? false)
             {
-                AccountEndUser? currAccountTest = _unitOfWork.AccountEndUserRepository.GetByUserName(account.UserName);
+                AccountEndUser? currAccountTest = _unitOfWork.AccountEndUserRepo.GetByUserName(account.UserName);
                 if (currAccountTest != null)
                 {
                     if (currAccountTest?.IsVerified == true)
                         return Conflict(new ResponseMessage { Success = false, Message = "UserName already exists." });
-                    _unitOfWork.AccountEndUserRepository.Delete(currAccountTest!);
+                    _unitOfWork.AccountEndUserRepo.Delete(currAccountTest!);
                 }
 
                 var testAccount = new AccountEndUser 
@@ -48,12 +48,12 @@ namespace CDTKPMNC_STK_BE.Controllers
                         UserName = account.UserName,
                         Name = "Tài Khoản Test",
                         Password = "123456".ToHashSHA256(),
-                        Otp = new OtpAccount { RegisterOtp = 123456, RegisterExpiresOn = DateTime.Now.AddHours(2) },
+                        Otp = new AccountOtp { RegisterOtp = 123456, RegisterExpiresOn = DateTime.Now.AddHours(2) },
                         DateOfBirth = DateOnly.FromDateTime(DateTime.Now),
                         Gender = Gender.Others,
                         CreatedAt = DateTime.Now,
                 };
-                _unitOfWork.AccountEndUserRepository.Add(testAccount);
+                _unitOfWork.AccountEndUserRepo.Add(testAccount);
                 _unitOfWork.Commit();
                 return Ok(new ResponseMessage 
                     { 
@@ -64,7 +64,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             }
             else
             {
-                var validator = new AccountUserValidation();
+                var validator = new AccountUserValidator();
                 ValidationResult? validateResult;
                 try
                 {
@@ -82,22 +82,22 @@ namespace CDTKPMNC_STK_BE.Controllers
                     return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
                 }
 
-                AccountEndUser? currAccount = _unitOfWork.AccountEndUserRepository.GetByUserName(account.UserName!);
+                AccountEndUser? currAccount = _unitOfWork.AccountEndUserRepo.GetByUserName(account.UserName!);
                 if (currAccount != null)
                 {
                     if (currAccount?.IsVerified == true)
                         return Conflict(new ResponseMessage {Success = false, Message = "UserName already exists." });
                     else
-                        _unitOfWork.AccountEndUserRepository.Delete(currAccount!);
+                        _unitOfWork.AccountEndUserRepo.Delete(currAccount!);
                 }
 
-                AddressWard? ward = _unitOfWork.AddressRepository.GetWardById(account.Address.WardId);
+                AddressWard? ward = _unitOfWork.AddressRepo.GetWardById(account.Address.WardId);
                 if(ward != null)
                 {
                     AccountEndUser newAccount = account.CreateUserAccount(ward);
                     int otp = OTPHelper.GenerateOtp();
-                    newAccount.Otp = new OtpAccount { RegisterOtp = otp, RegisterExpiresOn = DateTime.Now.AddMinutes(10) };
-                    _unitOfWork.AccountEndUserRepository.Add(newAccount);
+                    newAccount.Otp = new AccountOtp { RegisterOtp = otp, RegisterExpiresOn = DateTime.Now.AddMinutes(10) };
+                    _unitOfWork.AccountEndUserRepo.Add(newAccount);
                     _mailler.SendRegisterOTP(newAccount);
                     _unitOfWork.Commit();
                     return Ok(new ResponseMessage
@@ -120,7 +120,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             {
                 return BadRequest(new ResponseMessage { Success = false, Message = "Your information is missing." });
             }
-            AccountEndUser? userAccount = _unitOfWork.AccountEndUserRepository.GetById(userId);
+            AccountEndUser? userAccount = _unitOfWork.AccountEndUserRepo.GetById(userId);
             if (userAccount == null)
                 return BadRequest(new ResponseMessage {Success = false, Message = "UserId is required." });
             if (userAccount != null && userAccount?.IsVerified == false)
@@ -130,9 +130,9 @@ namespace CDTKPMNC_STK_BE.Controllers
                 {
                     userAccount.IsVerified = true;
                     userAccount.VerifiedAt = DateTime.Now;
-                    TokenAccount userToken = _jwtAuthen.GenerateUserToken(userAccount.Id, UserType.EndUser);
+                    AccountToken userToken = _jwtAuthen.GenerateUserToken(userAccount.Id, UserType.EndUser);
                     userAccount.AccountToken = userToken;
-                    _unitOfWork.AccountEndUserRepository.Update(userAccount);
+                    _unitOfWork.AccountEndUserRepo.Update(userAccount);
                     _unitOfWork.Commit();
                     return Ok(new ResponseMessage 
                         { 
@@ -154,13 +154,13 @@ namespace CDTKPMNC_STK_BE.Controllers
             {
                 return BadRequest(new ResponseMessage { Success = false, Message = "Your information is missing." });
             }
-            AccountEndUser? currAccount = _unitOfWork.AccountEndUserRepository.GetByUserName(account.UserName);
+            AccountEndUser? currAccount = _unitOfWork.AccountEndUserRepo.GetByUserName(account.UserName);
             if (currAccount != null && currAccount.Password == account.Password.ToHashSHA256() && currAccount.IsVerified)
             {
-                TokenAccount userToken = _jwtAuthen.GenerateUserToken(currAccount.Id, UserType.EndUser);
+                AccountToken userToken = _jwtAuthen.GenerateUserToken(currAccount.Id, UserType.EndUser);
                 currAccount.AccountToken!.AccessToken = userToken.AccessToken;
                 currAccount.AccountToken.RefreshToken = userToken.RefreshToken;
-                _unitOfWork.AccountEndUserRepository.Update(currAccount);
+                _unitOfWork.AccountEndUserRepo.Update(currAccount);
                 _unitOfWork.Commit();
                 return Ok(new ResponseMessage {Success = true, Message = "Login successfull.", Data = currAccount });
             }
@@ -176,20 +176,20 @@ namespace CDTKPMNC_STK_BE.Controllers
             {
                 return BadRequest(new ResponseMessage { Success = false, Message = "Missing information." });
             }
-            var currentToken = new TokenAccount
+            var currentToken = new AccountToken
             {
                 RefreshToken = refreshToken.Token,
                 AccessToken = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "")
             };
 
             var userId = HttpContext.Items["UserId"]!.ToString()!.ToGuid();
-            AccountEndUser? account = _unitOfWork.AccountEndUserRepository.GetById(userId!.Value);
+            AccountEndUser? account = _unitOfWork.AccountEndUserRepo.GetById(userId!.Value);
             if (account != null && account.AccountToken!.AccessToken == currentToken.AccessToken && account.AccountToken.RefreshToken == currentToken.RefreshToken)
             {
-                TokenAccount userToken = _jwtAuthen.GenerateUserToken(account.Id, UserType.EndUser);
+                AccountToken userToken = _jwtAuthen.GenerateUserToken(account.Id, UserType.EndUser);
                 account!.AccountToken!.AccessToken = userToken.AccessToken;
                 account.AccountToken.RefreshToken = userToken.RefreshToken;
-                _unitOfWork.AccountEndUserRepository.Update(account);
+                _unitOfWork.AccountEndUserRepo.Update(account);
                 _unitOfWork.Commit();
                 return Ok(new ResponseMessage { Success = true, Message = "token refresh successful", Data = userToken });
             }
@@ -206,7 +206,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             {
                 return BadRequest(new ResponseMessage { Success = false, Message = "Missing information." });
             }
-            var validator = new ChangePasswordValidation();
+            var validator = new ChangePasswordValidator();
             ValidationResult? validateResult;
             try
             {
@@ -224,11 +224,11 @@ namespace CDTKPMNC_STK_BE.Controllers
                 return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
             }
             Guid? userId = HttpContext.Items["UserId"]!.ToString()!.ToGuid();
-            AccountEndUser? currAccount = _unitOfWork.AccountEndUserRepository.GetById(userId!.Value);
+            AccountEndUser? currAccount = _unitOfWork.AccountEndUserRepo.GetById(userId!.Value);
             if (currAccount != null && currAccount.Password == changePasswordAccount.OldPassword.ToHashSHA256() && !currAccount.IsVerified)
             {
                 currAccount.Password = changePasswordAccount.NewPassword.ToHashSHA256();
-                _unitOfWork.AccountEndUserRepository.Update(currAccount);
+                _unitOfWork.AccountEndUserRepo.Update(currAccount);
                 _unitOfWork.Commit();
                 return Ok(new ResponseMessage { Success = true, Message = "Change password successful" });
             }
@@ -243,7 +243,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             {
                 return BadRequest(new ResponseMessage { Success = false, Message = "Missing information." });
             }
-            var validator = new ResetPasswordValidation();
+            var validator = new ResetPasswordValidator();
             ValidationResult? validateResult = null;
             try
             {
@@ -260,14 +260,14 @@ namespace CDTKPMNC_STK_BE.Controllers
                 string? ErrorMessage = validateResult.Errors?.FirstOrDefault()?.ErrorMessage;
                 return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
             }
-            AccountEndUser? currAccount = _unitOfWork.AccountEndUserRepository.GetByUserName(resetPasswordAccount.UserName);
+            AccountEndUser? currAccount = _unitOfWork.AccountEndUserRepo.GetByUserName(resetPasswordAccount.UserName);
             if (currAccount != null && currAccount.IsVerified)
             {
                 currAccount.NewPassword = resetPasswordAccount.NewPassword.ToHashSHA256();
                 int resetPasswordOTP = OTPHelper.GenerateOtp();
                 currAccount.Otp!.ResetPasswordOtp = resetPasswordOTP;
                 currAccount.Otp.ResetPasswordExpiresOn = DateTime.Now.AddMinutes(10);
-                // _unitOfWork.AccountEndUserRepository.Update(currAccount);
+                // _unitOfWork.AccountEndUserRepo.Update(currAccount);
                 _unitOfWork.Commit();
                 var emailTask = Task.Run(() =>
                 {
@@ -287,17 +287,30 @@ namespace CDTKPMNC_STK_BE.Controllers
             {
                 return BadRequest(new ResponseMessage { Success = false, Message = "Missing information." });
             }
-            AccountEndUser? userAccount = _unitOfWork.AccountEndUserRepository.GetByUserName(verifyReset.UserName);
+            AccountEndUser? userAccount = _unitOfWork.AccountEndUserRepo.GetByUserName(verifyReset.UserName);
             if (userAccount != null && userAccount.IsVerified && userAccount.NewPassword != null &&
                 userAccount.Otp != null && userAccount.Otp.ResetPasswordOtp == verifyReset.Otp && userAccount.Otp.ResetPasswordExpiresOn > DateTime.Now)
             {
                 userAccount.Password = userAccount.NewPassword;
                 userAccount.NewPassword = null;
-                _unitOfWork.AccountEndUserRepository.Update(userAccount);
+                _unitOfWork.AccountEndUserRepo.Update(userAccount);
                 _unitOfWork.Commit();
                 return Ok(new ResponseMessage { Success = true, Message = "Verify successfull. Your password has been changed." });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Verify reset password failed." });
+        }
+
+        // GET /<UserController>/Game/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        [HttpGet("Game/{gameId:Guid}")]
+        [Authorize(AuthenticationSchemes = "EndUser")]
+        public IActionResult GetGame(Guid gameId)
+        {
+            var game = _unitOfWork.AccountEndUserRepo.GetById(gameId);
+            if (game != null)
+            {
+                return Ok(new ResponseMessage { Success = true, Message = "Get game detail successful.", Data = new { Game = game } });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "gameId is not valid." });
         }
     }
 } 

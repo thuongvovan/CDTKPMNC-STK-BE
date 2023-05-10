@@ -33,8 +33,8 @@ namespace CDTKPMNC_STK_BE.Models
         [JsonIgnore]
         public DateTime? CreatedAt { get; set; }
         [JsonIgnore]
-        public virtual OtpAccount? Otp { get; set; }
-        public virtual TokenAccount? AccountToken { get; set; }
+        public virtual AccountOtp? Otp { get; set; }
+        public virtual AccountToken? AccountToken { get; set; }
         [JsonIgnore]
         public bool IsVerified { get; set; }
         public DateTime? VerifiedAt { get; set; }
