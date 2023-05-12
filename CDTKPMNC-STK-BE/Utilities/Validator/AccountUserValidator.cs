@@ -54,11 +54,11 @@ namespace CDTKPMNC_STK_BE.Utilities.Validator
             RuleFor(user => user.BirthDate.Day)
                 .NotEmpty().WithMessage("BirthDate is required.")
                 .Must((user, BirthDate) => BirthDate >= 1 && BirthDate <= DateTime.DaysInMonth(user.BirthDate.Year, user.BirthDate.Month))
-                    .WithMessage("Date does not match month and year.");
+                    .WithMessage("DateInfo does not match month and year.");
 
             /*RuleFor(user => new { user.BirthDate, user.BirthMonth, user.BirthYear })
                 .Must(DoB => DoB.BirthDate < 1 || DoB.BirthDate > DateTime.DaysInMonth(DoB.BirthYear, DoB.BirthMonth))
-                    .WithMessage("Date does not match month and year.");*/
+                    .WithMessage("DateInfo does not match month and year.");*/
         }
     }
 }

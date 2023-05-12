@@ -3,7 +3,6 @@
 namespace CDTKPMNC_STK_BE.Models
 {
 
-    public record GameInfo(string Name, string Description, string Instruction, bool IsEnable);
     public class Game
     {
         public Guid Id { get; set; }

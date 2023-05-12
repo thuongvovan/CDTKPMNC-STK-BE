@@ -5,7 +5,7 @@ using System;
 
 namespace CDTKPMNC_STK_BE.Utilities.Validator
 {
-    public class CompanyValidator : AbstractValidator<CompanyRegistrationInfo>
+    public class CompanyValidator : AbstractValidator<CompanyInfo>
     {
         public CompanyValidator()
         {

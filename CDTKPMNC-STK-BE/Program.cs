@@ -47,21 +47,21 @@ namespace CDTKPMNC_STK_BE
 
 
             builder.Services.AddAuthentication()
-                .AddJwtBearer("EndUser", jwtAuthen.CreateAuthenSchema(TokenType.Access, true, UserType.EndUser));
+                .AddJwtBearer("EndUser", jwtAuthen.CreateAuthenSchema(TokenType.Access, true, AccountType.EndUser));
             builder.Services.AddAuthentication()
-               .AddJwtBearer("EndUserNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, UserType.EndUser));
+               .AddJwtBearer("EndUserNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, AccountType.EndUser));
             builder.Services.AddAuthentication()
-                .AddJwtBearer("Admin", jwtAuthen.CreateAuthenSchema(TokenType.Access, true, UserType.Admin));
+                .AddJwtBearer("Admin", jwtAuthen.CreateAuthenSchema(TokenType.Access, true, AccountType.Admin));
             builder.Services.AddAuthentication()
-               .AddJwtBearer("AdminNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, UserType.Admin));
+               .AddJwtBearer("AdminNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, AccountType.Admin));
             builder.Services.AddAuthentication()
-                .AddJwtBearer("Partner", jwtAuthen.CreateAuthenSchema(TokenType.Access, true, UserType.Partner));
+                .AddJwtBearer("Partner", jwtAuthen.CreateAuthenSchema(TokenType.Access, true, AccountType.Partner));
             builder.Services.AddAuthentication()
-               .AddJwtBearer("PartnerNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, UserType.Partner));
+               .AddJwtBearer("PartnerNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, AccountType.Partner));
             builder.Services.AddAuthentication()
-               .AddJwtBearer("Admin&Partner", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, UserType.Admin, UserType.Partner));
+               .AddJwtBearer("Admin&Partner", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, AccountType.Admin, AccountType.Partner));
             builder.Services.AddAuthentication()
-               .AddJwtBearer("Account", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, UserType.Admin, UserType.Partner, UserType.EndUser));
+               .AddJwtBearer("Account", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, AccountType.Admin, AccountType.Partner, AccountType.EndUser));
 
             var app = builder.Build();
 

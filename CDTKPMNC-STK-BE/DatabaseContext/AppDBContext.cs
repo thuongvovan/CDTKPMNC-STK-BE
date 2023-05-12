@@ -11,7 +11,7 @@ namespace CDTKPMNC_STK_BE.DatabaseContext
         public DbSet<AccountEndUser> AccountEndUsers { get; set; }
         public DbSet<AccountOtp> UserOTPs { get; set; }
         public DbSet<AccountToken> UserTokens { get; set; }
-        public DbSet<AccountAdmin> AdminAccounts { get; set; }
+        public DbSet<AccountAdmin> AccountAdmins { get; set; }
         public DbSet<AccountPartner> AccountPartners { get; set; }
         public DbSet<Company> Companys { get; set; }
         public DbSet<Campaign> Campaigns { get; set; }
@@ -20,7 +20,7 @@ namespace CDTKPMNC_STK_BE.DatabaseContext
         public DbSet<ProductCategory> ProductCategories { get; set; }
         public DbSet<ProductItem> ProductItems { get; set; }
         public DbSet<VoucherSeries> VoucherSeries { get; set; }
-        public DbSet<Voucher> Voucher { get; set; }
+        public DbSet<Voucher> Vouchers { get; set; }
         public DbSet<AddressProvince> Provinces { get; set; }
         public DbSet<AddressDistrict> Districts { get; set; }
         public DbSet<AddressWard> Wards { get; set; }

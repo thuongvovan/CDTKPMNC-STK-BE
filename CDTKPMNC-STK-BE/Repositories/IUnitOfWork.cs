@@ -11,6 +11,7 @@ namespace CDTKPMNC_STK_BE.Repositories
         ICompanyRepository CompanyRepo { get; }
         IStoreRepository StoreRepo { get; }
         IGameRepository GameRepo { get; }
+        IProductCategoryRepository ProductCategoryRepo { get; }
         void Commit();
     }
 }

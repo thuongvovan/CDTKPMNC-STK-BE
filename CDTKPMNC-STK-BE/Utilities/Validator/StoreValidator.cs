@@ -5,7 +5,7 @@ using System;
 
 namespace CDTKPMNC_STK_BE.Utilities.Validator
 {
-    public class StoreValidator : AbstractValidator<StoreRegistrationInfo>
+    public class StoreValidator : AbstractValidator<StoreInfo>
     {
         public StoreValidator()
         {

@@ -4,7 +4,6 @@ namespace CDTKPMNC_STK_BE.Repositories
 {
     public interface IGameRepository
     {
-
             void Add(Game game);
             void Add(GameInfo gameInfo);
             List<Game> GetAll();
@@ -16,5 +15,6 @@ namespace CDTKPMNC_STK_BE.Repositories
             void Enable(Game game);
             void Disable(Game game);
             void Update(Game game);
+            void Update(Game game, GameInfo gameInfo);
     }
 }

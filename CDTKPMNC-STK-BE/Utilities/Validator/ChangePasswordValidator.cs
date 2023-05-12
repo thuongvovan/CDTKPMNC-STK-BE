@@ -3,7 +3,7 @@ using CDTKPMNC_STK_BE.Models;
 
 namespace CDTKPMNC_STK_BE.Utilities.Validator
 {
-    public class ChangePasswordValidator : AbstractValidator<ChangePasswordAccount>
+    public class ChangePasswordValidator : AbstractValidator<ChangePasswordInfo>
     {
         public ChangePasswordValidator()
         {

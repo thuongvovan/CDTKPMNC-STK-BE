@@ -32,7 +32,7 @@ namespace CDTKPMNC_STK_BE.Models
         [JsonIgnore]
         public virtual ICollection<VoucherSeries>? VoucherSeries { get; set; }
         // [JsonIgnore]
-        // public virtual ICollection<Voucher>? Vouchers { get; set; }
+        // public virtual ICollection<Vouchers>? Vouchers { get; set; }
 
     }
 }

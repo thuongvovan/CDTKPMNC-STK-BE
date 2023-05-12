@@ -3,7 +3,7 @@ using CDTKPMNC_STK_BE.Models;
 
 namespace CDTKPMNC_STK_BE.Utilities.Validator
 {
-    public class ResetPasswordValidator : AbstractValidator<ResetPasswordAccount>
+    public class ResetPasswordValidator : AbstractValidator<ResetPasswordInfo>
     {
         public ResetPasswordValidator()
         {

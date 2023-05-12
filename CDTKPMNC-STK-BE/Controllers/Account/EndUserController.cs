@@ -130,7 +130,7 @@ namespace CDTKPMNC_STK_BE.Controllers
                 {
                     userAccount.IsVerified = true;
                     userAccount.VerifiedAt = DateTime.Now;
-                    AccountToken userToken = _jwtAuthen.GenerateUserToken(userAccount.Id, UserType.EndUser);
+                    AccountToken userToken = _jwtAuthen.GenerateUserToken(userAccount.Id, AccountType.EndUser);
                     userAccount.AccountToken = userToken;
                     _unitOfWork.AccountEndUserRepo.Update(userAccount);
                     _unitOfWork.Commit();
@@ -148,7 +148,7 @@ namespace CDTKPMNC_STK_BE.Controllers
 
         // POST /<UserController>/Login
         [HttpPost("Login")]
-        public IActionResult Login([FromBody] LoginedAccount account)
+        public IActionResult Login([FromBody] LoginInfo account)
         {
             if (account == null)
             {
@@ -157,7 +157,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             AccountEndUser? currAccount = _unitOfWork.AccountEndUserRepo.GetByUserName(account.UserName);
             if (currAccount != null && currAccount.Password == account.Password.ToHashSHA256() && currAccount.IsVerified)
             {
-                AccountToken userToken = _jwtAuthen.GenerateUserToken(currAccount.Id, UserType.EndUser);
+                AccountToken userToken = _jwtAuthen.GenerateUserToken(currAccount.Id, AccountType.EndUser);
                 currAccount.AccountToken!.AccessToken = userToken.AccessToken;
                 currAccount.AccountToken.RefreshToken = userToken.RefreshToken;
                 _unitOfWork.AccountEndUserRepo.Update(currAccount);
@@ -186,7 +186,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             AccountEndUser? account = _unitOfWork.AccountEndUserRepo.GetById(userId!.Value);
             if (account != null && account.AccountToken!.AccessToken == currentToken.AccessToken && account.AccountToken.RefreshToken == currentToken.RefreshToken)
             {
-                AccountToken userToken = _jwtAuthen.GenerateUserToken(account.Id, UserType.EndUser);
+                AccountToken userToken = _jwtAuthen.GenerateUserToken(account.Id, AccountType.EndUser);
                 account!.AccountToken!.AccessToken = userToken.AccessToken;
                 account.AccountToken.RefreshToken = userToken.RefreshToken;
                 _unitOfWork.AccountEndUserRepo.Update(account);
@@ -200,7 +200,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         // PUT /<UserController>/ChangePassword
         [HttpPut("ChangePassword")]
         [Authorize(AuthenticationSchemes = "EndUser")]
-        public IActionResult ChangePassword(ChangePasswordAccount changePasswordAccount)
+        public IActionResult ChangePassword(ChangePasswordInfo changePasswordAccount)
         {
             if (changePasswordAccount == null)
             {
@@ -237,7 +237,7 @@ namespace CDTKPMNC_STK_BE.Controllers
 
         // POST /<UserController>/ResetPassword
         [HttpPost("ResetPassword")]
-        public IActionResult ResetPassword(ResetPasswordAccount resetPasswordAccount)
+        public IActionResult ResetPassword(ResetPasswordInfo resetPasswordAccount)
         {
             if (resetPasswordAccount == null)
             {
@@ -281,7 +281,7 @@ namespace CDTKPMNC_STK_BE.Controllers
 
         // POST /<UserController>/VerifyResetPassword
         [HttpPost("VerifyResetPassword")]
-        public IActionResult VerifyResetPassword([FromBody] VerifyResetPwAccount verifyReset)
+        public IActionResult VerifyResetPassword([FromBody] VerifyResetPasswordInfo verifyReset)
         {
             if (verifyReset == null)
             {

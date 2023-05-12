@@ -7,6 +7,12 @@ using Newtonsoft.Json.Converters;
 
 namespace CDTKPMNC_STK_BE.Models
 {
+    public enum AccountType
+    {
+        Admin,
+        Partner,
+        EndUser,
+    }
 
     public enum Gender
     {

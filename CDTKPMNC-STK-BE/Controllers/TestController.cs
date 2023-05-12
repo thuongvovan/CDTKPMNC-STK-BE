@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿/*using Microsoft.AspNetCore.Mvc;
 using CDTKPMNC_STK_BE.Models;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,3 +18,4 @@ namespace CDTKPMNC_STK_BE.Controllers
 
     }
 }
+*/

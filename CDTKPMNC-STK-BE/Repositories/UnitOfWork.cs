@@ -14,6 +14,7 @@ namespace CDTKPMNC_STK_BE.Repositories
         public ICompanyRepository _companyRepository;
         public IStoreRepository _storeRepository;
         public IGameRepository _gameRepository;
+        public IProductCategoryRepository _productCategoryRepository;
         public UnitOfWork(AppDbContext context) 
         {  
             _context = context;
@@ -24,6 +25,7 @@ namespace CDTKPMNC_STK_BE.Repositories
             _companyRepository = new CompanyRepository(_context);
             _storeRepository = new StoreRepository(_context);
             _gameRepository = new GameRepository(_context);
+            _productCategoryRepository = new ProductCategoryRepository(_context);
         }
         public IAccountEndUserRepository AccountEndUserRepo
         {
@@ -84,6 +86,15 @@ namespace CDTKPMNC_STK_BE.Repositories
             {
                 _gameRepository ??= new GameRepository(_context);
                 return _gameRepository;
+            }
+        }
+
+        public IProductCategoryRepository ProductCategoryRepo
+        {
+            get
+            {
+                _productCategoryRepository ??= new ProductCategoryRepository(_context);
+                return _productCategoryRepository;
             }
         }
 

@@ -10,6 +10,7 @@ namespace CDTKPMNC_STK_BE.Models
         public virtual ProductCategory Category { get; set; } = null!;
         public float Price { get; set; }
         public DateTime CreatedAt { get; set; }
+        public bool IsEnable { get; set; }
         [JsonIgnore]    
         public virtual Store Store { get; set; } = null!;
         //public ICollection<AccountEndUser> EndUsers { get; set; }

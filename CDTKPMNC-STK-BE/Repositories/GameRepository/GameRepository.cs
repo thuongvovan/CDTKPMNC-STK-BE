@@ -103,5 +103,18 @@ namespace CDTKPMNC_STK_BE.Repositories
                 _dbContext.SaveChanges();
             }
         }
+
+        public void Update(Game game, GameInfo gameInfo)
+        {
+            if (game != null &&  gameInfo != null)
+            {
+                game.Name = gameInfo.Name;
+                game.Description = gameInfo.Description;
+                game.Instruction = gameInfo.Instruction;
+                game.IsEnable = gameInfo.IsEnable;
+                _dbContext.Games.Update(game);
+                _dbContext.SaveChanges();
+            }
+        }
     }
 }

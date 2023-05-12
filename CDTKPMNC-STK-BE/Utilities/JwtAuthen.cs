@@ -13,13 +13,6 @@ namespace CDTKPMNC_STK_BE.Utilities
         Refresh
     }
 
-    public enum UserType
-    {
-        Admin,
-        Partner,
-        EndUser,
-    }
-
     public class JwtAuthen
     {
         private readonly IConfiguration _configuration;
@@ -37,7 +30,7 @@ namespace CDTKPMNC_STK_BE.Utilities
         /// <param name="userId"></param>
         /// <param name="secretKey"></param>
         /// <returns></returns>
-        public string GenerateJwtToken(Guid userId, UserType userType, TokenType tokenType, int lifetimeDays)
+        public string GenerateJwtToken(Guid userId, AccountType userType, TokenType tokenType, int lifetimeDays)
         {
             var claims = new[]
                 {
@@ -55,23 +48,23 @@ namespace CDTKPMNC_STK_BE.Utilities
             string jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
             return jwtToken;
         }
-        public AccountToken GenerateUserToken(Guid userId, UserType userType)
+        public AccountToken GenerateUserToken(Guid userId, AccountType userType)
         {
             string accessToken = GenerateAccessToken(userId, userType);
             string refreshToken = GenerateRefreshToken(userId, userType);
             return new AccountToken {AccessToken = accessToken, RefreshToken = refreshToken };
         }
-        public string GenerateAccessToken(Guid userId, UserType userType)
+        public string GenerateAccessToken(Guid userId, AccountType userType)
         {
             return GenerateJwtToken(userId, userType, TokenType.Access, 2);
         }
 
-        public string GenerateRefreshToken(Guid userId, UserType userType)
+        public string GenerateRefreshToken(Guid userId, AccountType userType)
         {
             return GenerateJwtToken(userId, userType, TokenType.Refresh, 10);
         }
 
-        public Guid? ValidateJwtToken(string jwtToken, UserType userType, TokenType tokenType)
+        public Guid? ValidateJwtToken(string jwtToken, AccountType userType, TokenType tokenType)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var validationParameters = new TokenValidationParameters
@@ -104,17 +97,17 @@ namespace CDTKPMNC_STK_BE.Utilities
             }
         }
 
-        public Guid? ValidateAccessToken(string jwtToken, UserType userType)
+        public Guid? ValidateAccessToken(string jwtToken, AccountType userType)
         {
             return ValidateJwtToken(jwtToken, userType, TokenType.Access);
         }
 
-        public Guid? ValidateRefreshToken(string jwtToken, UserType userType)
+        public Guid? ValidateRefreshToken(string jwtToken, AccountType userType)
         {
             return ValidateJwtToken(jwtToken, userType, TokenType.Refresh);
         }
 
-        public Action<JwtBearerOptions> CreateAuthenSchema(TokenType tokenType, bool validateLifetime, params UserType[] userTypes)
+        public Action<JwtBearerOptions> CreateAuthenSchema(TokenType tokenType, bool validateLifetime, params AccountType[] userTypes)
         {
             return new Action<JwtBearerOptions>(options =>
             {
@@ -141,11 +134,13 @@ namespace CDTKPMNC_STK_BE.Utilities
                     {
                         var tkType = context.Principal!.FindFirst("TokenType")?.Value;
                         var userID = context.Principal!.FindFirst("UserId")?.Value;
+                        var userType = context.Principal!.FindFirst("aud")?.Value;
                         if (tkType == null || tkType != tokenType.ToString() || userID == null)
                         {
                             context.Fail("Unauthorized");
                         }
                         context.HttpContext.Items["UserId"] = userID;
+                        context.HttpContext.Items["AccountType"] = userType;
                         return Task.CompletedTask;
                     }
                 };

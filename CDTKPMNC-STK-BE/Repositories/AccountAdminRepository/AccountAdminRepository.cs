@@ -12,42 +12,42 @@ namespace CDTKPMNC_STK_BE.Repositories
         }
         public List<AccountAdmin> GetAll()
         {
-            return _dbContext.AdminAccounts.ToList();
+            return _dbContext.AccountAdmins.ToList();
         }
         public AccountAdmin? GetById(Guid id)
         {
-            return _dbContext.AdminAccounts.Find(id);
+            return _dbContext.AccountAdmins.Find(id);
         }
         public AccountAdmin? GetByUserName(string account)
         {
-            return _dbContext.AdminAccounts.SingleOrDefault(a => a.UserName == account.ToLower());
+            return _dbContext.AccountAdmins.SingleOrDefault(a => a.UserName == account.ToLower());
         }
         public void Add(AccountAdmin adminAccount)
         { 
             if (adminAccount != null)
             {
-                _dbContext.AdminAccounts.Add(adminAccount);
+                _dbContext.AccountAdmins.Add(adminAccount);
                 _dbContext.SaveChanges();
             }
         }
         public void Delete(Guid id)
         {
-            var adminAccount = _dbContext.AdminAccounts.Find(id);
+            var adminAccount = _dbContext.AccountAdmins.Find(id);
             if (adminAccount != null)
             {
-                _dbContext.AdminAccounts.Remove(adminAccount);
+                _dbContext.AccountAdmins.Remove(adminAccount);
             }
         }
         public void Delete(AccountAdmin adminAccount)
         {
             if (adminAccount != null)
             {
-                _dbContext.AdminAccounts.Remove(adminAccount);
+                _dbContext.AccountAdmins.Remove(adminAccount);
             }
         }
         public void Update(AccountAdmin adminAccount)
         {
-            _dbContext.AdminAccounts.Update(adminAccount);
+            _dbContext.AccountAdmins.Update(adminAccount);
             _dbContext.SaveChanges();
         }
     }

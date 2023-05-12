@@ -128,7 +128,7 @@ namespace CDTKPMNC_STK_BE.Controllers
 
         // POST /<UserController>/RegisterCompany/AB8D4730-8895-4C18-F0F8-08DB439AD21D
         [HttpPost("RegisterCompany/{userId:Guid}")]
-        public IActionResult RegisterCompany(Guid userId, [FromBody] CompanyRegistrationInfo companyInfo)
+        public IActionResult RegisterCompany(Guid userId, [FromBody] CompanyInfo companyInfo)
         {
             var validator = new CompanyValidator();
             ValidationResult? validateResult;
@@ -181,7 +181,7 @@ namespace CDTKPMNC_STK_BE.Controllers
                 {
                     userAccount.IsVerified = true;
                     userAccount.VerifiedAt = DateTime.Now;
-                    AccountToken userToken = _jwtAuthen.GenerateUserToken(userAccount.Id, UserType.Partner);
+                    AccountToken userToken = _jwtAuthen.GenerateUserToken(userAccount.Id, AccountType.Partner);
                     userAccount.AccountToken = userToken;
                     _unitOfWork.AccountPartnerRepo.Update(userAccount);
                     _unitOfWork.Commit();
@@ -199,7 +199,7 @@ namespace CDTKPMNC_STK_BE.Controllers
 
         // POST /<UserController>/Login
         [HttpPost("Login")]
-        public IActionResult Login([FromBody] LoginedAccount account)
+        public IActionResult Login([FromBody] LoginInfo account)
         {
             if (account == null)
             {
@@ -208,7 +208,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             AccountPartner? currAccount = _unitOfWork.AccountPartnerRepo.GetByUserName(account.UserName);
             if (currAccount != null && currAccount.Password == account.Password.ToHashSHA256() && currAccount.IsVerified)
             {
-                AccountToken userToken = _jwtAuthen.GenerateUserToken(currAccount.Id, UserType.Partner);
+                AccountToken userToken = _jwtAuthen.GenerateUserToken(currAccount.Id, AccountType.Partner);
                 currAccount.AccountToken!.AccessToken = userToken.AccessToken;
                 currAccount.AccountToken.RefreshToken = userToken.RefreshToken;
                 _unitOfWork.AccountPartnerRepo.Update(currAccount);
@@ -236,7 +236,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             AccountPartner? account = _unitOfWork.AccountPartnerRepo.GetById(userId!.Value);
             if (account != null && account.AccountToken!.AccessToken == currentToken.AccessToken && account.AccountToken.RefreshToken == currentToken.RefreshToken)
             {
-                AccountToken userToken = _jwtAuthen.GenerateUserToken(account.Id, UserType.Partner);
+                AccountToken userToken = _jwtAuthen.GenerateUserToken(account.Id, AccountType.Partner);
                 account!.AccountToken!.AccessToken = userToken.AccessToken;
                 account.AccountToken.RefreshToken = userToken.RefreshToken;
                 _unitOfWork.AccountPartnerRepo.Update(account);
@@ -250,7 +250,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         // PUT /<UserController>/ChangePassword
         [HttpPut("ChangePassword")]
         [Authorize(AuthenticationSchemes = "Partner")]
-        public IActionResult ChangePassword(ChangePasswordAccount changePasswordAccount)
+        public IActionResult ChangePassword(ChangePasswordInfo changePasswordAccount)
         {
             if (changePasswordAccount == null)
             {
@@ -287,7 +287,7 @@ namespace CDTKPMNC_STK_BE.Controllers
 
         // POST /<UserController>/ResetPassword
         [HttpPost("ResetPassword")]
-        public IActionResult ResetPassword(ResetPasswordAccount resetPasswordAccount)
+        public IActionResult ResetPassword(ResetPasswordInfo resetPasswordAccount)
         {
             if (resetPasswordAccount == null)
             {
@@ -331,7 +331,7 @@ namespace CDTKPMNC_STK_BE.Controllers
 
         // POST /<UserController>/VerifyResetPassword
         [HttpPost("VerifyResetPassword")]
-        public IActionResult VerifyResetPassword([FromBody] VerifyResetPwAccount verifyReset)
+        public IActionResult VerifyResetPassword([FromBody] VerifyResetPasswordInfo verifyReset)
         {
             if (verifyReset == null)
             {
@@ -355,7 +355,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         // POST /<UserController>/Store/Register
         [HttpPost("Store/Register")]
         [Authorize(AuthenticationSchemes = "Partner")]
-        public IActionResult RegisterStore([FromBody] StoreRegistrationInfo storeInfo)
+        public IActionResult RegisterStore([FromBody] StoreInfo storeInfo)
         {
             var validator = new StoreValidator();
             ValidationResult? validateResult;

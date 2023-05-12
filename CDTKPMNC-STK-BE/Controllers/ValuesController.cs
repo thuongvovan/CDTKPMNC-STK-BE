@@ -39,11 +39,11 @@ namespace CDTKPMNC_STK_BE.Controllers
             });
         }
 
-        // GET: /<ValuesController>/UserType
-        [HttpGet("UserType")]
+        // GET: /<ValuesController>/AccountType
+        [HttpGet("AccountType")]
         public IActionResult GetUserType()
         {
-            var userTypeValue = Enum.GetNames(typeof(UserType)).ToList();
+            var userTypeValue = Enum.GetNames(typeof(AccountType)).ToList();
             return Ok(new ResponseMessage
             {
                 Success = true,

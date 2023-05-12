@@ -14,5 +14,6 @@ namespace CDTKPMNC_STK_BE.Models
         public virtual ICollection<ProductItem>? Items { get; set; }
         [JsonIgnore]
         public DateTime CreatedAt { get; set; }
+        public bool IsEnable { get; set; }
     }
 }

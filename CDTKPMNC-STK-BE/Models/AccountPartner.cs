@@ -15,9 +15,7 @@ namespace CDTKPMNC_STK_BE.Models
         public virtual Address Address { get; set; } = null!;
         [JsonConverter(typeof(StringEnumConverter))]
         public PartnerType PartnerType { get; set; }
-        [JsonIgnore]
         public virtual Company? Company { get; set; }
-        [JsonIgnore]
         public virtual Store? Store { get; set; }
     }
 }

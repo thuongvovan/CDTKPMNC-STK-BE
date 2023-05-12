@@ -6,7 +6,7 @@ namespace CDTKPMNC_STK_BE.Utilities
 {
     static public class AccountUtilities
     {
-        static public DateOnly ToDateOnly(this Date date)
+        static public DateOnly ToDateOnly(this DateInfo date)
         {
             return new DateOnly(date.Year, date.Month, date.Day);
         }
@@ -54,7 +54,7 @@ namespace CDTKPMNC_STK_BE.Utilities
             return userAccount;
         }
 
-        static public Company CreateCompany(this CompanyRegistrationInfo registeredCompany, AddressWard ward)
+        static public Company CreateCompany(this CompanyInfo registeredCompany, AddressWard ward)
         {
             var company = new Company
             {
@@ -71,7 +71,7 @@ namespace CDTKPMNC_STK_BE.Utilities
             return company;
         }
 
-        static public Store CreateStore(this StoreRegistrationInfo registeredStore, AddressWard ward)
+        static public Store CreateStore(this StoreInfo registeredStore, AddressWard ward)
         {
             var store = new Store
             {

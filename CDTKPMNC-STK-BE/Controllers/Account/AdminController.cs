@@ -29,12 +29,12 @@ namespace CDTKPMNC_STK_BE.Controllers
         #region Sign-in_Sign-up
         // POST /<AdminController>/Login
         [HttpPost("Login")]
-        public IActionResult Login([FromBody] LoginedAccount account)
+        public IActionResult Login([FromBody] LoginInfo account)
         {
             var adminAccount = _adminAccountRepository.GetByUserName(account.UserName);
             if (adminAccount != null && adminAccount.Password == account.Password.ToHashSHA256() && adminAccount.IsVerified)
             {
-                var accountToken = _jwtAuthen.GenerateUserToken(adminAccount.Id, UserType.Admin);
+                var accountToken = _jwtAuthen.GenerateUserToken(adminAccount.Id, AccountType.Admin);
                 var userToken = new AccountToken
                 {
                     AccessToken = accountToken.AccessToken,
@@ -72,7 +72,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             AccountAdmin? account = _unitOfWork.AccountAdminRepo.GetById(userId!.Value);
             if (account != null && account.AccountToken!.AccessToken == currentToken.AccessToken && account.AccountToken.RefreshToken == currentToken.RefreshToken)
             {
-                AccountToken userToken = _jwtAuthen.GenerateUserToken(account.Id, UserType.Admin);
+                AccountToken userToken = _jwtAuthen.GenerateUserToken(account.Id, AccountType.Admin);
                 account!.AccountToken!.AccessToken = userToken.AccessToken;
                 account.AccountToken.RefreshToken = userToken.RefreshToken;
                 _unitOfWork.AccountAdminRepo.Update(account);
@@ -85,7 +85,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         // PUT /<UserController>/ChangePassword
         [HttpPut("ChangePassword")]
         [Authorize(AuthenticationSchemes = "Admin")]
-        public IActionResult ChangePassword(ChangePasswordAccount changePasswordAccount)
+        public IActionResult ChangePassword(ChangePasswordInfo changePasswordAccount)
         {
             var validator = new ChangePasswordValidator();
             ValidationResult? validateResult;
