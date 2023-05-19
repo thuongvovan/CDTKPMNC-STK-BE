@@ -1,8 +1,23 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+﻿using CDTKPMNC_STK_BE.BusinessServices.Records;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CDTKPMNC_STK_BE.Utilities
 {
+    
+    public static class DateTimeHelper
+    {
+        static public DateOnly ToDateOnly(this DateRecord date)
+        {
+            return new DateOnly(date.Year!.Value, date.Month!.Value, date.Day!.Value);
+        }
+
+        static public TimeOnly ToTimeOnly(this TimeRecord time)
+        {
+            return new TimeOnly(time.Hours!.Value, time.Minute!.Value);
+        }
+    }
+
     public class DateOnlyConverter : ValueConverter<DateOnly, DateTime>
     {
         public DateOnlyConverter() : base(dateOnly => dateOnly.ToDateTime(TimeOnly.MinValue), dateTime => DateOnly.FromDateTime(dateTime))

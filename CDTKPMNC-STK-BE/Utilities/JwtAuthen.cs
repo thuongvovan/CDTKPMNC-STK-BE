@@ -64,7 +64,7 @@ namespace CDTKPMNC_STK_BE.Utilities
             return GenerateJwtToken(userId, userType, TokenType.Refresh, 10);
         }
 
-        public Guid? ValidateJwtToken(string jwtToken, AccountType userType, TokenType tokenType)
+        public Guid? VerifyJwtToken(string jwtToken, AccountType userType, TokenType tokenType)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var validationParameters = new TokenValidationParameters
@@ -97,14 +97,14 @@ namespace CDTKPMNC_STK_BE.Utilities
             }
         }
 
-        public Guid? ValidateAccessToken(string jwtToken, AccountType userType)
+        public Guid? VerifyAccessToken(string jwtToken, AccountType userType)
         {
-            return ValidateJwtToken(jwtToken, userType, TokenType.Access);
+            return VerifyJwtToken(jwtToken, userType, TokenType.Access);
         }
 
-        public Guid? ValidateRefreshToken(string jwtToken, AccountType userType)
+        public Guid? VerifyRefreshToken(string jwtToken, AccountType userType)
         {
-            return ValidateJwtToken(jwtToken, userType, TokenType.Refresh);
+            return VerifyJwtToken(jwtToken, userType, TokenType.Refresh);
         }
 
         public Action<JwtBearerOptions> CreateAuthenSchema(TokenType tokenType, bool validateLifetime, params AccountType[] userTypes)

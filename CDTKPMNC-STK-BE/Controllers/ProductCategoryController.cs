@@ -1,90 +1,75 @@
 ﻿using CDTKPMNC_STK_BE.Models;
-using CDTKPMNC_STK_BE.Repositories;
-using CDTKPMNC_STK_BE.Utilities.Validator;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation.Results;
-using CDTKPMNC_STK_BE.Utilities;
+using CDTKPMNC_STK_BE.BusinessServices.Records;
+using CDTKPMNC_STK_BE.BusinessServices;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CDTKPMNC_STK_BE.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
-    public class ProductCategoryController : AppBaseController
+    public class ProductCategoryController : CommonController
     {
-        public ProductCategoryController(IUnitOfWork unitOfWork) : base(unitOfWork)
+        private readonly ProductCategoryService _productCategoryService;
+        public ProductCategoryController(ProductCategoryService productCategoryService) 
         {
-
+            _productCategoryService = productCategoryService;
         }
 
         // POST /<UserController>/ProductCategory
-        [HttpPost("ProductCategory")]
+        [HttpPost("Create")]
         [Authorize(AuthenticationSchemes = "Admin")]
-        public IActionResult AddProductCategory([FromBody] ProductCategoryInfo categoryInfo)
+        public IActionResult AddProductCategory([FromBody] ProductCategoryRecord productCategoryRecord)
         {
-            var validator = new ProductCategoryValidator();
-            ValidationResult? validateResult;
-            try
+            var validateSummary = _productCategoryService.ValidateProductCategoryRecord(productCategoryRecord);
+            if (!validateSummary.IsValid)
             {
-                validateResult = validator.Validate(categoryInfo);
+                return BadRequest(new ResponseMessage(false, validateSummary.ErrorMessage));
             }
-            catch (Exception)
+            var isVerified = _productCategoryService.VerifyProductCategoryRecord(productCategoryRecord);
+            if (isVerified)
             {
-
-                return BadRequest(new ResponseMessage { Success = false, Message = "Unable to verify data" });
-            }
-
-            if (!validateResult.IsValid)
-            {
-                string? ErrorMessage = validateResult.Errors?.FirstOrDefault()?.ErrorMessage;
-                return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
-            }
-            var curentCategory = _unitOfWork.ProductCategoryRepo.GetByName(categoryInfo.Name);
-            if (curentCategory == null)
-            {
-                _unitOfWork.ProductCategoryRepo.Add(categoryInfo);
-                _unitOfWork.Commit();
-                return Ok(new ResponseMessage { Success = true, Message = "Create new game successfuly." });
+                var productCategory = _productCategoryService.CreateProductCategory(productCategoryRecord);
+                return Ok(new ResponseMessage { Success = true, Message = "Create new game successfuly.", Data = new { ProductCategory = productCategory } });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Category is exist." });
         }
 
         // GET /<UserController>/ProductCategory/All
-        [HttpGet("ProductCategory/All")]
+        [HttpGet("All")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult GetAllProductCategory()
         {
-            var productCategories = _unitOfWork.ProductCategoryRepo.GetAll();
-            if (productCategories != null)
+            var productCategories = _productCategoryService.GetAllProductCategory();
+            if (productCategories.Count > 0)
             {
                 return Ok(new ResponseMessage { Success = true, Message = "Get the list of product categories successful.", Data = new { ProductCategories = productCategories } });
             }
-            productCategories = new List<ProductCategory>();
             return Accepted(new ResponseMessage { Success = true, Message = "The list is empty.", Data = new { ProductCategories = productCategories } });
         }
 
         // GET /<UserController>/ProductCategory/Avalible
-        [HttpGet("ProductCategory/Avalible")]
+        [HttpGet("Avalible")]
         [Authorize(AuthenticationSchemes = "Account")]
         public IActionResult GetAvalibleProductCategory()
         {
-            var productCategories = _unitOfWork.ProductCategoryRepo.GetAvalible();
-            if (productCategories != null)
+            var productCategories = _productCategoryService.GetAvalibleProductCategory();
+            if (productCategories.Count > 0)
             {
                 return Ok(new ResponseMessage { Success = true, Message = "Get the list of avalible product categories successful.", Data = new { ProductCategories = productCategories } });
             }
-            productCategories = new List<ProductCategory>();
             return Accepted(new ResponseMessage { Success = true, Message = "The list is empty.", Data = new { ProductCategories = productCategories } });
         }
 
         // GET /<UserController>/ProductCategory/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
-        [HttpGet("ProductCategory/{productCategoryId:Guid}")]
+        [HttpGet("{productCategoryId:Guid}")]
         [Authorize(AuthenticationSchemes = "Account")]
         public IActionResult GetProductCategory(Guid productCategoryId)
         {
-            var productCategory = _unitOfWork.ProductCategoryRepo.GetById(productCategoryId);
+            var productCategory = _productCategoryService.GetProductCategory(productCategoryId);
             if (productCategory != null)
             {
                 if (productCategory.IsEnable)
@@ -100,67 +85,57 @@ namespace CDTKPMNC_STK_BE.Controllers
         }
 
         // DELETE /<UserController>/ProductCategory/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
-        [HttpDelete("ProductCategory/{productCategoryId:Guid}")]
+        [HttpDelete("{productCategoryId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult DeleteProductCategory(Guid productCategoryId)
         {
-            var productCategory = _unitOfWork.ProductCategoryRepo.GetById(productCategoryId);
-            if (productCategory != null && (productCategory.Items == null || productCategory.Items.Count == 0))
+            var isSuccess = _productCategoryService.DeleteProductCategory(productCategoryId);
+            if (isSuccess)
             {
-                _unitOfWork.ProductCategoryRepo.Delete(productCategory);
-                _unitOfWork.Commit();
                 return Ok(new ResponseMessage { Success = true, Message = "Successfuly deleted." });
             }
-            return Ok(new ResponseMessage { Success = false, Message = "Invalid delete request." });
+            return BadRequest(new ResponseMessage { Success = false, Message = "Invalid delete request." });
         }
 
         // PUT /<UserController>/ProductCategory/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
-        [HttpPut("ProductCategory/{productCategoryId:Guid}")]
+        [HttpPut("{productCategoryId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
-        public IActionResult UpdateProductCategory([FromBody] ProductCategoryInfo categoryInfo, Guid productCategoryId)
+        public IActionResult UpdateProductCategory(Guid productCategoryId, [FromBody] ProductCategoryRecord productCategoryRecord)
         {
-            var productCategory = _unitOfWork.ProductCategoryRepo.GetById(productCategoryId);
-            if (productCategory != null)
+            var validateSummary = _productCategoryService.ValidateProductCategoryRecord(productCategoryRecord);
+            if (!validateSummary.IsValid)
             {
-                var validator = new ProductCategoryValidator();
-                ValidationResult validateResult = validator.Validate(categoryInfo);
-                if (validateResult.IsValid)
-                {
-                    _unitOfWork.ProductCategoryRepo.Update(productCategory, categoryInfo);
-                    _unitOfWork.Commit();
-                    return Ok(new ResponseMessage { Success = true, Message = "Successfuly updated.", Data = new { ProductCategory = productCategory } });
-                }
-                string? ErrorMessage = validateResult.Errors?.FirstOrDefault()?.ErrorMessage;
-                return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage });
+                return BadRequest(new ResponseMessage(false, validateSummary.ErrorMessage));
             }
-            return BadRequest(new ResponseMessage { Success = false, Message = "Invalid update request." });
-        }
-
-        // PUT /<UserController>/ProductCategory/Disable/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
-        [HttpPut("ProductCategory/Disable/{productCategoryId:Guid}")]
-        [Authorize(AuthenticationSchemes = "Admin")]
-        public IActionResult DisableProductCategory(Guid productCategoryId)
-        {
-            var productCategory = _unitOfWork.ProductCategoryRepo.GetById(productCategoryId);
+            var productCategory = _productCategoryService.UpdateProductCategory(productCategoryId, productCategoryRecord);
             if (productCategory != null)
             {
-                _unitOfWork.ProductCategoryRepo.Disable(productCategory);
-                _unitOfWork.Commit();
                 return Ok(new ResponseMessage { Success = true, Message = "Successfuly updated.", Data = new { ProductCategory = productCategory } });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid update request." });
         }
 
         // PUT /<UserController>/ProductCategory/Disable/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
-        [HttpPut("ProductCategory/Enable/{productCategoryId:Guid}")]
+        [HttpPut("Disable/{productCategoryId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Admin")]
+        public IActionResult DisableProductCategory(Guid productCategoryId)
+        {
+            var productCategory = _productCategoryService.DisableProductCategory(productCategoryId);
+            if (productCategory != null)
+            {
+                return Ok(new ResponseMessage { Success = true, Message = "Successfuly updated.", Data = new { ProductCategory = productCategory } });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Invalid update request." });
+        }
+
+        // PUT /<UserController>/ProductCategory/Disable/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
+        [HttpPut("Enable/{productCategoryId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult EnableProductCategory(Guid productCategoryId)
         {
-            var productCategory = _unitOfWork.ProductCategoryRepo.GetById(productCategoryId);
+            var productCategory = _productCategoryService.EnableProductCategory(productCategoryId);
             if (productCategory != null)
             {
-                _unitOfWork.ProductCategoryRepo.Enable(productCategory);
-                _unitOfWork.Commit();
                 return Ok(new ResponseMessage { Success = true, Message = "Successfuly updated.", Data = new { ProductCategory = productCategory } });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid update request." });

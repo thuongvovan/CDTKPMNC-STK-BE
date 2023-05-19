@@ -1,9 +1,11 @@
 ﻿using CDTKPMNC_STK_BE.Models;
-using CDTKPMNC_STK_BE.Repositories;
-using CDTKPMNC_STK_BE.Utilities.Validator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation.Results;
+using CDTKPMNC_STK_BE.BusinessServices;
+using CDTKPMNC_STK_BE.BusinessServices.Records;
+using CDTKPMNC_STK_BE.BusinessServices.AccountServices;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,37 +13,32 @@ namespace CDTKPMNC_STK_BE.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class GameController : AppBaseController
+    public class GameController : CommonController
     {
-        public GameController(IUnitOfWork unitOfWork) : base(unitOfWork)
+        private readonly GameService _gameService;
+        public GameController(GameService gameService)
         {
+            _gameService = gameService;
         }
 
-        // POST /<UserController>
-        [HttpPost]
+        // POST /<UserController>/Create
+        [HttpPost("Create")]
         [Authorize(AuthenticationSchemes = "Admin")]
-        public IActionResult AddGame([FromBody] GameInfo gameInfo)
+        public IActionResult AddGame([FromBody] GameRecord gameRecord)
         {
-            var validator = new GameValidator();
-            ValidationResult? validateResult;
-            try
+            var validateSummary = _gameService.ValidateGameRecord(gameRecord);
+            if (!validateSummary.IsValid)
             {
-                validateResult = validator.Validate(gameInfo);
+                return BadRequest(new ResponseMessage(false, validateSummary.ErrorMessage));
             }
-            catch (Exception)
+            bool IsVerified = _gameService.VerifyGameRecord(gameRecord);
+            if (!IsVerified)
             {
-
-                return BadRequest(new ResponseMessage { Success = false, Message = "Unable to verify data" });
+                
+                var game = _gameService.CreateGame(gameRecord);
+                return Ok(new ResponseMessage { Success = true, Message = "Create new game successfuly.", Data = new { Game = game } });
             }
-
-            if (!validateResult.IsValid)
-            {
-                string? ErrorMessage = validateResult.Errors?.FirstOrDefault()?.ErrorMessage;
-                return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage! });
-            }
-            _unitOfWork.GameRepo.Add(gameInfo);
-            _unitOfWork.Commit();
-            return Ok(new ResponseMessage { Success = true, Message = "Create new game successfuly." });
+            return BadRequest(new ResponseMessage { Success = false, Message = "Game is really exiseted" });            
         }
 
         // GET /<UserController>/All
@@ -49,7 +46,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult GetAllGame()
         {
-            var games = _unitOfWork.GameRepo.GetAll();
+            var games = _gameService.GetAllGame();
             if (games != null)
             {
                 return Ok(new ResponseMessage { Success = true, Message = "Get the list of game successfuly.", Data = new { Games = games } });
@@ -63,7 +60,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         [Authorize(AuthenticationSchemes = "Admin&Partner")]
         public IActionResult GetAvailableGame()
         {
-            var games = _unitOfWork.GameRepo.GetAvailable();
+            var games = _gameService.GetAllGame();
             if (games != null)
             {
                 return Ok(new ResponseMessage { Success = true, Message = "Get the list of available game successfuly.", Data = new { Games = games } });
@@ -77,16 +74,16 @@ namespace CDTKPMNC_STK_BE.Controllers
         [Authorize(AuthenticationSchemes = "Account")]
         public IActionResult GetGameDetail(Guid gameId)
         {
-            var game = _unitOfWork.GameRepo.GetById(gameId);
+            var game = _gameService.GetById(gameId);
             if (game != null)
             {
                 if (game.IsEnable)
                 {
-                    return Ok(new ResponseMessage { Success = true, Message = "Successful", Data = game });
+                    return Ok(new ResponseMessage { Success = true, Message = "Successful", Data = new { Game = game } });
                 }
                 if (UserType == AccountType.Admin)
                 {
-                    return Ok(new ResponseMessage { Success = true, Message = "Successful", Data = game });
+                    return Ok(new ResponseMessage { Success = true, Message = "Successful", Data = new { Game = game } });
                 }
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "gameId is not correct." });
@@ -97,12 +94,10 @@ namespace CDTKPMNC_STK_BE.Controllers
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult DeleteGame(Guid gameId)
         {
-            var game = _unitOfWork.GameRepo.GetById(gameId);
-            if (game != null)
+            var isSuccess = _gameService.DeleteGame(gameId);
+            if (isSuccess)
             {
-                _unitOfWork.GameRepo.Delete(game);
-                _unitOfWork.Commit();
-                return Ok(new ResponseMessage { Success = true, Message = "Deleted game" });
+                 return Ok(new ResponseMessage { Success = true, Message = "Deleted game" });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "gameId is not correct." });
         }
@@ -110,21 +105,18 @@ namespace CDTKPMNC_STK_BE.Controllers
         // PUT /<UserController>/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
         [HttpPut("{gameId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
-        public IActionResult UpdateGame([FromBody] GameInfo gameInfo, Guid gameId)
+        public IActionResult UpdateGame(Guid gameId, [FromBody] GameRecord gameRecord)
         {
-            var game = _unitOfWork.GameRepo.GetById(gameId);
+            var validateSummary = _gameService.ValidateGameRecord(gameRecord);
+            if (!validateSummary.IsValid)
+            {
+                return BadRequest(new ResponseMessage(false, validateSummary.ErrorMessage));
+            }
+            var game = _gameService.GetById(gameId);
             if (game != null)
             {
-                var validator = new GameValidator();
-                ValidationResult validateResult = validator.Validate(gameInfo);
-                if (validateResult.IsValid)
-                {
-                    _unitOfWork.GameRepo.Update(game, gameInfo);
-                    _unitOfWork.Commit();
-                    return Ok(new ResponseMessage { Success = true, Message = "Deleted game" });
-                }
-                string ErrorMessage = validateResult.Errors?.FirstOrDefault()?.ErrorMessage!;
-                return BadRequest(new ResponseMessage { Success = false, Message = ErrorMessage });
+                _gameService.UpdateGame(game, gameRecord);
+                return Ok(new ResponseMessage { Success = true, Message = "Updated game", Data = new { Game = game }});
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "gameId is not correct." });
         }

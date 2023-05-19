@@ -1,45 +1,21 @@
-﻿/*
+﻿using CDTKPMNC_STK_BE.Models;
+using CDTKPMNC_STK_BE.Utilities;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using System.Security.Claims;
 
 namespace CDTKPMNC_STK_BE.Controllers
 {
-    [Route("/[controller]")]
-    [ApiController]
     public class CommonController : ControllerBase
     {
-        // GET: api/<CommonController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
+        public Guid UserId => HttpContext.Items["UserId"]!.ToString()!.ToGuid()!.Value;
+        public AccountType UserType 
+        { 
+            get 
+            {
+                var userType = HttpContext.Items["AccountType"]!.ToString()!;
+                return Enum.Parse<AccountType>(userType);
+            } 
         }
-
-        // GET api/<CommonController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<CommonController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<CommonController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<CommonController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        public CommonController() {}
     }
 }
-*/

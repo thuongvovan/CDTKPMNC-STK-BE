@@ -25,7 +25,9 @@ namespace CDTKPMNC_STK_BE.Models
         public DateOnly EndDate { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public CampaignStatus Status { get; set; }
+        public Guid StoreId { get; set; }
         public virtual Store Store { get; set; } = null!;
+        public Guid GameId { get; set; }
         public virtual Game Game { get; set; } = null!;
         [JsonIgnore]
         public virtual ICollection<VoucherSeries> VoucherSeries { get; set; } = new List<VoucherSeries>();

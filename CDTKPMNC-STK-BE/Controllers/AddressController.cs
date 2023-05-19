@@ -1,5 +1,7 @@
-﻿using CDTKPMNC_STK_BE.Models;
-using CDTKPMNC_STK_BE.Repositories;
+﻿using CDTKPMNC_STK_BE.BusinessServices;
+using CDTKPMNC_STK_BE.DataAccess;
+using CDTKPMNC_STK_BE.DataAccess.Repositories.AddressRepository;
+using CDTKPMNC_STK_BE.Models;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -8,47 +10,35 @@ namespace CDTKPMNC_STK_BE.Controllers
 {
     [Route("/[controller]")]
     [ApiController]
-    public class AddressController : ControllerBase
+    public class AddressController : CommonController
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IAddressRepository _addressRepository;
-        public AddressController(IUnitOfWork unitOfWork)
+        private readonly AddressService _addressService;
+        public AddressController(AddressService addressService) 
         {
-            _unitOfWork = unitOfWork;
-            _addressRepository = _unitOfWork.AddressRepo;
+            _addressService = addressService;
         }
 
         // GET api/<AddressController>/Provines
         [HttpGet("Provines")]
         public IActionResult GetAllProvines()
         {
-            var provines = _addressRepository.GetAllProvines();
-            return Ok(new ResponseMessage
-            {
-                Success = true,
-                Message = "OK",
-                Data = new { Provines = provines }
-            });
+            var provines = _addressService.GetAllProvines();
+            return Ok(new ResponseMessage(true, "OK", new { Provines = provines }));
         }
 
         // GET api/<AddressController>/District/79
         [HttpGet("District/ProvineId")]
-        public IActionResult GetDistrictsByProvine(string ProvineId)
+        public IActionResult GetDistrictsByProvineId(string ProvineId)
         {
-            var districts = _addressRepository.GetDistrictsByProvineId(ProvineId);
-            return Ok(new ResponseMessage
-            {
-                Success = true,
-                Message = "OK",
-                Data = new { Districts = districts }
-            });
+            var districts = _addressService.GetDistrictsByProvineId(ProvineId);
+            return Ok(new ResponseMessage(true, "OK",  new { Districts = districts }));
         }
 
         // GET /<AddressController>/Wards/760
         [HttpGet("Ward/DistrictId")]
-        public IActionResult GetWardsByDistrict(string DistrictId)
+        public IActionResult GetWardsByDistrictId(string DistrictId)
         {
-            var wards = _addressRepository.GetWardsByDistrictId(DistrictId);
+            var wards = _addressService.GetWardsByDistrictId(DistrictId);
             return Ok(new ResponseMessage
             {
                 Success = true,

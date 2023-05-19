@@ -1,9 +1,11 @@
-using CDTKPMNC_STK_BE.Repositories;
-using CDTKPMNC_STK_BE.DatabaseContext;
 using CDTKPMNC_STK_BE.Models;
 using CDTKPMNC_STK_BE.Utilities;
-using CDTKPMNC_STK_BE.Utilities.Email;
+using CDTKPMNC_STK_BE.DataAccess;
+using CDTKPMNC_STK_BE.BusinessServices.AccountServices;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Converters;
+using CDTKPMNC_STK_BE.BusinessServices;
 
 namespace CDTKPMNC_STK_BE
 {
@@ -22,18 +24,28 @@ namespace CDTKPMNC_STK_BE
                 .UseLazyLoadingProxies();
             });
 
-            // builder.Services.AddSingleton(builder.Configuration);
             builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
             //var dbContext = new AppDbContext(builder.Configuration);
             //builder.Services.AddSingleton(dbContext);
 
-            builder.Services.AddTransient<IEmailService, EmailService>();
-
+            //builder.Services.AddTransient<IEmailService, EmailService>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             var jwtAuthen = new JwtAuthen(builder.Configuration);
             builder.Services.AddSingleton(jwtAuthen);
+
+            // Business service dependency injection
+            builder.Services.AddScoped<AdminService>();
+            builder.Services.AddScoped<PartnerService>();
+            builder.Services.AddScoped<AddressService>();
+            builder.Services.AddScoped<EndUserService>();
+            builder.Services.AddScoped<CompanyService>();
+            builder.Services.AddScoped<GameService>();
+            builder.Services.AddScoped<StoreService>();
+            builder.Services.AddScoped<EmailService>();
+            builder.Services.AddScoped<ProductCategoryService>();
+            builder.Services.AddScoped<OtpService>();
 
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -43,7 +55,12 @@ namespace CDTKPMNC_STK_BE
             builder.Services.AddControllers().AddNewtonsoftJson(options =>
                 {
                     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                    options.SerializerSettings.Converters.Add(new StringEnumConverter());
                 });
+
+            
+            builder.Services.AddAuthorization();
+            builder.Services.AddRouting();
 
 
             builder.Services.AddAuthentication()
@@ -63,7 +80,12 @@ namespace CDTKPMNC_STK_BE
             builder.Services.AddAuthentication()
                .AddJwtBearer("Account", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, AccountType.Admin, AccountType.Partner, AccountType.EndUser));
 
-            var app = builder.Build();
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            });
+
+            var app = builder.Build();     
 
             if (true || app.Environment.IsDevelopment())
             {
@@ -83,16 +105,17 @@ namespace CDTKPMNC_STK_BE
                 });
             }
 
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.MapControllers();
+
             app.UseCors(configurePolicy =>
             {
                 configurePolicy.AllowAnyOrigin();
                 configurePolicy.AllowAnyMethod();
                 configurePolicy.AllowAnyHeader();
             });
-
-            app.UseAuthorization();
-
-            app.MapControllers();
 
             app.Run();
         }

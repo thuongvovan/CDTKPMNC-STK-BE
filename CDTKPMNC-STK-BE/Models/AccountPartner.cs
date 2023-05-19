@@ -13,9 +13,10 @@ namespace CDTKPMNC_STK_BE.Models
     public class AccountPartner : Account
     {
         public virtual Address Address { get; set; } = null!;
+
         [JsonConverter(typeof(StringEnumConverter))]
         public PartnerType PartnerType { get; set; }
-        public virtual Company? Company { get; set; }
-        public virtual Store? Store { get; set; }
+        public virtual Company? Company { get; set; } = null;
+        public virtual Store? Store { get; set; } = null;
     }
 }

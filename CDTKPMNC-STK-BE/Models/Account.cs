@@ -1,6 +1,4 @@
-﻿using Castle.Components.DictionaryAdapter;
-using CDTKPMNC_STK_BE.Utilities;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json.Converters;
@@ -16,9 +14,9 @@ namespace CDTKPMNC_STK_BE.Models
 
     public enum Gender
     {
-        Male = 0,
-        Female = 1,
-        Others = 2
+        Male,
+        Female,
+        Others
     }
     abstract public class Account
     {
@@ -36,10 +34,10 @@ namespace CDTKPMNC_STK_BE.Models
         public Gender Gender { get; set; }
         [Column(TypeName = "date")]
         public DateOnly DateOfBirth { get; set; }
-        [JsonIgnore]
         public DateTime? CreatedAt { get; set; }
         [JsonIgnore]
         public virtual AccountOtp? Otp { get; set; }
+        [JsonIgnore]
         public virtual AccountToken? AccountToken { get; set; }
         [JsonIgnore]
         public bool IsVerified { get; set; }
