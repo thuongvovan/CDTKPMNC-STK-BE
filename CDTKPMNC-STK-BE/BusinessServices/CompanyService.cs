@@ -62,7 +62,6 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             if (company != null)
             {
                 _companyRepo.Delete(company);
-                _unitOfWork.Commit();
             }
         }
     }

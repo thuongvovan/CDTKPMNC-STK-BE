@@ -19,7 +19,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             _productCategoryService = productCategoryService;
         }
 
-        // POST /<UserController>/ProductCategory
+        // POST /<ProductCategoryController>/Create
         [HttpPost("Create")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult AddProductCategory([FromBody] ProductCategoryRecord productCategoryRecord)
@@ -33,12 +33,12 @@ namespace CDTKPMNC_STK_BE.Controllers
             if (isVerified)
             {
                 var productCategory = _productCategoryService.CreateProductCategory(productCategoryRecord);
-                return Ok(new ResponseMessage { Success = true, Message = "Create new game successfuly.", Data = new { ProductCategory = productCategory } });
+                return Ok(new ResponseMessage { Success = true, Message = "Create new product category successfuly.", Data = new { ProductCategory = productCategory } });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Category is exist." });
         }
 
-        // GET /<UserController>/ProductCategory/All
+        // GET /<ProductCategoryController>/All
         [HttpGet("All")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult GetAllProductCategory()
@@ -51,7 +51,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return Accepted(new ResponseMessage { Success = true, Message = "The list is empty.", Data = new { ProductCategories = productCategories } });
         }
 
-        // GET /<UserController>/ProductCategory/Avalible
+        // GET /<ProductCategoryController>/Avalible
         [HttpGet("Avalible")]
         [Authorize(AuthenticationSchemes = "Account")]
         public IActionResult GetAvalibleProductCategory()
@@ -64,7 +64,20 @@ namespace CDTKPMNC_STK_BE.Controllers
             return Accepted(new ResponseMessage { Success = true, Message = "The list is empty.", Data = new { ProductCategories = productCategories } });
         }
 
-        // GET /<UserController>/ProductCategory/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
+        // GET /<ProductCategoryController>/Disabled
+        [HttpGet("Disabled")]
+        [Authorize(AuthenticationSchemes = "Admin")]
+        public IActionResult GetDisabledProductCategory()
+        {
+            var productCategories = _productCategoryService.GetDisabledProductCategory();
+            if (productCategories.Count > 0)
+            {
+                return Ok(new ResponseMessage { Success = true, Message = "Get the list of avalible product categories successful.", Data = new { ProductCategories = productCategories } });
+            }
+            return Accepted(new ResponseMessage { Success = true, Message = "The list is empty.", Data = new { ProductCategories = productCategories } });
+        }
+
+        // GET /<ProductCategoryController>/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
         [HttpGet("{productCategoryId:Guid}")]
         [Authorize(AuthenticationSchemes = "Account")]
         public IActionResult GetProductCategory(Guid productCategoryId)
@@ -84,7 +97,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = $"{productCategoryId} is not valid." });
         }
 
-        // DELETE /<UserController>/ProductCategory/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
+        // DELETE /<ProductCategoryController>/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
         [HttpDelete("{productCategoryId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult DeleteProductCategory(Guid productCategoryId)
@@ -97,7 +110,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid delete request." });
         }
 
-        // PUT /<UserController>/ProductCategory/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
+        // PUT /<ProductCategoryController>/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
         [HttpPut("{productCategoryId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult UpdateProductCategory(Guid productCategoryId, [FromBody] ProductCategoryRecord productCategoryRecord)
@@ -115,7 +128,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid update request." });
         }
 
-        // PUT /<UserController>/ProductCategory/Disable/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
+        // PUT /<ProductCategoryController>/Disable/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
         [HttpPut("Disable/{productCategoryId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult DisableProductCategory(Guid productCategoryId)
@@ -128,7 +141,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid update request." });
         }
 
-        // PUT /<UserController>/ProductCategory/Disable/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
+        // PUT /<ProductCategoryController>/Disable/D9D05EAD-165D-45A9-2FE8-08DB52449ED0
         [HttpPut("Enable/{productCategoryId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult EnableProductCategory(Guid productCategoryId)

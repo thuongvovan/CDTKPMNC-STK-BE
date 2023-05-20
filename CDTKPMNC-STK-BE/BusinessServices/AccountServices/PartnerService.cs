@@ -168,8 +168,9 @@ namespace CDTKPMNC_STK_BE.BusinessServices.AccountServices
                 }
             };
         }
-        #endregion 
+        #endregion
 
+        #region store
         public Store AddStore(Guid accountPartnerId, StoreRecord storeRecord)
         {
             var store = new Store
@@ -218,5 +219,6 @@ namespace CDTKPMNC_STK_BE.BusinessServices.AccountServices
             }
             return store;
         }
+        #endregion
     }
 }

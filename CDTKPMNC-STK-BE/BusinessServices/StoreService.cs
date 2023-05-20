@@ -5,6 +5,7 @@ using CDTKPMNC_STK_BE.DataAccess;
 using CDTKPMNC_STK_BE.DataAccess.Repositories;
 using CDTKPMNC_STK_BE.Models;
 using CDTKPMNC_STK_BE.Utilities;
+using System.Security.Cryptography.X509Certificates;
 
 namespace CDTKPMNC_STK_BE.BusinessServices
 {
@@ -67,22 +68,27 @@ namespace CDTKPMNC_STK_BE.BusinessServices
 
         public void Approve(Store store)
         {
-            _storeRepo.Approve(store);
+            store.ApprovedAt = DateTime.Now;
+            store.IsApproved = true;
+            _storeRepo.Update(store);
         }
 
         public void Reject(Store store)
         {
-            _storeRepo.Reject(store);
+            store.IsApproved = false;
+            _storeRepo.Update(store);
         }
 
         public void Disable(Store store)
         {
-            _storeRepo.Disable(store);
+            store.IsEnable = false;
+            _storeRepo.Update(store);
         }
 
         public void Enable(Store store)
         {
-            _storeRepo.Enable(store);
+            store.IsEnable = true;
+            _storeRepo.Update(store);
         }
 
         public ValidationSummary ValidateStoreRecord(StoreRecord storeRecord)
@@ -98,11 +104,11 @@ namespace CDTKPMNC_STK_BE.BusinessServices
 
         public bool VerifyStoreRecord(StoreRecord storeRecord, Guid accountPartnerId)
         {
-            var currentStore = _storeRepo.GetByName(storeRecord.Name!);
-            if (currentStore != null) return true;
-            currentStore = _storeRepo.GetById(accountPartnerId);
-            if (currentStore != null) return true;
-            return false;
+            var currentStore = _storeRepo.GetById(accountPartnerId);
+            if (currentStore != null) return false;
+            currentStore = _storeRepo.GetByName(storeRecord.Name!);
+            if (currentStore != null) return false;
+            return true;
         }
 
         public Store AddStore(StoreRecord storeRecord, Guid accountPartnerId)
@@ -111,18 +117,31 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             {
                 Id = accountPartnerId,
                 Name = storeRecord!.Name!.ToTitleCase(),
-                Description = storeRecord!.Description,
+                Description = storeRecord!.Description!,
                 Address = new Address
                 {
                     Street = storeRecord.Address!.Street,
                     WardId = storeRecord!.Address!.WardId,
                 },
-                OpenTime = new TimeOnly(storeRecord.OpenTime!.Hours!.Value, storeRecord.OpenTime!.Minute!.Value),
-                CloseTime = new TimeOnly(storeRecord.CloseTime!.Hours!.Value, storeRecord.CloseTime!.Minute!.Value),
+                OpenTime = storeRecord.OpenTime!.ToTimeOnly(),
+                CloseTime = storeRecord.CloseTime!.ToTimeOnly(),
                 CreatedAt = DateTime.Now,
                 IsEnable = storeRecord.IsEnable!.Value,
             };
             _storeRepo.Add(store);
+            return store;
+        }
+
+        public Store UpdateStore(Store store, StoreRecord storeRecord)
+        {
+            store.Name = storeRecord!.Name!.ToTitleCase();
+            store.Description = storeRecord!.Description!;
+            store.Address.Street = storeRecord.Address!.Street;
+            store.Address.WardId = storeRecord!.Address!.WardId;
+            store.OpenTime = storeRecord.OpenTime!.ToTimeOnly();
+            store.CloseTime = storeRecord.CloseTime!.ToTimeOnly();
+            store.IsEnable = storeRecord.IsEnable!.Value;
+            _storeRepo.Update(store);
             return store;
         }
 
@@ -131,7 +150,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             var store = _storeRepo.GetById(accountPartnerId);
             if (store != null)
             {
-                _storeRepo.Enable(store);
+                store.IsEnable = true;
+                _storeRepo.Update(store);
                 return store;
             }
             return null;
@@ -142,7 +162,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             var store = _storeRepo.GetById(accountPartnerId);
             if (store != null)
             {
-                _storeRepo.Disable(store);
+                store.IsEnable = false;
+                _storeRepo.Update(store);
                 return store;
             }
             return null;

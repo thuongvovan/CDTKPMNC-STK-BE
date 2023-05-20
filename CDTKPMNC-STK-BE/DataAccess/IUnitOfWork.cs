@@ -17,6 +17,7 @@ namespace CDTKPMNC_STK_BE.DataAccess
         IStoreRepository StoreRepo { get; }
         IGameRepository GameRepo { get; }
         IProductCategoryRepository ProductCategoryRepo { get; }
+        IProductItemRepository ProductItemRepo { get; }
         void Commit();
     }
 }

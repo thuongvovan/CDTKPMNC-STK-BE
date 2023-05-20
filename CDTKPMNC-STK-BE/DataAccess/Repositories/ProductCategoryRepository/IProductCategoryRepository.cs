@@ -6,10 +6,7 @@ namespace CDTKPMNC_STK_BE.DataAccess.Repositories
     public interface IProductCategoryRepository : ICommonRepository<ProductCategory>
     {
         List<ProductCategory> GetAvalible();
+        List<ProductCategory> GetDisabled();
         ProductCategory? GetByName(string name);
-        void Add(ProductCategoryRecord productCategoryRecord);
-        void Update(ProductCategory category, ProductCategoryRecord productCategoryInfo);
-        void Enable(ProductCategory category);
-        void Disable(ProductCategory category);
     }
 }

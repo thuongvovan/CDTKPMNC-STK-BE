@@ -30,6 +30,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         }
 
         #region account
+        // POST /<PartnerController>/Register
         [HttpPost("Register")]
         public IActionResult Register([FromBody] PartnerRegistrationRecord partnerRegistrationRecord)
         {
@@ -92,7 +93,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             });
         }
 
-        // PUT /<UserController>/Update
+        // PUT /<PartnerController>/Update
         [HttpPut("Update")]
         public IActionResult Update([FromBody] PartnerUpdateRecord partnerUpdateRecord)
         {
@@ -115,7 +116,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid UserId." });
         }
 
-        // POST /<UserController>/VerifyRegister/AB8D4730-8895-4C18-F0F8-08DB439AD21D
+        // POST /<PartnerController>/VerifyRegister/AB8D4730-8895-4C18-F0F8-08DB439AD21D
         [HttpPost("VerifyRegister/{userId:Guid}")]
         public IActionResult VerifyRegister(Guid userId, [FromBody] Otp otp)
         {
@@ -142,7 +143,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid UserId." });
         }
 
-        // POST /<UserController>/Login
+        // POST /<PartnerController>/Login
         [HttpPost("Login")]
         public IActionResult Login([FromBody] LoginRecord loginRecord)
         {
@@ -161,7 +162,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage(false, "Username or password is incorrect"));
         }
 
-        // POST /<UserController>/RefreshToken
+        // POST /<PartnerController>/RefreshToken
         [HttpPost("RefreshToken")]
         [Authorize(AuthenticationSchemes = "PartnerNoLifetime")]
         public IActionResult RefreshToken([FromBody] TokenRecord tokenRecord)
@@ -182,7 +183,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return Ok(new ResponseMessage(false, "Your token is invalid."));
         }
 
-        // PUT /<UserController>/ChangePassword
+        // PUT /<PartnerController>/ChangePassword
         [HttpPut("ChangePassword")]
         [Authorize(AuthenticationSchemes = "Partner")]
         public IActionResult ChangePassword(ChangePasswordRecord changePasswordRecord)
@@ -202,7 +203,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage(false, "Your current password is incorrect."));
         }
 
-        // POST /<UserController>/ResetPassword
+        // POST /<PartnerController>/ResetPassword
         [HttpPost("ResetPassword")]
         public IActionResult ResetPassword(ResetPasswordRecord resetPasswordRecord)
         {
@@ -223,7 +224,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "UserName does not exist" });
         }
 
-        // POST /<UserController>/VerifyResetPassword
+        // POST /<PartnerController>/VerifyResetPassword
         [HttpPost("VerifyResetPassword")]
         public IActionResult VerifyResetPassword([FromBody] VerifyResetPasswordRecord verifyResetRecord)
         {
@@ -245,7 +246,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         #endregion
 
         #region store
-        // POST /<UserController>/Store/Register
+        // POST /<PartnerController>/Store/Register
         [HttpPost("Store/Register")]
         [Authorize(AuthenticationSchemes = "Partner")]
         public IActionResult RegisterStore([FromBody] StoreRecord storeRecord)
@@ -258,12 +259,45 @@ namespace CDTKPMNC_STK_BE.Controllers
             var isVerified = _storeService.VerifyStoreRecord(storeRecord, UserId);
             if (isVerified)
             {
-                _storeService.AddStore(storeRecord, UserId);
+                var store = _storeService.AddStore(storeRecord, UserId);
+                return Ok(new ResponseMessage { Success = true, Message = "Create a successful store. The request is being reviewed by the administrator", Data = new { Store = store }});
             }
-            return BadRequest(new ResponseMessage { Success = false, Message = "Store is really existsed" });            
+            return BadRequest(new ResponseMessage { Success = false, Message = "Store is really existed" });            
         }
 
-        // PUT /<UserController>/Store/Enable
+        // PUT /<PartnerController>/Store/Update
+        [HttpPost("Store/Update")]
+        [Authorize(AuthenticationSchemes = "Partner")]
+        public IActionResult UpdateStore([FromBody] StoreRecord storeRecord)
+        {
+            var validateSummary = _storeService.ValidateStoreRecord(storeRecord);
+            if (!validateSummary.IsValid)
+            {
+                return BadRequest(new ResponseMessage(false, validateSummary.ErrorMessage));
+            }
+            var store = _storeService.GetById(UserId);
+            if (store != null )
+            {
+                _storeService.UpdateStore(store, storeRecord);
+                return Ok(new ResponseMessage { Success = true, Message = "Store has been updated.", Data = new { Store = store } });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Store dose not exist." });
+        }
+
+        // GET /<PartnerController>/Store/Detail
+        [HttpGet("Store/Detail")]
+        [Authorize(AuthenticationSchemes = "Partner")]
+        public IActionResult GetStore()
+        {
+            var store = _storeService.GetById(UserId);
+            if (store != null)
+            {
+                return Ok(new ResponseMessage { Success = true, Message = "Get successfully.", Data = new { Store = store } });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Store dose not exist." });
+        }
+
+        // PUT /<PartnerController>/Store/Enable
         [HttpPut("Store/Enable")]
         [Authorize(AuthenticationSchemes = "Partner")]
         public IActionResult EnableStore()
@@ -276,7 +310,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Enable is not valid. Please register store." });
         }
 
-        // PUT /<UserController>/Store/Disable
+        // PUT /<PartnerController>/Store/Disable
         [HttpPut("Store/Disable")]
         [Authorize(AuthenticationSchemes = "Partner")]
         public IActionResult DisableStore()
@@ -291,7 +325,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         #endregion
 
         #region Game
-        // GET /<UserController>/Game/All
+        // GET /<PartnerController>/Game/All
         [HttpGet("Game/All")]
         [Authorize(AuthenticationSchemes = "Partner")]
         public IActionResult GetAllGame()
@@ -304,7 +338,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return Accepted(new ResponseMessage { Success = true, Message = "The list is empty.", Data = new { Games = games } });
         }
 
-        // GET /<UserController>/Game/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        // GET /<PartnerController>/Game/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
         [HttpGet("Game/{gameId:Guid}")]
         [Authorize(AuthenticationSchemes = "Partner")]
         public IActionResult GetGame(Guid gameId)

@@ -17,11 +17,11 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
                 .NotNull().NotEmpty().WithMessage("Specify individual partner or business partner.")
                 .Must(type => Enum.GetNames(typeof(PartnerType)).ToList().Contains(type!.Value.ToString()))
                 .WithMessage("{PropertyName} {PropertyValue} is invalid.");
-
             RuleFor(partner => partner.Company)
-                .Must((partner, company) => !(partner!.PartnerType == PartnerType.Company && company == null))
+                .NotNull().When(partner => partner.PartnerType == PartnerType.Company)
                 .WithMessage("{PropertyName} is required.")
-                .SetValidator(new CompanyRecordValidator(addressService, companyService));
+                .SetValidator(new CompanyRecordValidator(addressService, companyService))
+                .When(partner => partner.PartnerType == PartnerType.Company);
         }
     }
 }

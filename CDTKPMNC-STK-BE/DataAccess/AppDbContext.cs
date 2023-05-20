@@ -15,8 +15,8 @@ namespace CDTKPMNC_STK_BE.DataAccess
         public DbSet<AccountPartner> AccountPartners { get; set; }
         public DbSet<Company> Companys { get; set; }
         public DbSet<Campaign> Campaigns { get; set; }
-        public DbSet<Store> Stores { get; set; }
         public DbSet<Game> Games { get; set; }
+        public DbSet<Store> Stores { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }
         public DbSet<ProductItem> ProductItems { get; set; }
         public DbSet<VoucherSeries> VoucherSeries { get; set; }

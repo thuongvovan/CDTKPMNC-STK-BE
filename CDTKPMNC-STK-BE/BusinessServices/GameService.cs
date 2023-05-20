@@ -90,5 +90,19 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             _gameRepo.Update(game);
             return game;
         }
+
+        public Game DisableGame(Game game)
+        {
+            game.IsEnable = false;
+            _gameRepo.Update(game);
+            return game;
+        }
+
+        public Game EnableGame(Game game)
+        {
+            game.IsEnable = false;
+            _gameRepo.Update(game);
+            return game;
+        }
     }
 }

@@ -21,7 +21,7 @@ namespace CDTKPMNC_STK_BE
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Default"))
-                .UseLazyLoadingProxies();
+                        .UseLazyLoadingProxies();
             });
 
             builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
@@ -91,7 +91,7 @@ namespace CDTKPMNC_STK_BE
             {
                 using var dbContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
                 // Delete the database if it exists
-                dbContext.Database.EnsureDeleted();
+                // dbContext.Database.EnsureDeleted();
                 Console.WriteLine("Delete the database if it exists");
                 // Create the database and its tables
                 dbContext.Database.EnsureCreated();
@@ -106,9 +106,6 @@ namespace CDTKPMNC_STK_BE
             }
 
             app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
-            app.MapControllers();
 
             app.UseCors(configurePolicy =>
             {
@@ -117,6 +114,9 @@ namespace CDTKPMNC_STK_BE
                 configurePolicy.AllowAnyHeader();
             });
 
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.MapControllers();
             app.Run();
         }
     }

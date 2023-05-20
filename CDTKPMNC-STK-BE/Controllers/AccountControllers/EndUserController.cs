@@ -29,7 +29,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             _gameService = gameService;
         }
 
-        // POST /<UserController>/Register
+        // POST /<EndUserController>/Register
         [HttpPost("Register")]
         public IActionResult Register([FromBody] AccountRegistrationRecord userRegistrationRecord)
         {
@@ -98,7 +98,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         }
 
 
-        // POST /<UserController>/VerifyRegister/AB8D4730-8895-4C18-F0F8-08DB439AD21D
+        // POST /<EndUserController>/VerifyRegister/AB8D4730-8895-4C18-F0F8-08DB439AD21D
         [HttpPost("VerifyRegister/{userId:Guid}")]
         public IActionResult VerifyRegister(Guid userId, [FromBody] Otp otp)
         {
@@ -125,7 +125,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid UserId." });
         }
 
-        // POST /<UserController>/Login
+        // POST /<EndUserController>/Login
         [HttpPost("Login")]
         public IActionResult Login([FromBody] LoginRecord loginRecord)
         {
@@ -144,7 +144,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage(false, "Username or password is incorrect"));
         }
 
-        // POST /<UserController>/RefreshToken
+        // POST /<EndUserController>/RefreshToken
         [HttpPost("RefreshToken")]
         [Authorize(AuthenticationSchemes = "EndUserNoLifetime")]
         public IActionResult Refresh([FromBody] TokenRecord tokenRecord)
@@ -166,7 +166,7 @@ namespace CDTKPMNC_STK_BE.Controllers
 
         }
 
-        // PUT /<UserController>/ChangePassword
+        // PUT /<EndUserController>/ChangePassword
         [HttpPut("ChangePassword")]
         [Authorize(AuthenticationSchemes = "EndUser")]
         public IActionResult ChangePassword(ChangePasswordRecord changePasswordRecord)
@@ -186,7 +186,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage(false, "Your current password is incorrect."));
         }
 
-        // POST /<UserController>/ResetPassword
+        // POST /<EndUserController>/ResetPassword
         [HttpPost("ResetPassword")]
         public IActionResult ResetPassword(ResetPasswordRecord resetPasswordRecord)
         {
@@ -207,7 +207,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "UserName does not exist" });
         }
 
-        // POST /<UserController>/VerifyResetPassword
+        // POST /<EndUserController>/VerifyResetPassword
         [HttpPost("VerifyResetPassword")]
         public IActionResult VerifyResetPassword([FromBody] VerifyResetPasswordRecord verifyResetRecord)
         {
@@ -227,7 +227,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage(false, "Incorrect OTP."));
         }
 
-        // PUT /<UserController>/Update
+        // PUT /<EndUserController>/Update
         [HttpPut("Update")]
         [Authorize(AuthenticationSchemes = "EndUser")]
         public IActionResult Update([FromBody] AccountUpdateRecord accountUpdateRecord)
@@ -251,7 +251,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid UserId." });
         }
 
-        // GET /<UserController>/Game/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        // GET /<EndUserController>/Game/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
         [HttpGet("Game/{gameId:Guid}")]
         [Authorize(AuthenticationSchemes = "EndUser")]
         public IActionResult GetGame(Guid gameId)

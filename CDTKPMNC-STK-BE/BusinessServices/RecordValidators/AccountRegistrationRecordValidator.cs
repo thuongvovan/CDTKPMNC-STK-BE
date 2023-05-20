@@ -14,10 +14,10 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
 
             RuleFor(user => user!.Password)
                 .NotNull().NotEmpty().WithMessage("{PropertyName} is required.")
-                .MinimumLength(8).WithMessage("Password must be at least 8 characters long, contain lowercase, uppercase and digit.")
-                .Matches("[a-z]").WithMessage("Password must be at least 8 characters long, contain lowercase, uppercase and digit.")
-                .Matches("[A-Z]").WithMessage("Password must be at least 8 characters long, contain lowercase, uppercase and digit.")
-                .Matches("[0-9]").WithMessage("Password must be at least 8 characters long, contain lowercase, uppercase and digit.");
+                .MinimumLength(8)
+                .Matches("[a-z]")
+                .Matches("[A-Z]")
+                .Matches("[0-9]").WithMessage("Password must be at least 8 characters, contain lowercase, uppercase and digit.");
 
             RuleFor(user => user!.Name)
                 .NotNull().NotEmpty().WithMessage("{PropertyName} is required.");
