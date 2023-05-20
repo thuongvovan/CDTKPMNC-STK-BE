@@ -274,7 +274,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             var endUsers = _endUserService.GetAll();
             if (endUsers.Count > 0)
             {
-                return Ok(new ResponseMessage(true, "Get the list of all partners successfully.", new { Partners = endUsers }));
+                return Ok(new ResponseMessage(true, "Get the list of all end user successfully.", new { EndUsers = endUsers }));
             }
             return Ok(new ResponseMessage(true, "The list is empty.", new { EndUsers = endUsers }));
         }

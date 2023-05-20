@@ -21,8 +21,9 @@ namespace CDTKPMNC_STK_BE.Models
         public bool? IsApproved { get; set; }
         public DateTime? ApprovedAt { get; set; }
         public bool IsEnable { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<ProductCategory>? ProductCategoies { get; set; }
+        //[JsonIgnore]
+        //[InverseProperty("Store")]
+        //public virtual ICollection<StoresProductCategories>? StoresProductCategories { get; set; }
         [JsonIgnore]
         public virtual ICollection<ProductItem>? ProductItems { get; set; }
         [JsonIgnore]
@@ -31,9 +32,6 @@ namespace CDTKPMNC_STK_BE.Models
         public virtual ICollection<Campaign>? Campaigns { get; set; }
         [JsonIgnore]
         public virtual ICollection<VoucherSeries>? VoucherSeries { get; set; }
-        // [JsonIgnore]
-        // public virtual ICollection<Vouchers>? Vouchers { get; set; }
-
     }
 }
  

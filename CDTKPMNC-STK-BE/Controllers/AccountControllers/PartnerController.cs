@@ -263,6 +263,38 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Store is really existsed" });            
         }
 
+        // PUT /<UserController>/Store/Update
+        [HttpPost("Store/Update")]
+        [Authorize(AuthenticationSchemes = "Partner")]
+        public IActionResult UpdateStore([FromBody] StoreRecord storeRecord)
+        {
+            var validateSummary = _storeService.ValidateStoreRecord(storeRecord);
+            if (!validateSummary.IsValid)
+            {
+                return BadRequest(new ResponseMessage(false, validateSummary.ErrorMessage));
+            }
+            var store = _storeService.GetById(UserId);
+            if (store != null )
+            {
+                _storeService.UpdateStore(store, storeRecord);
+                return Ok(new ResponseMessage { Success = true, Message = "Store has been updated.", Data = new { Store = store } });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Store dose not exist." });
+        }
+
+        // GET /<UserController>/Store/Detail
+        [HttpGet("Store/Detail")]
+        [Authorize(AuthenticationSchemes = "Partner")]
+        public IActionResult GetStore()
+        {
+            var store = _storeService.GetById(UserId);
+            if (store != null)
+            {
+                return Ok(new ResponseMessage { Success = true, Message = "Get successfully.", Data = new { Store = store } });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Store dose not exist." });
+        }
+
         // PUT /<UserController>/Store/Enable
         [HttpPut("Store/Enable")]
         [Authorize(AuthenticationSchemes = "Partner")]

@@ -40,9 +40,11 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
     public record GameRecord(string? Name, string? Description, string? Instruction, bool? IsEnable);
     #endregion
 
-    
-
     #region Product category
     public record ProductCategoryRecord(string? Name, string? Description, bool? IsEnable);
+    #endregion
+
+    #region Product Item
+    public record ProductItemRecord(string? Name, string? Description, Guid? ProductCategoryId, float? Price, bool? IsEnable);
     #endregion
 }

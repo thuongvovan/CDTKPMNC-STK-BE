@@ -70,6 +70,16 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             return new List<ProductCategory>(0);
         }
 
+        public List<ProductCategory> GetDisabledProductCategory()
+        {
+            var productCategories = _productCategoryRepo.GetDisabled();
+            if (productCategories != null)
+            {
+                return productCategories.ToList();
+            }
+            return new List<ProductCategory>(0);
+        }
+
         public ProductCategory? GetProductCategory(Guid productCategoryId)
         {
             var productCategory = _productCategoryRepo.GetById(productCategoryId);
@@ -79,7 +89,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         public bool DeleteProductCategory(Guid productCategoryId)
         {
             var productCategory = _productCategoryRepo.GetById(productCategoryId);
-            if (productCategory != null && (productCategory.Items == null || productCategory.Items.Count == 0))
+            if (productCategory != null && (productCategory.ProductItems == null || productCategory.ProductItems.Count == 0))
             {
                 _productCategoryRepo.Delete(productCategory);
                 return true;
@@ -106,7 +116,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             var productCategory = _productCategoryRepo.GetById(productCategoryId);
             if (productCategory != null)
             {
-                _productCategoryRepo.Disable(productCategory);
+                productCategory.IsEnable = false;
+                _productCategoryRepo.Update(productCategory);
                 return productCategory;
             }
             return null;
@@ -117,7 +128,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             var productCategory = _productCategoryRepo.GetById(productCategoryId);
             if (productCategory != null)
             {
-                _productCategoryRepo.Enable(productCategory);
+                productCategory.IsEnable = true;
+                _productCategoryRepo.Update(productCategory);
                 return productCategory;
             }
             return null;

@@ -120,5 +120,33 @@ namespace CDTKPMNC_STK_BE.Controllers
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "gameId is not correct." });
         }
+
+        // PUT /<UserController>/Disable/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        [HttpPut("Disable/{gameId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Admin")]
+        public IActionResult DisableGame(Guid gameId)
+        {
+            var game = _gameService.GetById(gameId);
+            if (game != null && game.IsEnable)
+            {
+                _gameService.DisableGame(game);
+                return Ok(new ResponseMessage { Success = true, Message = "The game has been disabled", Data = new { Game = game } });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Invalid request." });
+        }
+
+        // PUT /<UserController>/Disable/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        [HttpPut("Enable/{gameId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Admin")]
+        public IActionResult EnableGame(Guid gameId)
+        {
+            var game = _gameService.GetById(gameId);
+            if (game != null && game.IsEnable)
+            {
+                _gameService.EnableGame(game);
+                return Ok(new ResponseMessage { Success = true, Message = "The game has been enabled", Data = new { Game = game } });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Invalid request." });
+        }
     }
 }

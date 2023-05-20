@@ -19,6 +19,7 @@ namespace CDTKPMNC_STK_BE.DataAccess
         public IStoreRepository _storeRepository;
         public IGameRepository _gameRepository;
         public IProductCategoryRepository _productCategoryRepository;
+        public IProductItemRepository _productItemRepository;
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -33,6 +34,7 @@ namespace CDTKPMNC_STK_BE.DataAccess
             _storeRepository = new StoreRepository(_context);
             _gameRepository = new GameRepository(_context);
             _productCategoryRepository = new ProductCategoryRepository(_context);
+            _productItemRepository = new ProductItemRepository(_context);
         }
 
         public IAccountRepository<Account> AccountRepo
@@ -123,6 +125,16 @@ namespace CDTKPMNC_STK_BE.DataAccess
                 return _productCategoryRepository;
             }
         }
+
+        public IProductItemRepository ProductItemRepo
+        {
+            get
+            {
+                _productItemRepository ??= new ProductItemRepository(_context);
+                return _productItemRepository;
+            }
+        }
+
         public void Commit()
         {
             _context.SaveChanges();
