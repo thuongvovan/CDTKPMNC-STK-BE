@@ -10,6 +10,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
     {
         public CompanyRecordValidator(AddressService addressService, CompanyService companyService)
         {
+            ClassLevelCascadeMode = CascadeMode.Stop;
+
             RuleFor(com => com!.Name)
                 .NotNull().NotEmpty().WithMessage("{PropertyName} name is required.")
                 .Must(name => companyService.GetByName(name!) == null).WithMessage("{PropertyValue} name is really existed.");

@@ -8,6 +8,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
     {
         public StoreRecordValidator(AddressService addressService)
         {
+            ClassLevelCascadeMode = CascadeMode.Stop;
+
             RuleFor(store => store.Name)
                 .NotNull().NotEmpty().WithMessage("{PropertyName} is required.");
 
@@ -38,6 +40,10 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
 
             RuleFor(store => store.IsEnable)
                 .NotNull().NotEmpty().WithMessage("Specify whether to enable or not.");
+
+            RuleFor(store => store.BannerUrl)
+                .NotEmpty().When(store => store.BannerUrl != null)
+                .WithMessage("{PropertyName} is not empty.");
         }
     }
 }

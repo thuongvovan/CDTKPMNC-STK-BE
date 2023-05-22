@@ -1,5 +1,7 @@
 ﻿using CDTKPMNC_STK_BE.DataAccess.Repositories;
 using CDTKPMNC_STK_BE.DataAccess.Repositories.AddressRepository;
+using CDTKPMNC_STK_BE.DataAccess.Repositories.VoucherRepository;
+using CDTKPMNC_STK_BE.DataAccess.Repositories.VoucherSeriesRepository;
 using CDTKPMNC_STK_BE.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +20,10 @@ namespace CDTKPMNC_STK_BE.DataAccess
         public ICompanyRepository _companyRepository;
         public IStoreRepository _storeRepository;
         public IGameRepository _gameRepository;
+        public ICampaignRepository _campaignRepository;
+        public ICampaignVoucherSeriesRepository _campaignVoucherSeriesRepository;
+        public IVoucherRepository _voucherRepository;
+        public IVoucherSeriesRepository _voucherSeriesRepository;
         public IProductCategoryRepository _productCategoryRepository;
         public IProductItemRepository _productItemRepository;
         public UnitOfWork(AppDbContext context)
@@ -35,6 +41,10 @@ namespace CDTKPMNC_STK_BE.DataAccess
             _gameRepository = new GameRepository(_context);
             _productCategoryRepository = new ProductCategoryRepository(_context);
             _productItemRepository = new ProductItemRepository(_context);
+            _campaignRepository = new CampaignRepository(_context);
+            _campaignVoucherSeriesRepository = new CampaignVoucherSeriesRepository(_context);
+            _voucherRepository = new VoucherRepository(_context);
+            _voucherSeriesRepository = new VoucherSeriesRepository(_context);
         }
 
         public IAccountRepository<Account> AccountRepo
@@ -117,6 +127,41 @@ namespace CDTKPMNC_STK_BE.DataAccess
                 return _gameRepository;
             }
         }
+
+        public ICampaignRepository CampaignRepo
+        {
+            get
+            {
+                _campaignRepository ??= new CampaignRepository(_context);
+                return _campaignRepository;
+            }
+        }        public ICampaignVoucherSeriesRepository CampaignVoucherSeriesRepo
+        {
+            get
+            {
+                _campaignVoucherSeriesRepository ??= new CampaignVoucherSeriesRepository(_context);
+                return _campaignVoucherSeriesRepository;
+            }
+        }
+
+        public IVoucherRepository VoucherRepo
+        {
+            get
+            {
+                _voucherRepository ??= new VoucherRepository(_context);
+                return _voucherRepository;
+            }
+        }
+
+        public IVoucherSeriesRepository VoucherSeriesRepo
+        {
+            get
+            {
+                _voucherSeriesRepository ??= new VoucherSeriesRepository(_context);
+                return _voucherSeriesRepository;
+            }
+        }
+
         public IProductCategoryRepository ProductCategoryRepo
         {
             get

@@ -9,30 +9,30 @@ namespace CDTKPMNC_STK_BE.Controllers
     public class ImageController : ControllerBase
     {
         private readonly IWebHostEnvironment _environment;
-        private readonly string _contentRootPath;
+        private readonly string _webRootPath;
 
         public ImageController(IWebHostEnvironment environment)
         {
             _environment = environment;
-            _contentRootPath = _environment.ContentRootPath;
+            _webRootPath = _environment.WebRootPath;
         }
 
-        // GET: <ImageController>
+        // GET: <ImageController>/StoreBanner
         [HttpGet("StoreBanner")]
         public PhysicalFileResult GetStoreBanner()
         {
-            var folderPath = Path.Combine(_contentRootPath, "Images", "StoreBanners");
+            var folderPath = Path.Combine(_webRootPath, "DummyImages", "StoreBanners");
             string[] files = Directory.GetFiles(folderPath);
             var random = new Random();
             string randomFile = files[random.Next(files.Length)];
             return PhysicalFile(randomFile, "image/jpeg");
         }
 
-        // GET: <ImageController>
+        // GET: <ImageController>/ProductItem
         [HttpGet("ProductItem")]
         public PhysicalFileResult GetProductItemImage()
         {
-            var folderPath = Path.Combine(_contentRootPath, "Images", "ProductItems");
+            var folderPath = Path.Combine(_webRootPath, "DummyImages", "ProductItems");
             string[] files = Directory.GetFiles(folderPath);
             var random = new Random();
             string randomFile = files[random.Next(files.Length)];

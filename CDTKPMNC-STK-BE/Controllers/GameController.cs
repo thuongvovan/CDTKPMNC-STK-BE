@@ -32,9 +32,8 @@ namespace CDTKPMNC_STK_BE.Controllers
                 return BadRequest(new ResponseMessage(false, validateSummary.ErrorMessage));
             }
             bool IsVerified = _gameService.VerifyGameRecord(gameRecord);
-            if (!IsVerified)
+            if (IsVerified)
             {
-                
                 var game = _gameService.CreateGame(gameRecord);
                 return Ok(new ResponseMessage { Success = true, Message = "Create new game successfuly.", Data = new { Game = game } });
             }

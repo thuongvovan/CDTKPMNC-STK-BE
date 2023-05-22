@@ -7,7 +7,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
     {
         public VerifyResetPasswordRecordValidator()
         {
-            // ClassLevelCascadeMode = CascadeMode.Stop;
+            ClassLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(vrs => vrs.UserName)
                 .NotNull().NotEmpty().WithMessage("UserName is required.")

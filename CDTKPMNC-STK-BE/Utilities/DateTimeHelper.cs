@@ -7,6 +7,15 @@ namespace CDTKPMNC_STK_BE.Utilities
     
     public static class DateTimeHelper
     {
+        static public DateTime ToDateTime(this DateOnly date)
+        {
+            return new DateTime(date.Year, date.Month, date.Day);
+        }
+        static public DateTime ToDateTime(this DateRecord date)
+        {
+            return new DateTime(date.Year!.Value, date.Month!.Value, date.Day!.Value);
+        }
+
         static public DateOnly ToDateOnly(this DateRecord date)
         {
             return new DateOnly(date.Year!.Value, date.Month!.Value, date.Day!.Value);

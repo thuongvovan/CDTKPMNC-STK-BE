@@ -7,6 +7,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
     {
         public TimeRecordValidator() 
         {
+            ClassLevelCascadeMode = CascadeMode.Stop;
+
             RuleFor(t => t!.Minute)
                 .NotNull().WithMessage("{{PropertyName}} is required.")
                 .InclusiveBetween(0, 59).WithMessage("{PropertyName} must be between 0 and 59");

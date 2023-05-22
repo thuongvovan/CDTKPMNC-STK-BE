@@ -40,12 +40,15 @@ namespace CDTKPMNC_STK_BE
             builder.Services.AddScoped<PartnerService>();
             builder.Services.AddScoped<AddressService>();
             builder.Services.AddScoped<EndUserService>();
+            builder.Services.AddScoped<OtpService>();
             builder.Services.AddScoped<CompanyService>();
             builder.Services.AddScoped<GameService>();
             builder.Services.AddScoped<StoreService>();
             builder.Services.AddScoped<EmailService>();
             builder.Services.AddScoped<ProductCategoryService>();
-            builder.Services.AddScoped<OtpService>();
+            builder.Services.AddScoped<ProductItemService>();
+            builder.Services.AddScoped<CampaignService>();
+            builder.Services.AddScoped<VoucherService>();
 
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -91,10 +94,11 @@ namespace CDTKPMNC_STK_BE
             {
                 using var dbContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
                 // Delete the database if it exists
-                // dbContext.Database.EnsureDeleted();
+                dbContext.Database.EnsureDeleted();
                 Console.WriteLine("Delete the database if it exists");
                 // Create the database and its tables
                 dbContext.Database.EnsureCreated();
+                // dbContext.Database.Migrate();
                 Console.WriteLine("Create the database and its tables");
 
                 app.UseSwagger();
@@ -113,7 +117,7 @@ namespace CDTKPMNC_STK_BE
                 configurePolicy.AllowAnyMethod();
                 configurePolicy.AllowAnyHeader();
             });
-
+            app.UseStaticFiles();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();

@@ -7,6 +7,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
     {
         public LoginRecordValidator()
         {
+            ClassLevelCascadeMode = CascadeMode.Stop;
+
             RuleFor(user => user.UserName)
                .NotNull().NotEmpty().WithMessage("UserName is required.");
 
