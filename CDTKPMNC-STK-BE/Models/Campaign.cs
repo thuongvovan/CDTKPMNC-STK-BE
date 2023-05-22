@@ -7,31 +7,33 @@ namespace CDTKPMNC_STK_BE.Models
 {
     public enum CampaignStatus
     {
-        WAITING,
-        ENABLED,
-        PAUSED,
-        REMOVED,
-        EXPIRED
+        UNKNOWN,
+        WAITING, // Enable + trước thời gian
+        RUNNING, // Enable + trong thời gian
+        PENDING, // Disable + trước và trong thời gian
+        FINISHED, // trong thời gian + hết voucher
+        EXPIRED  // Sau thời gian
     }
     public class Campaign
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
-        public DateTime CreatedAt { get; set; }
         [Column(TypeName = "date")]
         public DateOnly StartDate { get; set; }
         [Column(TypeName = "date")]
         public DateOnly EndDate { get; set; }
-        [JsonConverter(typeof(StringEnumConverter))]
-        public CampaignStatus Status { get; set; }
         public Guid StoreId { get; set; }
+        [JsonIgnore]
         public virtual Store Store { get; set; } = null!;
         public Guid GameId { get; set; }
         public virtual Game Game { get; set; } = null!;
-        [JsonIgnore]
-        public virtual ICollection<VoucherSeries> VoucherSeries { get; set; } = new List<VoucherSeries>();
-        [JsonIgnore]
-        public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
+        [InverseProperty("Campaign")]
+        public virtual ICollection<CampaignVoucherSeries> CampaignVoucherSeriesList { get; set; } = null!;
+        public DateTime CreatedAt { get; set; }
+        public bool IsEnable { get; set; }
+        [NotMapped]
+        [JsonConverter(typeof(StringEnumConverter))]
+        public CampaignStatus Status { get; set; }
     }
 }

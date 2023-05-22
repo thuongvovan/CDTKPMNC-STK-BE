@@ -169,6 +169,19 @@ namespace CDTKPMNC_STK_BE.Controllers
             return Ok(new ResponseMessage(true, "List of store is empty.", new { Stores = stores }));
         }
 
+        // GET /<UserController>/Store/94FC34D5-D5A2-4EC0-9894-08DB5B2F9271
+        [HttpGet("Store/{storeId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Admin")]
+        public IActionResult GetStores(Guid storeId)
+        {
+            var store = _storeService.GetById(storeId);
+            if (store != null)
+            {
+                return Ok(new ResponseMessage(true, "Get the list of all stores successfully.", new { Store = store }));
+            }
+            return BadRequest(new ResponseMessage(true, "Store does not exist."));
+        }
+
         // GET /<UserController>/Store/Approved
         [HttpGet("Store/Approved")]
         [Authorize(AuthenticationSchemes = "Admin")]

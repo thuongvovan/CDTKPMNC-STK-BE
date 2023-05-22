@@ -8,6 +8,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
     {
         public PartnerUpdateRecordValidator(AddressService addressService, CompanyService companyService)
         {
+            ClassLevelCascadeMode = CascadeMode.Stop;
+
             RuleFor(partner => partner.AccountUpdate)
                 .NotNull().WithMessage("{PropertyName} is required.")
                 .SetValidator(new AccountUpdateRecordValidator(addressService));

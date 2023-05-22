@@ -178,9 +178,11 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 Name = productItemRecord.Name!.ToTitleCase().Trim(),
                 Description = productItemRecord.Description!,
                 ProductCategoryId = productItemRecord.ProductCategoryId!.Value,
+                Price = productItemRecord.Price!.Value,
                 IsEnable = productItemRecord.IsEnable!.Value,
                 StoreId = storeId,
                 CreatedAt = DateTime.Now,
+                ImageUrl = productItemRecord.ImageUrl
             };
             _productItemRepo.Add(productItem);
             return productItem;
@@ -191,7 +193,9 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             productItem.Name = productItemRecord.Name!.ToTitleCase().Trim();
             productItem.Description = productItemRecord.Description!;
             productItem.ProductCategoryId = productItemRecord.ProductCategoryId!.Value;
+            productItem.Price = productItemRecord.Price!.Value;
             productItem.IsEnable = productItemRecord.IsEnable!.Value;
+            productItem.ImageUrl = productItemRecord.ImageUrl;
             _productItemRepo.Update(productItem);
             return productItem;
         }

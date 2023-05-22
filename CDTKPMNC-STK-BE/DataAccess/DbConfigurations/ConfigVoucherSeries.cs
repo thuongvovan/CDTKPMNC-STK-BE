@@ -11,9 +11,18 @@ namespace CDTKPMNC_STK_BE.DataAccess.DbConfigurations
         {
             public void Configure(EntityTypeBuilder<VoucherSeries> builder)
             {
-                builder.Property(vc => vc.ExpiresOn)
-                    .HasConversion<DateOnlyConverter, DateOnlyComparer>();
+                //builder.Property(vc => vc.ExpiresOn)
+                //    .HasConversion<DateOnlyConverter, DateOnlyComparer>();
             }
         }
-    
+
+        public class ConfigVoucherSeriesCampaigns : IEntityTypeConfiguration<CampaignVoucherSeries>
+        {
+            public void Configure(EntityTypeBuilder<CampaignVoucherSeries> builder)
+            {
+                builder.Property(vsc => vsc.ExpiresOn)
+                    .HasConversion<DateOnlyConverter, DateOnlyComparer>();
+            }
+    }
+
 }

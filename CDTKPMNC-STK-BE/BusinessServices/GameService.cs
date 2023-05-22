@@ -63,7 +63,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         public bool VerifyGameRecord(GameRecord gameRecord)
         {
             var game = _gameRepo.GetByName(gameRecord.Name!);
-            if (game != null) return true;
+            if (game == null) return true;
             return false;
         }
 
@@ -75,6 +75,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 Description = gameRecord.Description!,
                 Instruction = gameRecord.Instruction!,
                 IsEnable = gameRecord.IsEnable!.Value,
+                ImageUrl = gameRecord.ImageUrl,
                 CreatedAt = DateTime.Now
             };
             _gameRepo.Add(game);
@@ -87,6 +88,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             game.Description = gameRecord.Description!;
             game.Instruction = gameRecord.Instruction!;
             game.IsEnable = gameRecord.IsEnable!.Value;
+            game.ImageUrl = gameRecord.ImageUrl;
             _gameRepo.Update(game);
             return game;
         }

@@ -1,5 +1,6 @@
 ﻿using CDTKPMNC_STK_BE.DataAccess.Repositories;
 using CDTKPMNC_STK_BE.DataAccess.Repositories.AddressRepository;
+using CDTKPMNC_STK_BE.DataAccess.Repositories.VoucherSeriesRepository;
 using CDTKPMNC_STK_BE.Models;
 
 namespace CDTKPMNC_STK_BE.DataAccess
@@ -16,6 +17,10 @@ namespace CDTKPMNC_STK_BE.DataAccess
         ICompanyRepository CompanyRepo { get; }
         IStoreRepository StoreRepo { get; }
         IGameRepository GameRepo { get; }
+        ICampaignRepository CampaignRepo { get; }
+        ICampaignVoucherSeriesRepository CampaignVoucherSeriesRepo { get; }
+        IVoucherRepository VoucherRepo { get; }
+        IVoucherSeriesRepository VoucherSeriesRepo { get; }
         IProductCategoryRepository ProductCategoryRepo { get; }
         IProductItemRepository ProductItemRepo { get; }
         void Commit();

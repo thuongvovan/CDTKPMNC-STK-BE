@@ -127,6 +127,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 CloseTime = storeRecord.CloseTime!.ToTimeOnly(),
                 CreatedAt = DateTime.Now,
                 IsEnable = storeRecord.IsEnable!.Value,
+                BannerUrl = storeRecord.BannerUrl
             };
             _storeRepo.Add(store);
             return store;
@@ -141,6 +142,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             store.OpenTime = storeRecord.OpenTime!.ToTimeOnly();
             store.CloseTime = storeRecord.CloseTime!.ToTimeOnly();
             store.IsEnable = storeRecord.IsEnable!.Value;
+            store.BannerUrl = storeRecord!.BannerUrl;
             _storeRepo.Update(store);
             return store;
         }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CDTKPMNC_STK_BE.Models
 {
@@ -6,11 +7,12 @@ namespace CDTKPMNC_STK_BE.Models
     {
         public Guid EndUserId { get; set; }
         public virtual AccountEndUser EndUser { get; set; } = null!;
+
+        public Guid CampaignId { get; set; }
         public Guid VoucherSeriesId { get; set; }
-        public virtual VoucherSeries VoucherSeries { get; set; } = null!;
-        // public virtual Store Store { get; set; } = null!;
-        public Guid? CampaignId { get; set; }
-        public virtual Campaign? Campaign { get; set; }
+        [ForeignKey("CampaignId,VoucherSeriesId")]
+        public virtual CampaignVoucherSeries VoucherSeriesCampaigns { get; set; } = null!;
+
         public DateTime CreatedAt { get; set; }
         [Key]
         public Guid VoucherCode { get; set; } = Guid.NewGuid();

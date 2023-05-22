@@ -8,6 +8,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
         public DateRecordValidator() 
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
+
             RuleFor(d => d!.Year)
                 .NotNull().NotEmpty().WithMessage("Year is required.")
                 .InclusiveBetween(1900, DateTime.Now.Year).WithMessage("The year must be between 1900 and the current year.");

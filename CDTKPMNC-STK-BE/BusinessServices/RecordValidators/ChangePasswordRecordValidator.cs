@@ -7,7 +7,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
     {
         public ChangePasswordRecordValidator()
         {
-            // ClassLevelCascadeMode = CascadeMode.Stop;
+            ClassLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(user => user.OldPassword)
                 .NotNull().NotEmpty().WithMessage("Your current password is required.");

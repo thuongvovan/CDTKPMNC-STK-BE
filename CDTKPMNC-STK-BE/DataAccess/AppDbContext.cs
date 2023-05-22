@@ -15,12 +15,13 @@ namespace CDTKPMNC_STK_BE.DataAccess
         public DbSet<AccountPartner> AccountPartners { get; set; }
         public DbSet<Company> Companys { get; set; }
         public DbSet<Campaign> Campaigns { get; set; }
+        public DbSet<CampaignVoucherSeries> CampaignVoucherSeries { get; set; }
+        public DbSet<VoucherSeries> VoucherSeries { get; set; }
+        public DbSet<Voucher> Vouchers { get; set; }
         public DbSet<Game> Games { get; set; }
         public DbSet<Store> Stores { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }
         public DbSet<ProductItem> ProductItems { get; set; }
-        public DbSet<VoucherSeries> VoucherSeries { get; set; }
-        public DbSet<Voucher> Vouchers { get; set; }
         public DbSet<AddressProvince> Provinces { get; set; }
         public DbSet<AddressDistrict> Districts { get; set; }
         public DbSet<AddressWard> Wards { get; set; }
@@ -51,9 +52,15 @@ namespace CDTKPMNC_STK_BE.DataAccess
             modelBuilder.ApplyConfiguration(new ConfigCampaign());
             modelBuilder.ApplyConfiguration(new ConfigStore());
             modelBuilder.ApplyConfiguration(new ConfigVoucherSeries());
+            modelBuilder.ApplyConfiguration(new ConfigVoucherSeriesCampaigns());
             modelBuilder.ApplyConfiguration(new SeedProvince());
             modelBuilder.ApplyConfiguration(new SeedDistrict());
             modelBuilder.ApplyConfiguration(new SeedWard());
+
+            foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            {
+                relationship.DeleteBehavior = DeleteBehavior.NoAction;
+            }
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

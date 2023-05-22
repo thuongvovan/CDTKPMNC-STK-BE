@@ -9,10 +9,13 @@ namespace CDTKPMNC_STK_BE.Models
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
+        [JsonIgnore]
         public virtual ICollection<ProductItem>? ProductItems { get; set; }
+
         //[JsonIgnore]
         //[InverseProperty("ProductCategory")]
         //public virtual ICollection<StoresProductCategories>? Stores { get; set; } 
+
         //[JsonIgnore]
         //public virtual ICollection<ProductItem>? Items { get; set; }
         public DateTime CreatedAt { get; set; }

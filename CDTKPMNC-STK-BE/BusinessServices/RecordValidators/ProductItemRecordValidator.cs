@@ -7,6 +7,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
     {
         public ProductItemRecordValidator(ProductCategoryService productCategoryService) 
         {
+            ClassLevelCascadeMode = CascadeMode.Stop;
+
             RuleFor(item => item.Name)
                 .NotNull().NotEmpty().WithMessage("{PropertyName} is required.");
 
@@ -24,6 +26,10 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
 
             RuleFor(item => item.IsEnable)
                 .NotNull().WithMessage("{PropertyName} is required.");
+
+            RuleFor(item => item.ImageUrl)
+                .NotEmpty().When(item => item.ImageUrl != null)
+                .WithMessage("{PropertyName} is not empty.");
         }
     }
 }

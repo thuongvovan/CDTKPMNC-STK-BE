@@ -9,6 +9,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
 
         public PartnerRegistrationRecordValidator(AddressService addressService, CompanyService companyService)
         {
+            ClassLevelCascadeMode = CascadeMode.Stop;
+
             RuleFor(partner => partner.Account)
                 .NotNull().WithMessage("{PropertyName} is required.")
                 .SetValidator(new AccountRegistrationRecordValidator(addressService));
@@ -25,18 +27,3 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
         }
     }
 }
-
-
-/*
-sử dụng
-var person = new Person { Name = "", Age = 15 };
-var validator = new PersonValidator();
-var result = validator.Validate(person);
-if (!result.IsValid)
-{
-    foreach (var error in result.Errors)
-    {
-        Console.WriteLine(error.ErrorMessage);
-    }
-}
- */
