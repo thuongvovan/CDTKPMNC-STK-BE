@@ -11,7 +11,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
 
             RuleFor(d => d!.Year)
                 .NotNull().NotEmpty().WithMessage("Year is required.")
-                .InclusiveBetween(1900, DateTime.Now.Year).WithMessage("The year must be between 1900 and the current year.");
+                .GreaterThanOrEqualTo(1900).WithMessage("The year must be greater than or equal to 1900");
 
             RuleFor(d => d!.Month)
                 .NotNull().NotEmpty().WithMessage("Month is required.")

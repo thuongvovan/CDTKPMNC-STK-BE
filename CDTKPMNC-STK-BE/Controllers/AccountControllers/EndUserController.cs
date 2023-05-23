@@ -19,16 +19,19 @@ namespace CDTKPMNC_STK_BE.Controllers
         private readonly EmailService _emailService;
         private readonly OtpService _otpService;
         private readonly GameService _gameService;
+        private readonly StoreService _storeService;
 
-        public EndUserController(EndUserService endUserService, EmailService emailService, OtpService otpService, GameService gameService)
+        public EndUserController(EndUserService endUserService, EmailService emailService, OtpService otpService, GameService gameService, StoreService storeService)
         {
             // _partnerService = partnerService;
             _endUserService = endUserService;
             _emailService = emailService;
             _otpService = otpService;
             _gameService = gameService;
+            _storeService = storeService;
         }
 
+        #region Account
         // POST /<EndUserController>/Register
         [HttpPost("Register")]
         public IActionResult Register([FromBody] AccountRegistrationRecord userRegistrationRecord)
@@ -250,7 +253,20 @@ namespace CDTKPMNC_STK_BE.Controllers
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid UserId." });
         }
+        #endregion
 
+        #region Store
+        // GET /<EndUserController>/Store/All
+        [HttpGet("Store/All")]
+        [Authorize(AuthenticationSchemes = "Account")]
+        public IActionResult GetAllStore()
+        {
+            var stores = _storeService.E_GetAll();
+            return Ok(new ResponseMessage { Success = true, Message = "Get the store list successfully.", Data = new { Stores = stores } });
+        }
+        #endregion
+
+        #region Game
         // GET /<EndUserController>/Game/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
         [HttpGet("Game/{gameId:Guid}")]
         [Authorize(AuthenticationSchemes = "EndUser")]
@@ -263,5 +279,6 @@ namespace CDTKPMNC_STK_BE.Controllers
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "gameId is not valid." });
         }
+        #endregion
     }
 } 

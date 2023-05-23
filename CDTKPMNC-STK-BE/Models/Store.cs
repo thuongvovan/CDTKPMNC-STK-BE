@@ -23,20 +23,16 @@ namespace CDTKPMNC_STK_BE.Models
         public bool IsEnable { get; set; }
         public string? BannerUrl { get; set; }
 
-        //[JsonIgnore]
-        //[InverseProperty("Store")]
-        //public virtual ICollection<StoresProductCategories>? StoresProductCategories { get; set; }
-
         [JsonIgnore]
-        public virtual ICollection<ProductItem>? ProductItems { get; set; }
+        public virtual ICollection<ProductItem> ProductItems { get; set; } = new List<ProductItem>();
         [JsonIgnore]
         public virtual AccountPartner AccountPartner { get; set; } = null!;
 
 
         [JsonIgnore]
-        public virtual ICollection<Campaign> Campaigns { get; set; } = null!;
+        public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();
         [JsonIgnore]
-        public virtual ICollection<VoucherSeries> VoucherSeries { get; set; } = null!;
+        public virtual ICollection<VoucherSeries> VoucherSeries { get; set; } = new List<VoucherSeries>();
     }
 }
  

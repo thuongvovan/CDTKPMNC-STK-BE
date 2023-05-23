@@ -80,6 +80,22 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid request." });
         }
 
+        // GET: <CampaignController>/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
+        [HttpGet("{campaignId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Admin&Partner")]
+        public IActionResult GetCampaign(Guid campaignId)
+        {
+            var campaign = _campaignService.GetCampaignReturn(campaignId);
+            if (campaign != null)
+            {
+                if (UserType == AccountType.Admin || (UserType == AccountType.Partner && campaign.StoreId == UserId))
+                {
+                    return Ok(new ResponseMessage { Success = true, Message = "Get campaign successfuly.", Data = new { Campaign = campaign } });
+                }
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Campaign does not exist." });
+        }
+
         // DELETE: <CampaignController>/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
         [HttpDelete("{campaignId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin&Partner")]
@@ -112,7 +128,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             var campaign = _campaignService.GetCampaign(campaignId);
             if (campaign != null)
             {
-                bool IsVerified = _campaignService.VerifyCampaignInfoRecord(campaign, campaignInfoRecord, UserId);
+                bool IsVerified = _campaignService.VerifyCampaignUpdateInfo(campaign, campaignInfoRecord, UserId);
                 if (IsVerified)
                 {
                     var campainReturn = _campaignService.UpdateCampaignInfo(campaign, campaignInfoRecord);
@@ -160,10 +176,10 @@ namespace CDTKPMNC_STK_BE.Controllers
             var campaign = _campaignService.GetCampaign(campaignId);
             if (campaign != null)
             {
-                bool IsVerified = _campaignService.VerifyUpdateCampaignVoucherSeries(campaign, campaignVoucherSeriesRecord, UserId);
-                if (IsVerified)
+                var campaignVoucherSeries = _campaignService.VerifyUpdateCampaignVoucherSeries(campaign, campaignVoucherSeriesRecord, UserId);
+                if (campaignVoucherSeries != null)
                 {
-                    _campaignService.UpdateCampaignVoucherSeries(campaign, campaignVoucherSeriesRecord);
+                    _campaignService.UpdateCampaignVoucherSeries(campaign, campaignVoucherSeries, campaignVoucherSeriesRecord);
                     var campaignVoucherSeriesList = _campaignService.GetCampaignVoucherSeriesList(campaign);
                     return Ok(new ResponseMessage { Success = true, Message = "Update Campaign Voucher Series successfuly.", Data = new { CampaignVoucherSeriesList = campaignVoucherSeriesList } });
                 }
@@ -180,12 +196,12 @@ namespace CDTKPMNC_STK_BE.Controllers
             var campaign = _campaignService.GetCampaign(campaignId);
             if (campaign != null)
             {
-                bool IsVerified = _campaignService.VerifyDeleteCampaignVoucherSeries(campaign, voucher.voucherSeriesId, UserId);
-                if (IsVerified)
+                var campaignVoucherSeries = _campaignService.VerifyDeleteCampaignVoucherSeries(campaign, voucher.VoucherSeriesId, UserId);
+                if (campaignVoucherSeries != null)
                 {
-                    _campaignService.RemoveCampaignVoucherSeries(campaign, voucher.voucherSeriesId);
+                    _campaignService.RemoveCampaignVoucherSeries(campaign, campaignVoucherSeries!);
                     var campaignVoucherSeriesList = _campaignService.GetCampaignVoucherSeriesList(campaign);
-                    return Ok(new ResponseMessage { Success = true, Message = "Remove Campaign Voucher Series successfuly."});
+                    return Ok(new ResponseMessage { Success = true, Message = "Remove Campaign Voucher Series successfuly.", Data = new { CampaignVoucherSeriesList = campaignVoucherSeriesList } });
                 }
                 return BadRequest(new ResponseMessage { Success = false, Message = "Invalid delete request." });
             }

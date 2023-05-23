@@ -6,6 +6,7 @@ using CDTKPMNC_STK_BE.DataAccess.Repositories;
 using CDTKPMNC_STK_BE.Models;
 using CDTKPMNC_STK_BE.Utilities;
 using System.Security.Cryptography.X509Certificates;
+using CDTKPMNC_STK_BE.BusinessServices.ModelConverter;
 
 namespace CDTKPMNC_STK_BE.BusinessServices
 {
@@ -28,6 +29,15 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 return new List<Store>(0);
             }
             return stores.ToList();
+        }
+
+        public List<StoreReturn_E> E_GetAll()
+        {
+            var stores = _storeRepo
+                         .GetAll()
+                         .Select(s => StoreConverter.ToStoreReturn_E(s))
+                         .ToList();
+            return stores;
         }
 
         public List<Store> GetApproved()

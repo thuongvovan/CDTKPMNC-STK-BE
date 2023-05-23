@@ -112,6 +112,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 CreatedAt = DateTime.Now
             };
             store.VoucherSeries.Add(voucherSeries);
+            _storeRepository.Update(store);
             return voucherSeries;
         }
 

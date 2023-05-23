@@ -11,8 +11,9 @@ namespace CDTKPMNC_STK_BE.Models
         public string Instruction { get; set; } = null!;
         public bool IsEnable { get; set; }
         public string? ImageUrl { get; set; }
+        [JsonIgnore]
         public DateTime CreatedAt { get; set; }
         [JsonIgnore]
-        public virtual ICollection<Campaign> Campaigns { get; set; } = null!;
+        public virtual ICollection<Campaign> Campaigns { get; set; } = new List<Campaign>();
     }
 }

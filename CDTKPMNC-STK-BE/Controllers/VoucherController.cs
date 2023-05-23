@@ -22,7 +22,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         }
 
         // GET: /<VoucherController>/VoucherSeries/All
-        [HttpPost("VoucherSeries/All")]
+        [HttpGet("VoucherSeries/All")]
         [Authorize(AuthenticationSchemes = "Admin&Partner")]
         public IActionResult GetListVoucherSeries()
         {
@@ -45,7 +45,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         }
 
         // POST: /<VoucherController>/VoucherSeries/All/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
-        [HttpPost("VoucherSeries/All/{storeId:Guid}")]
+        [HttpGet("VoucherSeries/All/{storeId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin&Partner")]
         public IActionResult GetListVoucherSeries(Guid storeId)
         {
@@ -83,6 +83,22 @@ namespace CDTKPMNC_STK_BE.Controllers
                 return BadRequest(new ResponseMessage { Success = false, Message = "Voucher series is really existed" });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Store dose not exist" });
+        }
+
+        // GET: /<VoucherController>/VoucherSeries/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
+        [HttpGet("VoucherSeries/{voucherSeriesId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Admin&Partner")]
+        public IActionResult GetVoucherSeries(Guid voucherSeriesId)
+        {
+            var voucherSeries = _voucherService.GetVoucherSeries(voucherSeriesId);
+            if (voucherSeries != null)
+            {
+                if (UserType == AccountType.Admin || (UserType == AccountType.Partner && voucherSeries.StoreId == UserId))
+                {
+                    return Ok(new ResponseMessage { Success = true, Message = "Get voucher series successful.", Data = new { VoucherSeries = voucherSeries } });
+                }
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Voucher Series dose not exist" });
         }
 
         // PUT: /<VoucherController>/VoucherSeries/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28

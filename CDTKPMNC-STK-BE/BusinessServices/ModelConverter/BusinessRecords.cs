@@ -36,6 +36,20 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
 
     #region Store
     public record StoreRecord(string? Name, string? Description, AddressRecord? Address, TimeRecord? OpenTime, TimeRecord? CloseTime, bool? IsEnable, string? BannerUrl);
+    /// <summary>
+    /// Thông tin trả về cho enduser
+    /// </summary>
+    public class StoreReturn_E
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
+        public string Description { get; set; } = null!;
+        public Address Address { get; set; } = null!;
+        public TimeOnly OpenTime { get; set; }
+        public TimeOnly CloseTime { get; set; }
+        public string? BannerUrl { get; set; }
+        public CampaignReturn? Campaign { get; set; } = null!; // check lại xem chỉnh model Campaign không
+    }
     #endregion
 
     #region Game
@@ -44,7 +58,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
 
     #region Campaign
     public record CampaignCreateRecord(CampaignInfoRecord? CampaignInfo, CampaignVoucherSeriesRecord[] CampaignVoucherSeriesList);
-    public record CampaignInfoRecord(string? Name, string? Description, DateRecord? StartDate, DateRecord? EndDate, Guid? GameId);
+    public record CampaignInfoRecord(string? Name, string? Description, DateRecord? StartDate, DateRecord? EndDate, Guid? GameId, bool? IsEnable);
     public record CampaignVoucherSeriesRecord(Guid? VoucherSeriesId, int? Quantity, DateRecord? ExpiresOn);
     public class CampaignReturn
     {
@@ -68,7 +82,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
 
     #region Voucher
     public record VoucherSeriesRecord(string? Name, string? Description);
-    public record VoucherSeriesDeleteRecord(Guid voucherSeriesId);
+    public record VoucherSeriesDeleteRecord(Guid VoucherSeriesId);
 
     public class VoucherSeriesReturn
     {

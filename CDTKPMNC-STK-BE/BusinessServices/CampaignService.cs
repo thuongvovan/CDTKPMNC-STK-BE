@@ -6,6 +6,7 @@ using CDTKPMNC_STK_BE.DataAccess.Repositories;
 using CDTKPMNC_STK_BE.Models;
 using CDTKPMNC_STK_BE.Utilities;
 using FluentValidation;
+using CDTKPMNC_STK_BE.BusinessServices.ModelConverter;
 using System.Linq;
 
 namespace CDTKPMNC_STK_BE.BusinessServices
@@ -26,78 +27,6 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             _voucherService = voucherService;
         }
 
-        //WAITING,  Enable + trước thời gian
-        //RUNNING,  Enable + trong thời gian
-        //PENDING,  Disable + trước và trong thời gian
-        //FINISHED, // trong thời gian + hết voucher
-        //EXPIRED   Sau thời gian
-
-        public CampaignStatus GetCampaignStatus(Campaign campaign)
-        {
-            var startDate = campaign.StartDate.ToDateTime();
-            var endDate = campaign.EndDate.ToDateTime();
-            var totalQuantity = campaign.CampaignVoucherSeriesList.Sum(cvs => cvs.Quantity);
-            var totalUsed = campaign.CampaignVoucherSeriesList.Sum(cvs => cvs.Vouchers.Count);
-            if (totalUsed >= totalQuantity)
-            {
-                return CampaignStatus.FINISHED;
-            }
-            if (endDate < DateTime.Now)
-            {
-                return CampaignStatus.EXPIRED;
-            }
-            if (!campaign.IsEnable && endDate > DateTime.Now)
-            {
-                return CampaignStatus.PENDING;
-            }
-            if (campaign.IsEnable && startDate > DateTime.Now)
-            {
-                return CampaignStatus.WAITING;
-            }
-            if (campaign.IsEnable && startDate < DateTime.Now && endDate > DateTime.Now)
-            {
-                return CampaignStatus.RUNNING;
-            }
-            return CampaignStatus.UNKNOWN;
-        }
-
-        public CampaignVoucherSeriesReturn ToCampaignVoucherSeriesReturn(CampaignVoucherSeries cvs)
-        {
-            return new CampaignVoucherSeriesReturn
-            {
-                Id = cvs.VoucherSeries.Id,
-                Name = cvs.VoucherSeries.Name,
-                Description = cvs.VoucherSeries.Description,
-                CreatedAt = cvs.VoucherSeries.CreatedAt,
-                Quantity = cvs.Quantity,
-                QuantityUsed = cvs.Vouchers.Count,
-            };
-        }
-
-        public CampaignReturn? ToCampaignReturn(Campaign? campaign)
-        {
-            if (campaign == null) return null;
-            var campaignReturn = new CampaignReturn
-            {
-                Id = campaign.Id,
-                Name = campaign.Name,
-                Description = campaign.Description,
-                StartDate = campaign.StartDate,
-                EndDate = campaign.EndDate,
-                StoreId = campaign.StoreId,
-                StoreName = campaign.Store.Name,
-                GameId = campaign.GameId,
-                GameName = campaign.Game.Name,
-                CreatedAt = campaign.CreatedAt,
-                IsEnable = campaign.IsEnable,
-                Status = GetCampaignStatus(campaign),
-                CampaignVoucherList = campaign.CampaignVoucherSeriesList
-                                              .Select(cvs => ToCampaignVoucherSeriesReturn(cvs))
-                                              .ToArray()
-            };
-            return campaignReturn;
-        }
-
         public Campaign? GetCampaign(Guid campaignId)
         {
             var campain = _campaignRepo.GetById(campaignId);
@@ -107,14 +36,14 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         public CampaignReturn? GetCampaignReturn(Guid campaignId)
         {
             var campain = _campaignRepo.GetById(campaignId);
-            return ToCampaignReturn(campain);
+            return CampaignConverter.ToCampaignReturn(campain);
         }
 
         public List<CampaignReturn> GetListCampaign() 
         {
             var campaignList = _campaignRepo
                         .GetAll()
-                        .Select(c => ToCampaignReturn(c)!)
+                        .Select(c => CampaignConverter.ToCampaignReturn(c)!)
                         .ToList();
             return campaignList;
         }
@@ -124,7 +53,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             var campaignList = _campaignRepo
                         .GetAll()
                         .Where(c => c.StoreId == storeId)
-                        .Select(c => ToCampaignReturn(c)!)
+                        .Select(c => CampaignConverter.ToCampaignReturn(c)!)
                         .ToList();
             return campaignList;
         }
@@ -149,11 +78,14 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 return true;
             }
             var startDate = campaignCreateRecord.CampaignInfo!.StartDate!.ToDateTime();
-            var endDate = campaignCreateRecord.CampaignInfo!.StartDate!.ToDateTime();
-            var campaigns = store.Campaigns.Where(c => (c.StartDate.ToDateTime() >= startDate && c.StartDate.ToDateTime() <= endDate) ||
-                                                        (c.EndDate.ToDateTime() >= startDate && c.EndDate.ToDateTime() <= endDate));
+            var endDate = campaignCreateRecord.CampaignInfo!.EndDate!.ToDateTime();
+            var name = campaignCreateRecord.CampaignInfo!.Name!;
+            var isEnable = campaignCreateRecord.CampaignInfo!.IsEnable!.Value;
+            var campaigns = store.Campaigns.Where(c =>  (c.IsEnable && isEnable && ((c.StartDate.ToDateTime() <= startDate && c.EndDate.ToDateTime() >= startDate) ||
+                                                                                    (c.StartDate.ToDateTime() <= endDate && c.EndDate.ToDateTime() >= endDate))) ||
+                                                        (c.Name.ToLower() == name.ToLower()));
             
-            if (campaigns == null || (campaigns != null && campaigns!.Any()))
+            if (!campaigns!.Any())
             {
                 return true;
             }
@@ -176,7 +108,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 Description = campaignCreateRecord!.CampaignInfo!.Description!,
                 EndDate = campaignCreateRecord!.CampaignInfo!.EndDate!.ToDateOnly(),
                 StartDate = campaignCreateRecord!.CampaignInfo!.StartDate!.ToDateOnly(),
-                GameId = campaignCreateRecord!.CampaignInfo!.GameId!.Value
+                GameId = campaignCreateRecord!.CampaignInfo!.GameId!.Value,
+                IsEnable = campaignCreateRecord!.CampaignInfo!.IsEnable!.Value
             };
             foreach (var voucherSeriesCampaignRecord in campaignCreateRecord!.CampaignVoucherSeriesList!)
             {
@@ -189,7 +122,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 campaign.CampaignVoucherSeriesList.Add(voucherSeriesCampaign);
             }
             _campaignRepo.Add(campaign);
-            return ToCampaignReturn(campaign)!;
+            return CampaignConverter.ToCampaignReturn(campaign)!;
         }
 
         /// <summary>
@@ -215,22 +148,27 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         /// <param name="campaignInfoRecord"></param>
         /// <param name="storeId"></param>
         /// <returns></returns>
-        public bool VerifyCampaignInfoRecord(Campaign campaign, CampaignInfoRecord campaignInfoRecord, Guid storeId)
+        public bool VerifyCampaignUpdateInfo(Campaign campaign, CampaignInfoRecord campaignInfoRecord, Guid storeId)
         {
             if (campaign.StoreId != storeId) return false;
             var store = _storeService.GetById(storeId);
             if (store == null) return false;
-            if (store.Campaigns == null || store.Campaigns.Count == 0)
-            {
-                return false;
-            }
+            if (store.Campaigns == null || store.Campaigns.Count == 0) return false;
+
             var startDate = campaignInfoRecord.StartDate!.ToDateTime();
             var endDate = campaignInfoRecord.StartDate!.ToDateTime();
-            var campaigns = store.Campaigns.Where(c =>  (c.StartDate.ToDateTime() >= startDate && c.StartDate.ToDateTime() <= endDate) ||
-                                                        (c.EndDate.ToDateTime() >= startDate && c.EndDate.ToDateTime() <= endDate));
-            if (campaigns == null || (campaigns != null && campaigns!.Any()))
+            var name = campaignInfoRecord!.Name!;
+            var isEnable = campaignInfoRecord!.IsEnable!.Value;
+
+            var campaigns = store.Campaigns.Where(c => (c.IsEnable && isEnable && ((c.StartDate.ToDateTime() <= startDate && c.EndDate.ToDateTime() >= startDate) ||
+                                                                                    (c.StartDate.ToDateTime() <= endDate && c.EndDate.ToDateTime() >= endDate))) ||
+                                                        (c.Name.ToLower() == name.ToLower()));
+
+            if (!campaigns!.Any()) return true;
+            if (campaigns!.Count() == 1)
             {
-                return true;
+                var otherCampaign = campaigns.First();
+                if (otherCampaign.Id == campaign.Id) return true;
             }
             return false;
         }
@@ -247,13 +185,14 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             campaign.EndDate = campaignInfoRecord!.EndDate!.ToDateOnly();
             campaign.StartDate = campaignInfoRecord!.StartDate!.ToDateOnly();
             campaign.GameId = campaignInfoRecord!.GameId!.Value;
+            campaign.IsEnable = campaignInfoRecord!.IsEnable!.Value;
             _campaignRepo.Update(campaign);
-            return ToCampaignReturn(campaign)!;
+            return CampaignConverter.ToCampaignReturn(campaign)!;
         }
 
         public CampaignVoucherSeriesReturn[] GetCampaignVoucherSeriesList(Campaign campaign)
         {
-            return campaign.CampaignVoucherSeriesList.Select(cvs => ToCampaignVoucherSeriesReturn(cvs)).ToArray();
+            return campaign.CampaignVoucherSeriesList.Select(cvs => CampaignConverter.ToCampaignVoucherSeriesReturn(cvs)).ToArray();
         }
 
         public ValidationSummary ValidateCampaignVoucherSeriesRecord(CampaignVoucherSeriesRecord? voucherSeriesCampaignRecord)
@@ -267,41 +206,40 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             return result.GetSummary();
         }
 
-        public bool VerifyUpdateCampaignVoucherSeries(Campaign campaign, CampaignVoucherSeriesRecord campaignInfoRecord, Guid storeId)
+        public CampaignVoucherSeries? VerifyUpdateCampaignVoucherSeries(Campaign campaign, CampaignVoucherSeriesRecord campaignInfoRecord, Guid storeId)
         {
-            if (campaign.StoreId != storeId) return false;
+            if (campaign.StoreId != storeId) return null;
             var campaignVoucherSeries = campaign.CampaignVoucherSeriesList
-                                                .FirstOrDefault(cvs => cvs.CampaignId == campaign.Id &&
-                                                                cvs.VoucherSeriesId == campaignInfoRecord.VoucherSeriesId);
-            if (campaignVoucherSeries == null) return false;
-            return true;
+                                                .FirstOrDefault(cvs => cvs.VoucherSeriesId == campaignInfoRecord.VoucherSeriesId);
+            if (campaignVoucherSeries == null) return null;
+            return campaignVoucherSeries;
         }
 
-        public void UpdateCampaignVoucherSeries(Campaign campaign, CampaignVoucherSeriesRecord campaignVoucherSeriesRecord)
+        public void UpdateCampaignVoucherSeries(Campaign campaign, CampaignVoucherSeries campaignVoucherSeries, CampaignVoucherSeriesRecord campaignVoucherSeriesRecord)
         {
-            _campaignVoucherSeriesRepo.Update(new CampaignVoucherSeries
-            {
-                CampaignId = campaign.Id,
-                VoucherSeriesId = campaignVoucherSeriesRecord.VoucherSeriesId!.Value,
-                Quantity = campaignVoucherSeriesRecord.Quantity!.Value,
-                ExpiresOn = campaignVoucherSeriesRecord.ExpiresOn!.ToDateOnly(),
-            });
+
+            campaignVoucherSeries.CampaignId = campaign.Id;
+            campaignVoucherSeries.VoucherSeriesId = campaignVoucherSeriesRecord.VoucherSeriesId!.Value;
+            campaignVoucherSeries.Quantity = campaignVoucherSeriesRecord.Quantity!.Value;
+            campaignVoucherSeries.ExpiresOn = campaignVoucherSeriesRecord.ExpiresOn!.ToDateOnly();
+            _campaignRepo.Update(campaign);
         }
 
-        public bool VerifyDeleteCampaignVoucherSeries(Campaign campaign, Guid voucherSeriesId, Guid storeId)
+        public CampaignVoucherSeries? VerifyDeleteCampaignVoucherSeries(Campaign campaign, Guid voucherSeriesId, Guid storeId)
         {
-            if (campaign.StoreId != storeId) return false;
+            if (campaign.StoreId != storeId) return null;
             var campaignVoucherSeries = campaign.CampaignVoucherSeriesList
                                                 .FirstOrDefault(cvs => cvs.CampaignId == campaign.Id &&
                                                                 cvs.VoucherSeriesId == voucherSeriesId);
-            if (campaignVoucherSeries == null) return false;
-            if (campaignVoucherSeries.Vouchers.Any()) return false;
-            return true;
+            if (campaignVoucherSeries == null) return null;
+            if (campaignVoucherSeries.Vouchers.Any()) return null;
+            return campaignVoucherSeries;
         }
 
-        public void RemoveCampaignVoucherSeries(Campaign campaign, Guid voucherSeriesId)
+        public void RemoveCampaignVoucherSeries(Campaign campaign, CampaignVoucherSeries cvs)
         {
-            _campaignVoucherSeriesRepo.Delete( new CampaignVoucherSeries { CampaignId = campaign.Id, VoucherSeriesId = voucherSeriesId} );
+            campaign.CampaignVoucherSeriesList.Remove(cvs);
+            _campaignRepo.Update(campaign);
         }
 
         public bool VerifyAddCampaignVoucherSeries(Campaign campaign, CampaignVoucherSeriesRecord campaignInfoRecord, Guid storeId)
@@ -339,6 +277,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
 
         public void RemoveCampaign(Campaign campaign)
         {
+            campaign.CampaignVoucherSeriesList.Clear();
             _campaignRepo.Delete(campaign);
         }
 

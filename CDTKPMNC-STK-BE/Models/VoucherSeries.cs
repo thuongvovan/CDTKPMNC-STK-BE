@@ -15,6 +15,6 @@ namespace CDTKPMNC_STK_BE.Models
         public virtual Store Store { get; set; } = null!;
         [JsonIgnore]
         [InverseProperty("VoucherSeries")]
-        public virtual ICollection<CampaignVoucherSeries> CampaignVoucherSeriesList { get; set; } = null!;
+        public virtual ICollection<CampaignVoucherSeries> CampaignVoucherSeriesList { get; set; } = new List<CampaignVoucherSeries>();
     }
 }

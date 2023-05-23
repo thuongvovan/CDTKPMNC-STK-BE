@@ -10,7 +10,7 @@ namespace CDTKPMNC_STK_BE.Models
     {
         public virtual Address Address { get; set; } = null!;
         [JsonIgnore]
-        public virtual ICollection<Voucher>? Vouchers { get; set; }
+        public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
         //public ICollection<ProductItem> ProductItems { get; set; }
     }
 }

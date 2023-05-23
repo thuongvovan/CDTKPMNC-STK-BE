@@ -18,7 +18,7 @@ namespace CDTKPMNC_STK_BE.Models
         [Column(TypeName = "date")]
         public DateOnly ExpiresOn { get; set; }
 
-        public virtual ICollection<Voucher> Vouchers { get; set; } = null!;
+        public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
 
     }
 }

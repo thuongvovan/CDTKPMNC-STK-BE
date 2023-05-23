@@ -29,7 +29,7 @@ namespace CDTKPMNC_STK_BE.Models
         public Guid GameId { get; set; }
         public virtual Game Game { get; set; } = null!;
         [InverseProperty("Campaign")]
-        public virtual ICollection<CampaignVoucherSeries> CampaignVoucherSeriesList { get; set; } = null!;
+        public virtual ICollection<CampaignVoucherSeries> CampaignVoucherSeriesList { get; set; } = new List<CampaignVoucherSeries>();
         public DateTime CreatedAt { get; set; }
         public bool IsEnable { get; set; }
         [NotMapped]
