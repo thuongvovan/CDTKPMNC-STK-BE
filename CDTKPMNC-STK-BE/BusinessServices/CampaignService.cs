@@ -30,7 +30,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         //WAITING,  Enable + trước thời gian
         //RUNNING,  Enable + trong thời gian
         //PENDING,  Disable + trước và trong thời gian
-        //FINISHED, // trong thời gian + hết voucher
+        //FINISHED, trong thời gian + hết voucher
         //EXPIRED   Sau thời gian
 
         public CampaignStatus GetCampaignStatus(Campaign campaign)
@@ -211,6 +211,56 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             var validator = new CampaignInfoRecordValidator(_gameService);
             var result = validator.Validate(campaignInfoRecord);
             return result.GetSummary();
+        }
+
+        public bool VerifyDisableCampaign(Guid storeId, AccountType accountType, Campaign campaign)
+        {
+            if (accountType == AccountType.Admin)
+            {
+                return true;
+            }
+            else if (accountType == AccountType.Partner && campaign.StoreId == storeId)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public CampaignReturn DisableCampaign(Campaign campaign)
+        {
+            campaign.IsEnable = false;
+            _campaignRepo.Update(campaign);
+            return CampaignConverter.ToCampaignReturn(campaign)!;
+        }
+
+        public bool VerifyEnableCampaign(Guid storeId, AccountType accountType, Campaign campaign)
+        {
+            if (accountType == AccountType.Admin || (accountType == AccountType.Partner && campaign.StoreId == storeId))
+            {
+                var startDate = campaign.StartDate!.ToDateTime();
+                var endDate = campaign.StartDate!.ToDateTime();
+                var name = campaign!.Name!;
+
+                var store = _storeService.GetById(campaign.StoreId);
+                var campaigns = store!.Campaigns.Where(c => (c.IsEnable && ((c.StartDate.ToDateTime() <= startDate && c.EndDate.ToDateTime() >= startDate) ||
+                                                                            (c.StartDate.ToDateTime() <= endDate && c.EndDate.ToDateTime() >= endDate))));
+                if (!campaigns!.Any()) return true;
+                if (campaigns!.Count() == 1)
+                {
+                    var otherCampaign = campaigns.First();
+                    if (otherCampaign.Id == campaign.Id) return true;
+                }
+                return false;
+            }
+            return false;
+        }
+
+        public CampaignReturn EnableCampaign(Campaign campaign)
+        {
+            campaign.IsEnable = true;
+            _campaignRepo.Update(campaign);
+            return CampaignConverter.ToCampaignReturn(campaign)!;
+
         }
 
         /// <summary>

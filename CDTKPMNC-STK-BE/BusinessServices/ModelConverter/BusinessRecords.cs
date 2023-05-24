@@ -57,7 +57,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
     #endregion
 
     #region Campaign
-    public record CampaignCreateRecord(CampaignInfoRecord? CampaignInfo, CampaignVoucherSeriesRecord[] CampaignVoucherSeriesList);
+    public record CampaignCreateRecord(CampaignInfoRecord? CampaignInfo, CampaignVoucherSeriesRecord[]? CampaignVoucherSeriesList);
     public record CampaignInfoRecord(string? Name, string? Description, DateRecord? StartDate, DateRecord? EndDate, Guid? GameId, bool? IsEnable);
     public record CampaignVoucherSeriesRecord(Guid? VoucherSeriesId, int? Quantity, DateRecord? ExpiresOn);
     public class CampaignReturn

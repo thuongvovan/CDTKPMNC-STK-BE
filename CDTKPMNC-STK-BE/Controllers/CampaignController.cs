@@ -98,7 +98,7 @@ namespace CDTKPMNC_STK_BE.Controllers
 
         // DELETE: <CampaignController>/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
         [HttpDelete("{campaignId:Guid}")]
-        [Authorize(AuthenticationSchemes = "Admin&Partner")]
+        [Authorize(AuthenticationSchemes = "Partner")]
         public IActionResult DeleteCampaign(Guid campaignId)
         {
             var campaign = _campaignService.GetCampaign(campaignId);
@@ -115,9 +115,62 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Campaign does not exist." });
         }
 
+        // PUT: <CampaignController>/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
+        //[HttpPut("{campaignId:Guid}")]
+        //[Authorize(AuthenticationSchemes = "Partner")]
+        //public IActionResult EditCampaign(Guid campaignId, [FromBody] CampaignCreateRecord campaignCreateRecord)
+        //{
+        //    var campaign = _campaignService.GetCampaign(campaignId);
+        //    if (campaign != null)
+        //    {
+                
+                
+        //        return BadRequest(new ResponseMessage { Success = false, Message = "Chưa xong" });
+        //    }
+        //    return BadRequest(new ResponseMessage { Success = false, Message = "Campaign does not exist." });
+        //}
+
+        // PUT: <CampaignController>/Disable/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
+        [HttpPut("Disable/{campaignId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Admin&Partner")]
+        public IActionResult DisableCampaign(Guid campaignId)
+        {
+            var campaign = _campaignService.GetCampaign(campaignId);
+            if (campaign != null)
+            {
+                bool IsVerified = _campaignService.VerifyDisableCampaign(UserId, UserType, campaign);
+                if (IsVerified)
+                {
+                    var campaignReturn = _campaignService.DisableCampaign(campaign);
+                    return Ok(new ResponseMessage { Success = true, Message = "Disable Campaign successfuly.", Data = new { Campaign = campaignReturn } });
+                }
+                return BadRequest(new ResponseMessage { Success = false, Message = "Invalid request." });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Campaign does not exist." });
+        }
+
+        // PUT: <CampaignController>/Enable/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
+        [HttpPut("Enable/{campaignId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Admin&Partner")]
+        public IActionResult EnableCampaign(Guid campaignId)
+        {
+            var campaign = _campaignService.GetCampaign(campaignId);
+            if (campaign != null)
+            {
+                bool IsVerified = _campaignService.VerifyEnableCampaign(UserId, UserType, campaign);
+                if (IsVerified)
+                {
+                    var campaignReturn = _campaignService.EnableCampaign(campaign);
+                    return Ok(new ResponseMessage { Success = true, Message = "Enable Campaign successfuly.", Data = new { Campaign = campaignReturn } });
+                }
+                return BadRequest(new ResponseMessage { Success = false, Message = "Invalid request." });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Campaign does not exist." });
+        }
+
         // PUT: <CampaignController>/Info/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
         [HttpPut("Info/{campaignId:Guid}")]
-        [Authorize(AuthenticationSchemes = "Admin&Partner")]
+        [Authorize(AuthenticationSchemes = "Partner")]
         public IActionResult UpdateCampaignInfo(Guid campaignId, [FromBody] CampaignInfoRecord campaignInfoRecord)
         {
             var validateSummary = _campaignService.ValidateCampaignInfoRecord(campaignInfoRecord);
@@ -140,7 +193,7 @@ namespace CDTKPMNC_STK_BE.Controllers
 
         // POST: <CampaignController>/Voucher/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
         [HttpPost("Voucher/{campaignId:Guid}")]
-        [Authorize(AuthenticationSchemes = "Admin&Partner")]
+        [Authorize(AuthenticationSchemes = "Partner")]
         public IActionResult AddCampaignVoucherSeries(Guid campaignId, [FromBody] CampaignVoucherSeriesRecord campaignVoucherSeriesRecord)
         {
             var validateSummary = _campaignService.ValidateCampaignVoucherSeriesRecord(campaignVoucherSeriesRecord);
@@ -165,7 +218,7 @@ namespace CDTKPMNC_STK_BE.Controllers
 
         // PUT: <CampaignController>/Voucher/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
         [HttpPut("Voucher/{campaignId:Guid}")]
-        [Authorize(AuthenticationSchemes = "Admin&Partner")]
+        [Authorize(AuthenticationSchemes = "Partner")]
         public IActionResult UpdateCampaignVoucherSeries(Guid campaignId, [FromBody] CampaignVoucherSeriesRecord campaignVoucherSeriesRecord)
         {
             var validateSummary = _campaignService.ValidateCampaignVoucherSeriesRecord(campaignVoucherSeriesRecord);
@@ -190,7 +243,7 @@ namespace CDTKPMNC_STK_BE.Controllers
 
         // DELETE: <CampaignController>/Voucher/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
         [HttpDelete("Voucher/{campaignId:Guid}")]
-        [Authorize(AuthenticationSchemes = "Admin&Partner")]
+        [Authorize(AuthenticationSchemes = "Partner")]
         public IActionResult DeleteCampaignVoucherSeries(Guid campaignId, [FromBody] VoucherSeriesDeleteRecord voucher)
         {
             var campaign = _campaignService.GetCampaign(campaignId);
