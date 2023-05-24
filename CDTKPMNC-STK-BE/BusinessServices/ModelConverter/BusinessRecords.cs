@@ -111,6 +111,19 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
         public DateOnly ExpiresOn { get; set; }
     }
 
+    public class VoucherReturn
+    {
+        public Guid VoucherCode { get; set; }
+        public string VoucherName { get; set; } = null!;
+        public string Description { get; set; } = null!;
+        public Guid StoreId { get; set; }
+        public string StoreName { get; set; } = null!;
+        public Guid EndUserId { get; set; }
+        public string EndUserName { get; set; } = null!;
+        public DateOnly ExpiresOn { get; set; }
+        public bool IsUsed { get; set; }
+    }
+
     #endregion
 
     #region Product category

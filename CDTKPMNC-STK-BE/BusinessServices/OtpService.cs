@@ -15,13 +15,13 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             {
                 account.Otp = new AccountOtp
                 {
-                    RegisterOtp = OTPHelper.GenerateOtp(),
+                    RegisterOtp = RandomHelper.GenerateOtp(),
                     RegisterExpiresOn = DateTime.Now.AddMinutes(10),
                 };
             }
             else
             {
-                account.Otp.RegisterOtp = OTPHelper.GenerateOtp();
+                account.Otp.RegisterOtp = RandomHelper.GenerateOtp();
                 account.Otp.RegisterExpiresOn = DateTime.Now.AddMinutes(10);
             }
             _unitOfWork.AccountRepo.Update(account);
@@ -34,13 +34,13 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             {
                 account.Otp = new AccountOtp
                 {
-                    ResetPasswordOtp = OTPHelper.GenerateOtp(),
+                    ResetPasswordOtp = RandomHelper.GenerateOtp(),
                     ResetPasswordExpiresOn = DateTime.Now.AddMinutes(10),
                 };
             }
             else
             {
-                account.Otp.ResetPasswordOtp = OTPHelper.GenerateOtp();
+                account.Otp.ResetPasswordOtp = RandomHelper.GenerateOtp();
                 account.Otp.ResetPasswordExpiresOn = DateTime.Now.AddMinutes(10);
             }
             _unitOfWork.AccountRepo.Update(account);

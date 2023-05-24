@@ -123,8 +123,8 @@ namespace CDTKPMNC_STK_BE.Controllers
         //    var campaign = _campaignService.GetCampaign(campaignId);
         //    if (campaign != null)
         //    {
-                
-                
+
+
         //        return BadRequest(new ResponseMessage { Success = false, Message = "Chưa xong" });
         //    }
         //    return BadRequest(new ResponseMessage { Success = false, Message = "Campaign does not exist." });
@@ -208,7 +208,7 @@ namespace CDTKPMNC_STK_BE.Controllers
                 if (IsVerified)
                 {
                     _campaignService.AddCampaignVoucherSeries(campaign, campaignVoucherSeriesRecord);
-                    var campaignVoucherSeriesList = _campaignService.GetCampaignVoucherSeriesList(campaign); 
+                    var campaignVoucherSeriesList = _campaignService.GetCampaignVoucherSeriesList(campaign);
                     return Ok(new ResponseMessage { Success = true, Message = "Add Campaign Voucher Series successfuly.", Data = new { CampaignVoucherSeriesList = campaignVoucherSeriesList } });
                 }
                 return BadRequest(new ResponseMessage { Success = false, Message = "Campaign Voucher Series is really existed." });
@@ -260,5 +260,28 @@ namespace CDTKPMNC_STK_BE.Controllers
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Campaign does not exist." });
         }
+
+        #region For end user
+
+        // GET: <CampaignController>/CanJoin/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
+        [HttpGet("CanJoin/{campaignId:Guid}")]
+        [Authorize(AuthenticationSchemes = "EndUser")]
+        public IActionResult CheckUserCanJoin(Guid campaignId)
+        {
+            var campaign = _campaignService.GetCampaign(campaignId);
+            if (campaign != null)
+            {
+                var canJoin = _campaignService.CheckUserCanJoin(campaign, UserId);
+                if (canJoin)
+                {
+                    return Ok(new ResponseMessage { Success = true, Message = "Enjoy now.", Data = new { CanJoin = true} });
+                }
+                return Ok(new ResponseMessage { Success = true, Message = "Can't join.", Data = new { CanJoin = false} });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Campaign does not exist." });
+
+        }
+
+        #endregion
     }
 }

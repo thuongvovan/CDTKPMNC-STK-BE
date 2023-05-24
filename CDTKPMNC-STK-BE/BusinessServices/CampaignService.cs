@@ -8,6 +8,7 @@ using CDTKPMNC_STK_BE.Utilities;
 using FluentValidation;
 using CDTKPMNC_STK_BE.BusinessServices.ModelConverter;
 using System.Linq;
+using CDTKPMNC_STK_BE.BusinessServices.AccountServices;
 
 namespace CDTKPMNC_STK_BE.BusinessServices
 {
@@ -18,13 +19,15 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         private readonly GameService _gameService;
         private readonly StoreService _storeService;
         private readonly VoucherService _voucherService;
-        public CampaignService(IUnitOfWork unitOfWork, VoucherService voucherService, GameService gameService, StoreService storeService) : base(unitOfWork)
+        private readonly EndUserService _endUserService;
+        public CampaignService(IUnitOfWork unitOfWork, VoucherService voucherService, GameService gameService, StoreService storeService, EndUserService endUserService) : base(unitOfWork)
         {
             _campaignRepo = _unitOfWork.CampaignRepo;
             _campaignVoucherSeriesRepo = _unitOfWork.CampaignVoucherSeriesRepo;
             _gameService = gameService;
             _storeService = storeService;
             _voucherService = voucherService;
+            _endUserService = endUserService;
         }
 
         //WAITING,  Enable + trước thời gian
@@ -402,6 +405,24 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             campaign.CampaignVoucherSeriesList.Clear();
             _campaignRepo.Delete(campaign);
         }
+
+
+        #region Check Is end user can join
+        public bool CheckUserCanJoin(Campaign campaign, Guid UserId)
+        {
+            var endUser = _endUserService.GetById(UserId);
+            if (endUser != null)
+            {
+                if( endUser.Vouchers.Where(v => v.CampaignId == campaign.Id).Any() )
+                {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        #endregion
 
     }
 }

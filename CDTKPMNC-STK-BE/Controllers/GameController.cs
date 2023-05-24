@@ -5,6 +5,7 @@ using FluentValidation.Results;
 using CDTKPMNC_STK_BE.BusinessServices;
 using CDTKPMNC_STK_BE.BusinessServices.Records;
 using CDTKPMNC_STK_BE.BusinessServices.AccountServices;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -16,9 +17,13 @@ namespace CDTKPMNC_STK_BE.Controllers
     public class GameController : CommonController
     {
         private readonly GameService _gameService;
-        public GameController(GameService gameService)
+        private readonly CampaignService _campaignService;
+        private readonly VoucherService _voucherService;
+        public GameController(GameService gameService, CampaignService campaignService, VoucherService voucherService)
         {
             _gameService = gameService;
+            _campaignService = campaignService;
+            _voucherService = voucherService;
         }
 
         // POST /<UserController>/Create
@@ -146,6 +151,63 @@ namespace CDTKPMNC_STK_BE.Controllers
                 return Ok(new ResponseMessage { Success = true, Message = "The game has been enabled", Data = new { Game = game } });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid request." });
+        }
+
+
+
+         
+        // 1: "Vòng Quay May Mắn"
+        // GET /<UserController>/LuckyWheel/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        [HttpGet("LuckyWheel/{campaignId:Guid}")]
+        [Authorize(AuthenticationSchemes = "EndUser")]
+        public IActionResult PlayLuckyWheel(Guid campaignId)
+        {
+            var gameName = "Vòng Quay May Mắn";
+            var campaign = _campaignService.GetCampaign(campaignId);
+            if (campaign != null && campaign.Game.Name == gameName)
+            {
+                var canJoin = _campaignService.CheckUserCanJoin(campaign, UserId);
+                if (canJoin)
+                {
+                    var isWinner = _gameService.PlayLuclyWheel();
+                    if (isWinner)
+                    {
+                        var voucher = _voucherService.RandomVoucher(campaign, UserId);
+                        var voucherReturn = _voucherService.ToVoucherReturn(voucher);
+                        return Ok(new ResponseMessage { Success = true, Message = $"You win", Data = new { IsWinner = isWinner,  Voucher = voucherReturn } });
+                    }
+                    return Ok(new ResponseMessage { Success = true, Message = $"You lose", Data = new { IsWinner = isWinner } });
+                }
+                return BadRequest(new ResponseMessage { Success = false, Message = $"You are joined before." });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = $"Campaign does not exist or {gameName} game not avalible for this campaign" });
+        }
+
+        // 2: "Tài Xỉu"
+        // GET /<UserController>/OverUnder/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        [HttpGet("OverUnder/{userIsOver:bool}/{campaignId:Guid}")]
+        [Authorize(AuthenticationSchemes = "EndUser")]
+        public IActionResult PlayOverUnder(Guid campaignId, bool userIsOver)
+        {
+            var gameName = "Tài Xỉu";
+            var campaign = _campaignService.GetCampaign(campaignId);
+            if (campaign != null && campaign.Game.Name == gameName)
+            {
+                var canJoin = _campaignService.CheckUserCanJoin(campaign, UserId);
+                if (canJoin)
+                {
+                    var isWinner = _gameService.PlayOverUnder(userIsOver, out var overUnderData);
+                    if (isWinner)
+                    {
+                        var voucher = _voucherService.RandomVoucher(campaign, UserId);
+                        var voucherReturn = _voucherService.ToVoucherReturn(voucher);
+                        return Ok(new ResponseMessage { Success = true, Message = $"You win", Data = new { IsWinner = isWinner, Voucher = voucherReturn, GameData = overUnderData } });
+                    }
+                    return Ok(new ResponseMessage { Success = true, Message = $"You lose", Data = new { IsWinner = isWinner, GameData = overUnderData } });
+                }
+                return BadRequest(new ResponseMessage { Success = false, Message = $"You are joined before." });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = $"Campaign does not exist or {gameName} game not avalible for this campaign" });
         }
     }
 }

@@ -4,6 +4,7 @@ using CDTKPMNC_STK_BE.BusinessServices.RecordValidators;
 using CDTKPMNC_STK_BE.DataAccess;
 using CDTKPMNC_STK_BE.DataAccess.Repositories;
 using CDTKPMNC_STK_BE.Models;
+using CDTKPMNC_STK_BE.Utilities;
 
 namespace CDTKPMNC_STK_BE.BusinessServices
 {
@@ -161,6 +162,54 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         {
             _voucherSeriesRepo.Delete(voucherSeries);
         }
+
+        public Voucher RandomVoucher(Campaign campaign, Guid UserId)
+        {
+            var randomCampaignVoucherSeries = RandomCampaignVoucherSeries(campaign);
+            var voucher = new Voucher
+            {
+                CampaignVoucherSeries = randomCampaignVoucherSeries,
+                EndUserId = UserId,
+                CreatedAt = DateTime.Now
+            };
+            randomCampaignVoucherSeries.Vouchers.Add(voucher);
+            _voucherRepo.Add(voucher);
+            return voucher;
+        }
+
+        public CampaignVoucherSeries RandomCampaignVoucherSeries(Campaign campaign)
+        {
+            var campaignVoucherList = new List<CampaignVoucherSeries>();
+            foreach (var cvs in campaign.CampaignVoucherSeriesList)
+            {
+                var remainingAmount = cvs.Quantity - cvs.Vouchers.Count;
+                for (int i = 0; i < remainingAmount; i++)
+                {
+                    campaignVoucherList.Add(cvs);
+                }
+            }
+            var randomCampaignVoucherSeries = RandomHelper.GetRandomInArray(campaignVoucherList.ToArray());
+            return randomCampaignVoucherSeries;
+        }
+
+        public VoucherReturn ToVoucherReturn(Voucher voucher)
+        {
+            var voucherReturn = new VoucherReturn
+            {
+                VoucherCode = voucher.VoucherCode,
+                VoucherName = voucher.CampaignVoucherSeries.VoucherSeries.Name,
+                Description = voucher.CampaignVoucherSeries.VoucherSeries.Description,
+                StoreId = voucher.CampaignVoucherSeries.Campaign.StoreId,
+                StoreName = voucher.CampaignVoucherSeries.Campaign.Store.Name,
+                EndUserId = voucher.EndUserId,
+                EndUserName = voucher.EndUser.Name!,
+                ExpiresOn = voucher.CampaignVoucherSeries.ExpiresOn,
+                IsUsed = voucher.IsUsed,
+            };
+            return voucherReturn;
+        }
+
+        
 
     }
 }

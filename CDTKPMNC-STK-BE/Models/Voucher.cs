@@ -11,11 +11,11 @@ namespace CDTKPMNC_STK_BE.Models
         public Guid CampaignId { get; set; }
         public Guid VoucherSeriesId { get; set; }
         [ForeignKey("CampaignId,VoucherSeriesId")]
-        public virtual CampaignVoucherSeries VoucherSeriesCampaigns { get; set; } = null!;
+        public virtual CampaignVoucherSeries CampaignVoucherSeries { get; set; } = null!;
 
         public DateTime CreatedAt { get; set; }
         [Key]
         public Guid VoucherCode { get; set; } = Guid.NewGuid();
-        public bool IsUsed { get; set; }
+        public bool IsUsed { get; set; } = false;
     }
 }

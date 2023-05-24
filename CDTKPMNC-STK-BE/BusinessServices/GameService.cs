@@ -106,5 +106,37 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             _gameRepo.Update(game);
             return game;
         }
+
+        #region Lucly Wheel
+        public bool PlayLuclyWheel()
+        {
+            return true;
+        }
+
+        #endregion
+
+        #region Over Under
+        // Xỉu: 3 - 10
+        // Tài: 11 - 18
+        public record OverUnderDices(int Dice_1, int Dice_2, int Dice_3);
+        public record OverUnderData(bool GameIsOver, bool UserIsOver, int SumScore, OverUnderDices Dices);
+        public bool PlayOverUnder(bool userIsOver, out OverUnderData overUnderData)
+        {
+            var dice_1 = RandomHelper.RandomWithin(1, 6);
+            var dice_2 = RandomHelper.RandomWithin(1, 6);
+            var dice_3 = RandomHelper.RandomWithin(1, 6);
+            var sumScore = dice_1 + dice_2 + dice_3;
+            var dices = new OverUnderDices(dice_1, dice_2, dice_3);
+            var gameIsOver = sumScore >= 11;
+            overUnderData = new OverUnderData(gameIsOver, userIsOver, sumScore, dices);
+            if (gameIsOver == userIsOver) return true;
+            return false;
+        }
+
+        #endregion
+
+
+
+
     }
 }
