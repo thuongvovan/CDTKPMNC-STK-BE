@@ -30,7 +30,7 @@ namespace CDTKPMNC_STK_BE.Utilities
         /// <param name="userId"></param>
         /// <param name="secretKey"></param>
         /// <returns></returns>
-        public string GenerateJwtToken(Guid userId, AccountType userType, TokenType tokenType, int lifetimeDays)
+        public string GenerateJwtToken(Guid userId, AccountType userType, TokenType tokenType, int lifetimeMinutes)
         {
             var claims = new[]
                 {
@@ -42,7 +42,7 @@ namespace CDTKPMNC_STK_BE.Utilities
                 issuer: "Thương - Khôi - Sơn",
                 audience: userType.ToString(),
                 claims: claims,
-                expires: DateTime.Now.AddDays(lifetimeDays),
+                expires: DateTime.Now.AddMinutes(lifetimeMinutes),
                 signingCredentials: credentials
             );
             string jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
@@ -56,12 +56,12 @@ namespace CDTKPMNC_STK_BE.Utilities
         }
         public string GenerateAccessToken(Guid userId, AccountType userType)
         {
-            return GenerateJwtToken(userId, userType, TokenType.Access, 2);
+            return GenerateJwtToken(userId, userType, TokenType.Access, 30);
         }
 
         public string GenerateRefreshToken(Guid userId, AccountType userType)
         {
-            return GenerateJwtToken(userId, userType, TokenType.Refresh, 10);
+            return GenerateJwtToken(userId, userType, TokenType.Refresh, 10 * 1440);
         }
 
         public Guid? VerifyJwtToken(string jwtToken, AccountType userType, TokenType tokenType)
