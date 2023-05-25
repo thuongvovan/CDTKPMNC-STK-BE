@@ -8,7 +8,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
     #region Common
     public record AddressRecord(string? WardId, string? Street);
     public record DateRecord(int? Year, int? Month, int? Day);
-    public record TimeRecord(int? Hours, int? Minute);
+    public record TimeRecord(int? Hour, int? Minute);
     public record TokenRecord(string? Token);
     #endregion
 
@@ -17,8 +17,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
     public record ChangePasswordRecord(string? OldPassword, string? NewPassword);
     public record ResetPasswordRecord(string? UserName, string? NewPassword);
     public record VerifyResetPasswordRecord(string? UserName, int? Otp);
-    public record AccountRegistrationRecord(string? UserName, string? Password, string? Name, Gender? Gender, DateRecord? BirthDate, AddressRecord? Address);
-    public record AccountUpdateRecord(string? Name, Gender? Gender, DateRecord? BirthDate, AddressRecord? Address);
+    public record AccountRegistrationRecord(string? UserName, string? Password, string? Name, Gender? Gender, DateRecord? DateOfBirth, AddressRecord? Address);
+    public record AccountUpdateRecord(string? Name, Gender? Gender, DateRecord? DateOfBirth, AddressRecord? Address);
     #endregion
 
     #region Admin

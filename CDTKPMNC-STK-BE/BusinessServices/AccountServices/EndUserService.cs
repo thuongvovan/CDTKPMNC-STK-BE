@@ -73,7 +73,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.AccountServices
                 Password = userRegistrationRecord!.Password!.ToHashSHA256(),
                 Name = userRegistrationRecord!.Name!.ToTitleCase(),
                 Gender = userRegistrationRecord!.Gender!.Value,
-                DateOfBirth = userRegistrationRecord!.BirthDate!.ToDateOnly(),
+                DateOfBirth = userRegistrationRecord!.DateOfBirth!.ToDateOnly(),
                 CreatedAt = DateTime.Now,
                 Address = new Address
                 {
@@ -101,7 +101,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.AccountServices
         {
             accountEndUser.Name = accountUpdateRecord!.Name!.ToTitleCase();
             accountEndUser.Gender = accountUpdateRecord!.Gender!.Value;
-            accountEndUser.DateOfBirth = accountUpdateRecord!.BirthDate!.ToDateOnly();
+            accountEndUser.DateOfBirth = accountUpdateRecord!.DateOfBirth!.ToDateOnly();
             accountEndUser.Address.WardId = accountUpdateRecord!.Address!.WardId;
             accountEndUser.Address.Street = accountUpdateRecord!.Address!.Street!.ToTitleCase();
             _accountEndUserRepo.Update(accountEndUser);

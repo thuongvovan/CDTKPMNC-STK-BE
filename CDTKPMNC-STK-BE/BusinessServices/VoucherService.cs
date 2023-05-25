@@ -18,7 +18,6 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         private readonly IStoreRepository _storeRepository;
         private readonly IVoucherSeriesRepository _voucherSeriesRepo;
         private readonly IAccountEndUserRepository _accountEndUserRepo;
-        private readonly IAccountPartnerRepository _accountPartnerRepo;
 
         public VoucherService(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
@@ -26,7 +25,6 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             _voucherSeriesRepo = _unitOfWork.VoucherSeriesRepo;
             _storeRepository = _unitOfWork.StoreRepo;
             _accountEndUserRepo = _unitOfWork.AccountEndUserRepo;
-            _accountPartnerRepo = _unitOfWork.AccountPartnerRepo;
         }
 
         public VoucherSeriesReturn? ToVoucherSeriesReturn(VoucherSeries? voucherSeries)
@@ -250,6 +248,15 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                                                       .ToList();
             return campaignVoucherSeriesList;
 
+        }
+
+        public void DeleteAllVouchers()
+        {
+            var vouchers = _voucherRepo.GetAll();
+            foreach (var v in vouchers)
+            {
+                _voucherRepo.Delete(v);
+            }
         }
 
     }

@@ -21,7 +21,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
                 .NotEmpty().WithMessage("{PropertyName} is required.")
                 .SetValidator(new AddressRecordValidator(addressService));
 
-            RuleFor(user => user!.BirthDate)
+            RuleFor(user => user!.DateOfBirth)
                 .NotNull().WithMessage("{PropertyName} is required.")
                 .SetValidator(new DateRecordValidator());
         }

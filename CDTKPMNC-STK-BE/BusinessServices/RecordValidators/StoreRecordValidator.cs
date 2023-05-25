@@ -32,8 +32,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
             RuleFor(store => store.OpenTime)
                 .Must((store, openTime) =>
                 {
-                    var open = new TimeSpan(openTime!.Hours!.Value, openTime!.Minute!.Value, 0);
-                    var close = new TimeSpan(store.CloseTime!.Hours!.Value, store.CloseTime!.Minute!.Value, 0);
+                    var open = new TimeSpan(openTime!.Hour!.Value, openTime!.Minute!.Value, 0);
+                    var close = new TimeSpan(store.CloseTime!.Hour!.Value, store.CloseTime!.Minute!.Value, 0);
                     if (close > open) return true;
                     return false;
                 }).WithMessage("CloseTime must be after OpenTime.");

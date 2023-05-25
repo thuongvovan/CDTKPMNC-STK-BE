@@ -48,7 +48,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.AccountServices
         public AccountAdmin UpdateAccount(AccountAdmin accountAdmin, AdminUpdateRecord adminUpdateRecord)
         {
             accountAdmin.Name = adminUpdateRecord.AccountUpdate!.Name;
-            accountAdmin.DateOfBirth = adminUpdateRecord.AccountUpdate.BirthDate!.ToDateOnly();
+            accountAdmin.DateOfBirth = adminUpdateRecord.AccountUpdate.DateOfBirth!.ToDateOnly();
             accountAdmin.Gender = adminUpdateRecord.AccountUpdate!.Gender!.Value;
             accountAdmin.Address.WardId = adminUpdateRecord.AccountUpdate!.Address!.WardId;
             accountAdmin.Address.Street = adminUpdateRecord.AccountUpdate!.Address!.Street;

@@ -71,7 +71,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.AccountServices
                 Password = Account!.Password!.ToHashSHA256(),
                 Name = Account!.Name!.ToTitleCase(),
                 Gender = Account!.Gender!.Value,
-                DateOfBirth = Account!.BirthDate!.ToDateOnly(),
+                DateOfBirth = Account!.DateOfBirth!.ToDateOnly(),
                 Address = new Address
                 {
                     WardId = Account!.Address!.WardId,
@@ -115,7 +115,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.AccountServices
             var Account = partnerUpdateRecord.AccountUpdate!;
             accountPartner.Name = Account!.Name!.ToTitleCase();
             accountPartner.Gender = Account!.Gender!.Value;
-            accountPartner.DateOfBirth = Account!.BirthDate!.ToDateOnly();
+            accountPartner.DateOfBirth = Account!.DateOfBirth!.ToDateOnly();
             accountPartner.Address = new Address
             {
                 WardId = Account!.Address!.WardId,

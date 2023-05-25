@@ -23,7 +23,7 @@ namespace CDTKPMNC_STK_BE.Utilities
 
         static public TimeOnly ToTimeOnly(this TimeRecord time)
         {
-            return new TimeOnly(time.Hours!.Value, time.Minute!.Value);
+            return new TimeOnly(time.Hour!.Value, time.Minute!.Value);
         }
     }
 

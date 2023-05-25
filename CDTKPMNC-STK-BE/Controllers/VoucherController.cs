@@ -188,5 +188,13 @@ namespace CDTKPMNC_STK_BE.Controllers
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Store dose not exist" });
         }
+
+        // GET: /<VoucherController>/DeleteAll
+        [HttpGet("DeleteAll")]
+        public IActionResult DeleteAllVouchers()
+        {
+            _voucherService.DeleteAllVouchers();
+            return Ok();
+        }    
     }
 }
