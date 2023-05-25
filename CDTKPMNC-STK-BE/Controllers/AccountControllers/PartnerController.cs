@@ -266,7 +266,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         }
 
         // PUT /<PartnerController>/Store/Update
-        [HttpPost("Store/Update")]
+        [HttpPut("Store/Update")]
         [Authorize(AuthenticationSchemes = "Partner")]
         public IActionResult UpdateStore([FromBody] StoreRecord storeRecord)
         {

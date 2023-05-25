@@ -110,6 +110,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         #region Lucly Wheel
         public bool PlayLuclyWheel()
         {
+            var randomNum = RandomHelper.RandomWithin(0, 100);
+            if (randomNum < 40) return false;
             return true;
         }
 

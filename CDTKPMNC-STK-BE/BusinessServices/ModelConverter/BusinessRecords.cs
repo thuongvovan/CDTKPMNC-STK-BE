@@ -118,6 +118,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
         public string Description { get; set; } = null!;
         public Guid StoreId { get; set; }
         public string StoreName { get; set; } = null!;
+        public Guid CampaignId { get; set; }
+        public string CampaignName { get; set; } = null!;
         public Guid EndUserId { get; set; }
         public string EndUserName { get; set; } = null!;
         public DateOnly ExpiresOn { get; set; }

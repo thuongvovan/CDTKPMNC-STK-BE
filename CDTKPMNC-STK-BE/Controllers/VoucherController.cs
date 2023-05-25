@@ -147,5 +147,29 @@ namespace CDTKPMNC_STK_BE.Controllers
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Store dose not exist" });
         }
+
+        // GET: /<VoucherController>/All
+        [HttpGet("All")]
+        [Authorize(AuthenticationSchemes = "Account")]
+        public IActionResult GetVouchers()
+        {
+            if (UserType == AccountType.Admin)
+            {
+                var vouchers = _voucherService.GetVoucherAll();
+                return Ok(new ResponseMessage { Success = true, Message = "Successfuly get", Data = new { Vouchers = vouchers } });
+
+            }
+            else if (UserType == AccountType.Partner)
+            {
+                var vouchers = _voucherService.GetVoucherPartner(UserId);
+                return Ok(new ResponseMessage { Success = true, Message = "Successfuly get", Data = new { Vouchers = vouchers } });
+            }
+            else if (UserType == AccountType.EndUser)
+            {
+                var vouchers = _voucherService.GetVoucherEndUser(UserId);
+                return Ok(new ResponseMessage { Success = true, Message = "Successfuly get", Data = new { Vouchers = vouchers } });
+            }
+            return BadRequest();
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using CDTKPMNC_STK_BE.BusinessServices.Common;
+﻿using CDTKPMNC_STK_BE.BusinessServices.AccountServices;
+using CDTKPMNC_STK_BE.BusinessServices.Common;
 using CDTKPMNC_STK_BE.BusinessServices.Records;
 using CDTKPMNC_STK_BE.BusinessServices.RecordValidators;
 using CDTKPMNC_STK_BE.DataAccess;
@@ -16,11 +17,16 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         private readonly IVoucherRepository _voucherRepo;
         private readonly IStoreRepository _storeRepository;
         private readonly IVoucherSeriesRepository _voucherSeriesRepo;
+        private readonly IAccountEndUserRepository _accountEndUserRepo;
+        private readonly IAccountPartnerRepository _accountPartnerRepo;
+
         public VoucherService(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
             _voucherRepo = _unitOfWork.VoucherRepo;
             _voucherSeriesRepo = _unitOfWork.VoucherSeriesRepo;
             _storeRepository = _unitOfWork.StoreRepo;
+            _accountEndUserRepo = _unitOfWork.AccountEndUserRepo;
+            _accountPartnerRepo = _unitOfWork.AccountPartnerRepo;
         }
 
         public VoucherSeriesReturn? ToVoucherSeriesReturn(VoucherSeries? voucherSeries)
@@ -201,6 +207,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 Description = voucher.CampaignVoucherSeries.VoucherSeries.Description,
                 StoreId = voucher.CampaignVoucherSeries.Campaign.StoreId,
                 StoreName = voucher.CampaignVoucherSeries.Campaign.Store.Name,
+                CampaignId = voucher.CampaignId,
+                CampaignName = voucher.CampaignVoucherSeries.Campaign.Name,
                 EndUserId = voucher.EndUserId,
                 EndUserName = voucher.EndUser.Name!,
                 ExpiresOn = voucher.CampaignVoucherSeries.ExpiresOn,
@@ -209,7 +217,29 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             return voucherReturn;
         }
 
-        
+        public List<VoucherReturn> GetVoucherAll()
+        {
+            return _voucherRepo.GetAll().Select(v => ToVoucherReturn(v)).ToList();
+        }
+
+        public List<VoucherReturn> GetVoucherEndUser(Guid userId)
+        {
+            var endUser = _accountEndUserRepo.GetById(userId);
+            return endUser!.Vouchers.Select(v => ToVoucherReturn(v)).ToList();
+        }
+
+        public List<VoucherReturn> GetVoucherPartner(Guid userId)
+        {
+            var store = _storeRepository.GetById(userId);
+            if (store == null) return new List<VoucherReturn>(0);
+            var campaigns = store!.Campaigns;
+            var campaignVoucherSeriesList = campaigns.SelectMany(c => c.CampaignVoucherSeriesList)
+                                                      .SelectMany(cvs => cvs.Vouchers)
+                                                      .Select(v => ToVoucherReturn(v))
+                                                      .ToList();
+            return campaignVoucherSeriesList;
+                
+        }
 
     }
 }

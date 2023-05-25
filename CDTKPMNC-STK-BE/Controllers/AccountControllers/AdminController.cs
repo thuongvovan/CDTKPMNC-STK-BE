@@ -177,9 +177,28 @@ namespace CDTKPMNC_STK_BE.Controllers
             var store = _storeService.GetById(storeId);
             if (store != null)
             {
-                return Ok(new ResponseMessage(true, "Get the list of all stores successfully.", new { Store = store }));
+                return Ok(new ResponseMessage(true, "Get store successfully.", new { Store = store }));
             }
             return BadRequest(new ResponseMessage(true, "Store does not exist."));
+        }
+
+        // PUT /<UserController>/Store/94FC34D5-D5A2-4EC0-9894-08DB5B2F9271
+        [HttpPut("Store/{storeId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Admin")]
+        public IActionResult UpdateStore(Guid storeId, [FromBody] StoreRecord storeRecord)
+        {
+            var validateSummary = _storeService.ValidateStoreRecord(storeRecord);
+            if (!validateSummary.IsValid)
+            {
+                return BadRequest(new ResponseMessage(false, validateSummary.ErrorMessage));
+            }
+            var store = _storeService.GetById(storeId);
+            if (store != null)
+            {
+                _storeService.UpdateStore(store, storeRecord);
+                return Ok(new ResponseMessage { Success = true, Message = "Store has been updated.", Data = new { Store = store } });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Store dose not exist." });
         }
 
         // GET /<UserController>/Store/Approved
