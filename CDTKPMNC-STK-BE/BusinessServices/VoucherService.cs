@@ -241,5 +241,16 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 
         }
 
+        public List<VoucherReturn> GetVoucherStore(Store store)
+        {
+            var campaigns = store!.Campaigns;
+            var campaignVoucherSeriesList = campaigns.SelectMany(c => c.CampaignVoucherSeriesList)
+                                                      .SelectMany(cvs => cvs.Vouchers)
+                                                      .Select(v => ToVoucherReturn(v))
+                                                      .ToList();
+            return campaignVoucherSeriesList;
+
+        }
+
     }
 }
