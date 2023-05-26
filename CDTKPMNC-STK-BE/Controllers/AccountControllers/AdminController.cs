@@ -67,7 +67,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return Ok(new ResponseMessage(false, "Your token is invalid."));
         }
 
-        // PUT /<UserController>/ChangePassword
+        // PUT /<AdminController>/ChangePassword
         [HttpPut("ChangePassword")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult ChangePassword(ChangePasswordRecord changePasswordRecord)
@@ -87,7 +87,20 @@ namespace CDTKPMNC_STK_BE.Controllers
             return Ok(new ResponseMessage(false, "Your current password is incorrect."));
         }
 
-        // PUT /<UserController>/Update
+        // GET /<AdminController>/Info
+        [HttpGet("Info")]
+        [Authorize(AuthenticationSchemes = "Admin")]
+        public IActionResult GetInfo()
+        {
+            var accountAdmin = _adminService.GetById(UserId);
+            if (accountAdmin != null)
+            {
+                return Ok(new ResponseMessage(true, "Get successfully.", accountAdmin));
+            }
+            return Ok(new ResponseMessage(false, "An error occurred while updating."));
+        }
+
+        // PUT /<AdminController>/Update
         [HttpPut("Update")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult UpdateAccount(AdminUpdateRecord adminUpdateRecord)
@@ -108,7 +121,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         #endregion
 
         #region Partner
-        // GET /<UserController>/Partner/All
+        // GET /<AdminController>/Partner/All
         [HttpGet("Partner/All")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult GetAllPartners()
@@ -121,7 +134,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return Ok(new ResponseMessage(true, "The list is empty.", new { Partners = partners }));
         }
 
-        // GET /<UserController>/Partner/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        // GET /<AdminController>/Partner/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
         [HttpGet("Partner/{partnerId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult GetPartner(Guid partnerId)
@@ -134,7 +147,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage(false, "endUserId is not valid." ));
         }
 
-        // PUT /<UserController>/Partner/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        // PUT /<AdminController>/Partner/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
         [HttpPut("Partner/{partnerId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult UpdatePartner(Guid partnerId, [FromBody] PartnerUpdateRecord partnerUpdateRecord)
@@ -150,13 +163,13 @@ namespace CDTKPMNC_STK_BE.Controllers
                 partner = _partnerService.UpdateAccount(partner, partnerUpdateRecord);
                 return Ok(new ResponseMessage(true, "Update successfully.", new { Partner = partner }));
             }
-            return BadRequest(new ResponseMessage(false, "endUserId is not valid."));
+            return BadRequest(new ResponseMessage(false, "partnerId is not valid."));
         }
 
         #endregion
 
         #region Store
-        // GET /<UserController>/Store/All
+        // GET /<AdminController>/Store/All
         [HttpGet("Store/All")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult GetAllStores()
@@ -169,7 +182,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return Ok(new ResponseMessage(true, "List of store is empty.", new { Stores = stores }));
         }
 
-        // GET /<UserController>/Store/94FC34D5-D5A2-4EC0-9894-08DB5B2F9271
+        // GET /<AdminController>/Store/94FC34D5-D5A2-4EC0-9894-08DB5B2F9271
         [HttpGet("Store/{storeId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult GetStores(Guid storeId)
@@ -182,7 +195,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage(true, "Store does not exist."));
         }
 
-        // PUT /<UserController>/Store/94FC34D5-D5A2-4EC0-9894-08DB5B2F9271
+        // PUT /<AdminController>/Store/94FC34D5-D5A2-4EC0-9894-08DB5B2F9271
         [HttpPut("Store/{storeId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult UpdateStore(Guid storeId, [FromBody] StoreRecord storeRecord)
@@ -201,7 +214,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Store dose not exist." });
         }
 
-        // GET /<UserController>/Store/Approved
+        // GET /<AdminController>/Store/Approved
         [HttpGet("Store/Approved")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult GetApprovedStores()
@@ -214,7 +227,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return Ok(new ResponseMessage(true, "List of store is empty.", new { Stores = stores }));
         }
 
-        // GET /<UserController>/Store/Rejected
+        // GET /<AdminController>/Store/Rejected
         [HttpGet("Store/Rejected")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult GetRejectedStores()
@@ -227,7 +240,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return Ok(new ResponseMessage(true, "List of store is empty.", new { Stores = stores }));
         }
 
-        // GET /<UserController>/Store/NeedApproval
+        // GET /<AdminController>/Store/NeedApproval
         [HttpGet("Store/NeedApproval")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult GetNeedApprovalStores()
@@ -240,7 +253,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return Ok(new ResponseMessage(true, "List of store is empty.", new { Stores = stores }));
         }
 
-        // PUT /<UserController>/Store/Approve/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        // PUT /<AdminController>/Store/Approve/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
         [HttpPut("Store/Approve/{storeId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult ApproveStore(Guid storeId)
@@ -254,7 +267,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage(false,"storeId is not valid."));
         }
 
-        // PUT /<UserController>/Store/Reject/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        // PUT /<AdminController>/Store/Reject/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
         [HttpPut("Store/Reject/{storeId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult RejectStore(Guid storeId)
@@ -268,7 +281,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage(false, "storeId is not valid."));
         }
 
-        // PUT /<UserController>/Store/Enable/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        // PUT /<AdminController>/Store/Enable/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
         [HttpPut("Store/Enable/{storeId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult EnableStore(Guid storeId)
@@ -282,7 +295,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage(false, "storeId is not valid."));
         }
 
-        // PUT /<UserController>/Store/Disable/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        // PUT /<AdminController>/Store/Disable/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
         [HttpPut("Store/Disable/{storeId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult DisableStore(Guid storeId)
@@ -298,7 +311,7 @@ namespace CDTKPMNC_STK_BE.Controllers
         #endregion
 
         #region EndUser
-        // GET /<UserController>/EndUser/All
+        // GET /<AdminController>/EndUser/All
         [HttpGet("EndUser/All")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult GetAllEndUser()
@@ -311,7 +324,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return Ok(new ResponseMessage(true, "The list is empty.", new { EndUsers = endUsers }));
         }
 
-        // GET /<UserController>/EndUser/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        // GET /<AdminController>/EndUser/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
         [HttpGet("EndUser/{endUserId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult GetEndUser(Guid endUserId)
@@ -324,7 +337,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage(true, "EndUserId is not valid."));
         }
 
-        // PUT /<UserController>/EndUser/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        // PUT /<AdminController>/EndUser/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
         [HttpPut("EndUser/{endUserId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public IActionResult UpdateEndUser(Guid endUserId, [FromBody] AccountUpdateRecord accountUpdateRecord)

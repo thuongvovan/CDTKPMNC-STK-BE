@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+
 using System;
 using System.IO;
 
@@ -8,11 +10,11 @@ namespace CDTKPMNC_STK_BE.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class ImageController : ControllerBase
+    public class ImageController : CommonController
     {
         private readonly IWebHostEnvironment _environment;
         private readonly string _webRootPath;
-        private readonly string _uploadDirectory;
+        private readonly string _uploadDirectory = Environment.GetEnvironmentVariable("UPLOAD_DIRECTORY")!;
         private readonly string[] _allowedImageExtensions = { ".jpg", ".jpeg", ".png"};
         private readonly string _uploadRequestPath = Environment.GetEnvironmentVariable("UPLOAD_REQUEST_PATH")!;
 
@@ -20,7 +22,6 @@ namespace CDTKPMNC_STK_BE.Controllers
         {
             _environment = environment;
             _webRootPath = _environment.WebRootPath;
-            _uploadDirectory = Environment.GetEnvironmentVariable("UPLOAD_DIRECTORY")!;
         }
 
         // GET: <ImageController>/StoreBanner
@@ -78,8 +79,8 @@ namespace CDTKPMNC_STK_BE.Controllers
         }
 
         // GET: <ImageController>/UploadImage
-        [HttpPost("UploadImage")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        [HttpPost("Upload")]
+        // [Authorize(AuthenticationSchemes = "Account")]
         public async Task<IActionResult> UploadImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -91,8 +92,7 @@ namespace CDTKPMNC_STK_BE.Controllers
 
             if (file.Length > 600 * 1024)
                 return BadRequest(new ResponseMessage(false, "Not allowed files larger than 600KB"));
-
-            string newFilename = DateTime.Now.ToString("yyyyMMddHHmmssfff") + "_" + file.FileName;
+            string newFilename = UserId.ToString() + "_" + file.FileName;
             string filePath = Path.Combine(_uploadDirectory, "TempImages", newFilename);
             string directoryPath = Path.GetDirectoryName(filePath)!;
             if (!Directory.Exists(directoryPath))

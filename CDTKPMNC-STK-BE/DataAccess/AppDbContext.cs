@@ -57,10 +57,11 @@ namespace CDTKPMNC_STK_BE.DataAccess
             modelBuilder.ApplyConfiguration(new SeedDistrict());
             modelBuilder.ApplyConfiguration(new SeedWard());
 
-            foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
-            {
-                relationship.DeleteBehavior = DeleteBehavior.NoAction;
-            }
+            //foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            //{
+            //    relationship.DeleteBehavior = DeleteBehavior.NoAction;
+            //}
+
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

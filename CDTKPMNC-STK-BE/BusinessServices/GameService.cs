@@ -84,6 +84,11 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 }
                 var destinationFilePath = Path.Combine(directoryPath, destinationFileName);
                 File.Copy(sourceFilePath, destinationFilePath, true);
+                try
+                {
+                    File.Delete(sourceFilePath);
+                }
+                catch{}
                 return _uploadRequestPath + "/Game/" + destinationFileName;
             }
             return null;
@@ -119,7 +124,6 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 var imageUrl = CopyImageUrl(game.Id, gameRecord);
                 game.ImageUrl = imageUrl;
             }
-
             _gameRepo.Update(game);
             return game;
         }
@@ -154,7 +158,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         public bool PlayOverUnder(int winRate, bool userIsOver, out OverUnderData overUnderData)
         {
             var overUnderGame = new OverUnder();
-            return overUnderGame.Play(winRate, userIsOver, out overUnderData);
+            return overUnderGame.PlayV2(winRate, userIsOver, out overUnderData);
         }
 
         public record OverUnderDices(int Dice_1, int Dice_2, int Dice_3);
@@ -164,7 +168,45 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         /// </summary>
         public class OverUnder
         {
-            public bool Play(int winRate, bool userIsOver, out OverUnderData overUnderData)
+            public bool PlayV2(int winRate, bool userIsOver, out OverUnderData overUnderData)
+            {
+                int min, max;
+                bool isWinner = RandomHelper.RandomWithin(1, 100) <= winRate;
+                if (isWinner)
+                {
+                    if (userIsOver)
+                    {
+                        min = 11;
+                        max = 18;
+                    }
+                    else
+                    {
+                        min = 3;
+                        max = 10;
+                    }
+                }
+                else
+                {
+                    if (userIsOver)
+                    {
+                        min = 3;
+                        max = 10;
+                    }
+                    else
+                    {
+                        min = 11;
+                        max = 18;
+                    }
+                }
+                var sumScore = RandomHelper.RandomWithin(min, max);
+                var dices = GenerateDicesResult(sumScore);
+                var gameIsOver = sumScore >= 11;
+                overUnderData = new OverUnderData(gameIsOver, userIsOver, sumScore, dices);
+                if (gameIsOver == userIsOver) return true;
+                return false;
+
+            }
+            public bool PlayV1(int winRate, bool userIsOver, out OverUnderData overUnderData)
             {
                 int min = 3;
                 int max = 18;

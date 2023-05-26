@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Converters;
 using CDTKPMNC_STK_BE.BusinessServices;
 using Microsoft.Extensions.FileProviders;
+using Quartz;
+using Quartz.Impl;
 
 namespace CDTKPMNC_STK_BE
 {
@@ -88,6 +90,20 @@ namespace CDTKPMNC_STK_BE
             {
                 options.SuppressModelStateInvalidFilter = true;
             });
+
+            builder.Services.AddQuartz(q =>
+            {
+                // Just use the name of your job that you created in the Jobs folder.
+                var jobKey = new JobKey("CleanTemporaryFiles");
+                q.AddJob<CleanTemporaryFiles>(opts => opts.WithIdentity(jobKey));
+
+                q.AddTrigger(opts => opts
+                    .ForJob(jobKey)
+                    .WithIdentity("CleanTemporaryFiles-trigger")
+                    .WithSchedule(CronScheduleBuilder.CronSchedule("0 20 * ? * * *")) //0 * * ? * * *
+                    );
+            });
+            builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
             var app = builder.Build();     
 
