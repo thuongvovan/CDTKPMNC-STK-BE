@@ -191,6 +191,20 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Campaign does not exist." });
         }
 
+        // GET: <CampaignController>/Voucher/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
+        [HttpGet("Voucher/{campaignId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Partner")]
+        public IActionResult GetCampaignVoucherSeries(Guid campaignId)
+        {
+            var campaign = _campaignService.GetCampaign(campaignId);
+            if (campaign != null && campaign.StoreId == UserId)
+            {
+                var campaignVoucherSeriesList = _campaignService.GetCampaignVoucherSeriesList(campaign);
+                return Ok(new ResponseMessage { Success = true, Message = "Get Campaign Voucher Series successfuly.", Data = new { CampaignVoucherSeriesList = campaignVoucherSeriesList } });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Campaign does not exist." });
+        }
+
         // POST: <CampaignController>/Voucher/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
         [HttpPost("Voucher/{campaignId:Guid}")]
         [Authorize(AuthenticationSchemes = "Partner")]
