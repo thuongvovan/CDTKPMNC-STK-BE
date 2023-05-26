@@ -10,40 +10,6 @@
 
   <ItemGroup>
     <None Include="Properties\PublishProfiles\192.168.1.101_5000.pubxml.user" />
-    <None Include="wwwroot\DummyImages\ProductItems\191007.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\215805.png" />
-    <None Include="wwwroot\DummyImages\ProductItems\278210.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\288074.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\292545.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\314360.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\37399.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\412456.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\442015.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\459579.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\530789.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\557620.png" />
-    <None Include="wwwroot\DummyImages\ProductItems\562535.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\562893.png" />
-    <None Include="wwwroot\DummyImages\ProductItems\563194.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\608788.png" />
-    <None Include="wwwroot\DummyImages\ProductItems\646856.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\650789.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\664174.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\688853.png" />
-    <None Include="wwwroot\DummyImages\ProductItems\752658.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\817326.png" />
-    <None Include="wwwroot\DummyImages\ProductItems\86045.png" />
-    <None Include="wwwroot\DummyImages\ProductItems\901834.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\972808.jpg" />
-    <None Include="wwwroot\DummyImages\ProductItems\997010.jpg" />
-    <None Include="wwwroot\DummyImages\StoreBanners\5721666.jpg" />
-    <None Include="wwwroot\DummyImages\StoreBanners\6040076.jpg" />
-    <None Include="wwwroot\DummyImages\StoreBanners\7019974.jpg" />
-    <None Include="wwwroot\DummyImages\StoreBanners\7033813.jpg" />
-    <None Include="wwwroot\DummyImages\StoreBanners\7061289.jpg" />
-    <None Include="wwwroot\DummyImages\StoreBanners\7061457.jpg" />
-    <None Include="wwwroot\DummyImages\StoreBanners\7529338.jpg" />
-    <None Include="wwwroot\DummyImages\StoreBanners\8486205.jpg" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,8 +25,13 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="7.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.5" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.2" />
+    <PackageReference Include="Quartz.AspNetCore" Version="3.6.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.30.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 </Project>

@@ -153,8 +153,6 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid request." });
         }
 
-
-
          
         // 1: "Vòng Quay May Mắn"
         // GET /<UserController>/LuckyWheel/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC

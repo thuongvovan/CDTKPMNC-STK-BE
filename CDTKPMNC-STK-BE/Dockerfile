@@ -4,8 +4,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 VOLUME ["/app/Upload"]
+VOLUME ["/app/wwwroot"]
 ENV ASPNETCORE_ENVIRONMENT="Testing"
 ENV UPLOAD_DIRECTORY="/app/Upload"
+ENV UPLOAD_REQUEST_PATH="/Upload"
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src

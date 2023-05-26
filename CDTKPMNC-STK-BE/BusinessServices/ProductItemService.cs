@@ -189,6 +189,11 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 }
                 var destinationFilePath = Path.Combine(directoryPath, destinationFileName);
                 File.Copy(sourceFilePath, destinationFilePath, true);
+                try
+                {
+                    File.Delete(sourceFilePath);
+                }
+                catch { }
                 return _uploadRequestPath + "/ProductItem/" + destinationFileName;
             }
             return null;

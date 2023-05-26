@@ -93,8 +93,27 @@ namespace CDTKPMNC_STK_BE.Controllers
             });
         }
 
+        // GET /<PartnerController>/Info
+        [HttpGet("Info")]
+        [Authorize(AuthenticationSchemes = "Partner")]
+        public IActionResult Update()
+        {
+            AccountPartner? accountPartner = _partnerService.GetById(UserId);
+            if (accountPartner != null)
+            {
+                return Ok(new ResponseMessage
+                {
+                    Success = true,
+                    Message = "Successfully get.",
+                    Data = new { Account = accountPartner }
+                });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Invalid UserId." });
+        }
+
         // PUT /<PartnerController>/Update
         [HttpPut("Update")]
+        [Authorize(AuthenticationSchemes = "Partner")]
         public IActionResult Update([FromBody] PartnerUpdateRecord partnerUpdateRecord)
         {
             var validateResult = _partnerService.ValidatePartnerUpdateRecord(partnerUpdateRecord);
