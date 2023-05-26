@@ -12,6 +12,9 @@ namespace CDTKPMNC_STK_BE.BusinessServices
     {
         private readonly ProductCategoryService _categoryService;
         private readonly IProductItemRepository _productItemRepo;
+        private readonly string _uploadRequestPath = Environment.GetEnvironmentVariable("UPLOAD_REQUEST_PATH")!;
+        private readonly string _uploadDirectory = Environment.GetEnvironmentVariable("UPLOAD_DIRECTORY")!;
+
         public ProductItemService(IUnitOfWork unitOfWork, ProductCategoryService categoryService) : base(unitOfWork) 
         {
             _categoryService = categoryService;
@@ -171,8 +174,31 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             return false;
         }
 
+        public string? CopyImageUrl(Guid productItemId, ProductItemRecord productItemRecord)
+        {
+            var sourceFileName = productItemRecord.ImageUrl!.Split('/').Last();
+            var sourceFilePath = Path.Combine(_uploadDirectory, "TempImages", sourceFileName);
+            string fileExtension = Path.GetExtension(sourceFilePath);
+            var destinationFileName = $"{productItemId}{fileExtension}";
+            if (File.Exists(sourceFilePath))
+            {
+                var directoryPath = Path.Combine(_uploadDirectory, "ProductItem");
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+                var destinationFilePath = Path.Combine(directoryPath, destinationFileName);
+                File.Copy(sourceFilePath, destinationFilePath, true);
+                return _uploadRequestPath + "/ProductItem/" + destinationFileName;
+            }
+            return null;
+        }
+
         public ProductItem CreateProductItem(ProductItemRecord productItemRecord, Guid storeId)
         {
+            Guid productItemId = Guid.NewGuid();
+            var imageUrl = CopyImageUrl(productItemId, productItemRecord);
+
             var productItem = new ProductItem
             {
                 Name = productItemRecord.Name!.ToTitleCase().Trim(),
@@ -182,7 +208,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 IsEnable = productItemRecord.IsEnable!.Value,
                 StoreId = storeId,
                 CreatedAt = DateTime.Now,
-                ImageUrl = productItemRecord.ImageUrl
+                ImageUrl = imageUrl
             };
             _productItemRepo.Add(productItem);
             return productItem;
@@ -196,6 +222,11 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             productItem.Price = productItemRecord.Price!.Value;
             productItem.IsEnable = productItemRecord.IsEnable!.Value;
             productItem.ImageUrl = productItemRecord.ImageUrl;
+            if (productItem.ImageUrl != productItemRecord.ImageUrl)
+            {
+                var imageUrl = CopyImageUrl(productItem.Id, productItemRecord);
+                productItem.ImageUrl = imageUrl;
+            }
             _productItemRepo.Update(productItem);
             return productItem;
         }

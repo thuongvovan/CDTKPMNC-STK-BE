@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Converters;
 using CDTKPMNC_STK_BE.BusinessServices;
+using Microsoft.Extensions.FileProviders;
 
 namespace CDTKPMNC_STK_BE
 {
@@ -110,7 +111,6 @@ namespace CDTKPMNC_STK_BE
             }
 
             app.UseRouting();
-
             app.UseCors(configurePolicy =>
             {
                 configurePolicy.AllowAnyOrigin();
@@ -118,6 +118,15 @@ namespace CDTKPMNC_STK_BE
                 configurePolicy.AllowAnyHeader();
             });
             app.UseStaticFiles();
+            string uploadDirectory = Environment.GetEnvironmentVariable("UPLOAD_DIRECTORY")!;
+            string uploadRequestPath = Environment.GetEnvironmentVariable("UPLOAD_REQUEST_PATH")!;
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(uploadDirectory),
+                RequestPath = uploadRequestPath
+            });
+            
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();

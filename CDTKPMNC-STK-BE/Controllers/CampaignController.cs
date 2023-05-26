@@ -149,6 +149,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest(new ResponseMessage { Success = false, Message = "Campaign does not exist." });
         }
 
+
         // PUT: <CampaignController>/Enable/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
         [HttpPut("Enable/{campaignId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin&Partner")]
@@ -264,6 +265,46 @@ namespace CDTKPMNC_STK_BE.Controllers
             if (campaign != null)
             {
                 var campaignVoucherSeries = _campaignService.VerifyDeleteCampaignVoucherSeries(campaign, voucher.VoucherSeriesId, UserId);
+                if (campaignVoucherSeries != null)
+                {
+                    _campaignService.RemoveCampaignVoucherSeries(campaign, campaignVoucherSeries!);
+                    var campaignVoucherSeriesList = _campaignService.GetCampaignVoucherSeriesList(campaign);
+                    return Ok(new ResponseMessage { Success = true, Message = "Remove Campaign Voucher Series successfuly.", Data = new { CampaignVoucherSeriesList = campaignVoucherSeriesList } });
+                }
+                return BadRequest(new ResponseMessage { Success = false, Message = "Invalid delete request." });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Campaign does not exist." });
+        }
+
+        // DELETE: <CampaignController>/Voucher/2/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28
+        [HttpDelete("Voucher/2/{campaignId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Partner")]
+        public IActionResult DeleteCampaignVoucherSeries2(Guid campaignId, [FromBody] VoucherSeriesDeleteRecord voucher)
+        {
+            var campaign = _campaignService.GetCampaign(campaignId);
+            if (campaign != null)
+            {
+                var campaignVoucherSeries = _campaignService.VerifyDeleteCampaignVoucherSeries(campaign, voucher.VoucherSeriesId, UserId);
+                if (campaignVoucherSeries != null)
+                {
+                    _campaignService.RemoveCampaignVoucherSeries(campaign, campaignVoucherSeries!);
+                    var campaignVoucherSeriesList = _campaignService.GetCampaignVoucherSeriesList(campaign);
+                    return Ok(new ResponseMessage { Success = true, Message = "Remove Campaign Voucher Series successfuly.", Data = new { CampaignVoucherSeriesList = campaignVoucherSeriesList } });
+                }
+                return BadRequest(new ResponseMessage { Success = false, Message = "Invalid delete request." });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Campaign does not exist." });
+        }
+
+        // DELETE: <CampaignController>/Voucher/34F6BF30-5F84-4B93-B5BD-08DB5A09AE28/8FF30B2C-F495-4542-8C4B-5F74B680B568
+        [HttpDelete("Voucher/{campaignId:Guid}/{VoucherSeriesId:Guid}")]
+        [Authorize(AuthenticationSchemes = "Partner")]
+        public IActionResult DeleteCampaignVoucherSeries2(Guid campaignId, Guid voucherSeriesId)
+        {
+            var campaign = _campaignService.GetCampaign(campaignId);
+            if (campaign != null)
+            {
+                var campaignVoucherSeries = _campaignService.VerifyDeleteCampaignVoucherSeries(campaign, voucherSeriesId, UserId);
                 if (campaignVoucherSeries != null)
                 {
                     _campaignService.RemoveCampaignVoucherSeries(campaign, campaignVoucherSeries!);

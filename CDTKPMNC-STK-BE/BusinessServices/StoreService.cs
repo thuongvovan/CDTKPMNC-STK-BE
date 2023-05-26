@@ -14,6 +14,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices
     {
         private readonly IStoreRepository _storeRepo;
         private readonly AddressService _addressService;
+        private readonly string _uploadRequestPath = Environment.GetEnvironmentVariable("UPLOAD_REQUEST_PATH")!;
+        private readonly string _uploadDirectory = Environment.GetEnvironmentVariable("UPLOAD_DIRECTORY")!;
 
         public StoreService(IUnitOfWork unitOfWork, AddressService addressService) : base(unitOfWork)
         {
@@ -121,6 +123,26 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             return true;
         }
 
+        public string? CopyBannerUrl(Guid storeId, StoreRecord storeRecord)
+        {
+            var sourceFileName = storeRecord.BannerUrl!.Split('/').Last();
+            var sourceFilePath = Path.Combine(_uploadDirectory, "TempImages", sourceFileName);
+            string fileExtension = Path.GetExtension(sourceFilePath);
+            var destinationFileName = $"{storeId}{fileExtension}";
+            if (File.Exists(sourceFilePath))
+            {
+                var directoryPath = Path.Combine(_uploadDirectory, "Store");
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+                var destinationFilePath = Path.Combine(directoryPath, destinationFileName);
+                File.Copy(sourceFilePath, destinationFilePath, true);
+                return _uploadRequestPath + "/Store/" + destinationFileName;
+            }
+            return null;
+        }
+
         public Store AddStore(StoreRecord storeRecord, Guid accountPartnerId)
         {
             var store = new Store
@@ -137,7 +159,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 CloseTime = storeRecord.CloseTime!.ToTimeOnly(),
                 CreatedAt = DateTime.Now,
                 IsEnable = storeRecord.IsEnable!.Value,
-                BannerUrl = storeRecord.BannerUrl
+                BannerUrl = CopyBannerUrl(accountPartnerId,  storeRecord)
             };
             _storeRepo.Add(store);
             return store;
@@ -152,7 +174,12 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             store.OpenTime = storeRecord.OpenTime!.ToTimeOnly();
             store.CloseTime = storeRecord.CloseTime!.ToTimeOnly();
             store.IsEnable = storeRecord.IsEnable!.Value;
-            store.BannerUrl = storeRecord!.BannerUrl;
+
+            if (store.BannerUrl != storeRecord.BannerUrl)
+            {
+                var bannerUrl = CopyBannerUrl(store.Id, storeRecord);
+                store.BannerUrl = bannerUrl;
+            }
             _storeRepo.Update(store);
             return store;
         }

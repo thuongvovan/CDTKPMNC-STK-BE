@@ -71,6 +71,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
         public string StoreName { get; set; } = null!;
         public Guid GameId { get; set; }
         public string GameName { get; set; } = null!;
+        public int WinRate { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsEnable { get; set; }
         public CampaignVoucherSeriesReturn[] CampaignVoucherList { get; set; } = null!;

@@ -43,8 +43,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
 
             RuleFor(store => store.BannerUrl)
                 .NotEmpty().When(store => store.BannerUrl != null)
-                .WithMessage("{PropertyName} is not empty.");
+                .WithMessage("{PropertyName} is not empty.")
+                .Must(i => i!.StartsWith('/')).WithMessage("{PropertyName} must be start with '/'.");
         }
     }
 }
-

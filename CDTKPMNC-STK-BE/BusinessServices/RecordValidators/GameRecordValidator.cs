@@ -27,7 +27,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
 
             RuleFor(g => g.ImageUrl)
                 .NotEmpty().When(g => g.ImageUrl != null)
-                .WithMessage("{PropertyName} is not empty.");
+                .WithMessage("{PropertyName} is not empty.")
+                .Must(i => i!.StartsWith('/')).WithMessage("{PropertyName} must be start with '/'.");
         }
     }
 }

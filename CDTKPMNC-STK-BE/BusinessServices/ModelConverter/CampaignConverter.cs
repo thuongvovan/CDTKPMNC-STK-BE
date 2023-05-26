@@ -72,6 +72,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.ModelConverter
                 StoreName = campaign.Store.Name,
                 GameId = campaign.GameId,
                 GameName = campaign.Game.Name,
+                WinRate = campaign.WinRate,
                 CreatedAt = campaign.CreatedAt,
                 IsEnable = campaign.IsEnable,
                 Status = GetCampaignStatus(campaign),

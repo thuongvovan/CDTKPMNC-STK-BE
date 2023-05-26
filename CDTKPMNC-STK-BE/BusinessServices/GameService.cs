@@ -12,6 +12,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices
     public class GameService : CommonService
     {
         private readonly IGameRepository _gameRepo;
+        private readonly string _uploadRequestPath = Environment.GetEnvironmentVariable("UPLOAD_REQUEST_PATH")!;
+        private readonly string _uploadDirectory = Environment.GetEnvironmentVariable("UPLOAD_DIRECTORY")!;
 
         public GameService(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
@@ -67,15 +69,38 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             return false;
         }
 
+        public string? CopyImageUrl(Guid gameId, GameRecord gameRecord)
+        {
+            var sourceFileName = gameRecord.ImageUrl!.Split('/').Last();
+            var sourceFilePath = Path.Combine(_uploadDirectory, "TempImages", sourceFileName);
+            string fileExtension = Path.GetExtension(sourceFilePath);
+            var destinationFileName = $"{gameId}{fileExtension}";
+            if (File.Exists(sourceFilePath))
+            {
+                var directoryPath = Path.Combine(_uploadDirectory, "Game");
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+                var destinationFilePath = Path.Combine(directoryPath, destinationFileName);
+                File.Copy(sourceFilePath, destinationFilePath, true);
+                return _uploadRequestPath + "/Game/" + destinationFileName;
+            }
+            return null;
+        }
+
         public Game CreateGame(GameRecord gameRecord)
         {
+            Guid gameId = Guid.NewGuid();
+            var imageUrl = CopyImageUrl(gameId, gameRecord);
             var game = new Game
             {
+                Id = gameId,
                 Name = gameRecord.Name!.ToTitleCase(),
                 Description = gameRecord.Description!,
                 Instruction = gameRecord.Instruction!,
                 IsEnable = gameRecord.IsEnable!.Value,
-                ImageUrl = gameRecord.ImageUrl,
+                ImageUrl = imageUrl,
                 CreatedAt = DateTime.Now
             };
             _gameRepo.Add(game);
@@ -88,7 +113,13 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             game.Description = gameRecord.Description!;
             game.Instruction = gameRecord.Instruction!;
             game.IsEnable = gameRecord.IsEnable!.Value;
-            game.ImageUrl = gameRecord.ImageUrl;
+
+            if (game.ImageUrl != gameRecord.ImageUrl)
+            {
+                var imageUrl = CopyImageUrl(game.Id, gameRecord);
+                game.ImageUrl = imageUrl;
+            }
+
             _gameRepo.Update(game);
             return game;
         }
