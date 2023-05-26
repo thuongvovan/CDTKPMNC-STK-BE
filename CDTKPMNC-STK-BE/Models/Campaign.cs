@@ -28,6 +28,7 @@ namespace CDTKPMNC_STK_BE.Models
         public virtual Store Store { get; set; } = null!;
         public Guid GameId { get; set; }
         public virtual Game Game { get; set; } = null!;
+        public int WinRate { get; set; }
         [InverseProperty("Campaign")]
         public virtual ICollection<CampaignVoucherSeries> CampaignVoucherSeriesList { get; set; } = new List<CampaignVoucherSeries>();
         public DateTime CreatedAt { get; set; }

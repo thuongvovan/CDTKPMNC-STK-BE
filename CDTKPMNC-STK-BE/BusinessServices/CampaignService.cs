@@ -184,6 +184,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 EndDate = campaignCreateRecord!.CampaignInfo!.EndDate!.ToDateOnly(),
                 StartDate = campaignCreateRecord!.CampaignInfo!.StartDate!.ToDateOnly(),
                 GameId = campaignCreateRecord!.CampaignInfo!.GameId!.Value,
+                WinRate = campaignCreateRecord!.CampaignInfo!.WinRate!.Value,
                 IsEnable = campaignCreateRecord!.CampaignInfo!.IsEnable!.Value
             };
             foreach (var voucherSeriesCampaignRecord in campaignCreateRecord!.CampaignVoucherSeriesList!)
@@ -310,6 +311,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             campaign.EndDate = campaignInfoRecord!.EndDate!.ToDateOnly();
             campaign.StartDate = campaignInfoRecord!.StartDate!.ToDateOnly();
             campaign.GameId = campaignInfoRecord!.GameId!.Value;
+            campaign.WinRate = campaignInfoRecord!.WinRate!.Value;
             campaign.IsEnable = campaignInfoRecord!.IsEnable!.Value;
             _campaignRepo.Update(campaign);
             return CampaignConverter.ToCampaignReturn(campaign)!;

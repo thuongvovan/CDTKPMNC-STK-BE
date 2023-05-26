@@ -35,6 +35,10 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
                 .Must(gameId => gameService.GetById(gameId!.Value) != null)
                 .WithMessage("Incorrect {PropertyName}");
 
+            RuleFor(cp => cp!.WinRate)
+                .NotNull().WithMessage("{PropertyName} is required.")
+                .InclusiveBetween(0, 100).WithMessage("{PropertyName} required inclusive between 0 and 100.");
+
             RuleFor(cp => cp!.IsEnable)
                 .NotNull().WithMessage("{PropertyName} is required.");
         }

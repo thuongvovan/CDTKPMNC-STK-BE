@@ -97,7 +97,7 @@ namespace CDTKPMNC_STK_BE
                 // dbContext.Database.EnsureDeleted();
                 // Console.WriteLine("Delete the database if it exists");
                 // Create the database and its tables
-                // dbContext.Database.EnsureCreated();
+                dbContext.Database.EnsureCreated();
                 // dbContext.Database.Migrate();
                 // Console.WriteLine("Create the database and its tables");
 

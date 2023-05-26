@@ -131,9 +131,9 @@ namespace CDTKPMNC_STK_BE.Controllers
         public IActionResult DisableGame(Guid gameId)
         {
             var game = _gameService.GetById(gameId);
-            if (game != null && game.IsEnable)
+            if (game != null)
             {
-                _gameService.DisableGame(game);
+                if (game.IsEnable) _gameService.DisableGame(game);
                 return Ok(new ResponseMessage { Success = true, Message = "The game has been disabled", Data = new { Game = game } });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid request." });
@@ -145,9 +145,9 @@ namespace CDTKPMNC_STK_BE.Controllers
         public IActionResult EnableGame(Guid gameId)
         {
             var game = _gameService.GetById(gameId);
-            if (game != null && game.IsEnable)
+            if (game != null)
             {
-                _gameService.EnableGame(game);
+                if (!game.IsEnable)  _gameService.EnableGame(game);
                 return Ok(new ResponseMessage { Success = true, Message = "The game has been enabled", Data = new { Game = game } });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid request." });
@@ -169,7 +169,7 @@ namespace CDTKPMNC_STK_BE.Controllers
                 var canJoin = _campaignService.CheckUserCanJoin(campaign, UserId);
                 if (canJoin)
                 {
-                    var isWinner = _gameService.PlayLuclyWheel();
+                    var isWinner = _gameService.PlayLuclyWheel(campaign.WinRate);
                     if (isWinner)
                     {
                         var voucher = _voucherService.RandomVoucher(campaign, UserId);
@@ -196,7 +196,7 @@ namespace CDTKPMNC_STK_BE.Controllers
                 var canJoin = _campaignService.CheckUserCanJoin(campaign, UserId);
                 if (canJoin)
                 {
-                    var isWinner = _gameService.PlayOverUnder(userIsOver, out var overUnderData);
+                    var isWinner = _gameService.PlayOverUnder(campaign.WinRate, userIsOver, out var overUnderData);
                     if (isWinner)
                     {
                         var voucher = _voucherService.RandomVoucher(campaign, UserId);

@@ -102,16 +102,16 @@ namespace CDTKPMNC_STK_BE.BusinessServices
 
         public Game EnableGame(Game game)
         {
-            game.IsEnable = false;
+            game.IsEnable = true;
             _gameRepo.Update(game);
             return game;
         }
 
         #region Lucly Wheel
-        public bool PlayLuclyWheel()
+        public bool PlayLuclyWheel(int winRate)
         {
             var randomNum = RandomHelper.RandomWithin(0, 100);
-            if (randomNum < 40) return false;
+            if (randomNum < winRate) return false;
             return true;
         }
 
@@ -120,20 +120,81 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         #region Over Under
         // Xỉu: 3 - 10
         // Tài: 11 - 18
+        public bool PlayOverUnder(int winRate, bool userIsOver, out OverUnderData overUnderData)
+        {
+            var overUnderGame = new OverUnder();
+            return overUnderGame.Play(winRate, userIsOver, out overUnderData);
+        }
+
         public record OverUnderDices(int Dice_1, int Dice_2, int Dice_3);
         public record OverUnderData(bool GameIsOver, bool UserIsOver, int SumScore, OverUnderDices Dices);
-        public bool PlayOverUnder(bool userIsOver, out OverUnderData overUnderData)
+        /// <summary>
+        /// Class tổ chức game tài xỉu
+        /// </summary>
+        public class OverUnder
         {
-            var dice_1 = RandomHelper.RandomWithin(1, 6);
-            var dice_2 = RandomHelper.RandomWithin(1, 6);
-            var dice_3 = RandomHelper.RandomWithin(1, 6);
-            var sumScore = dice_1 + dice_2 + dice_3;
-            var dices = new OverUnderDices(dice_1, dice_2, dice_3);
-            var gameIsOver = sumScore >= 11;
-            overUnderData = new OverUnderData(gameIsOver, userIsOver, sumScore, dices);
-            if (gameIsOver == userIsOver) return true;
-            return false;
+            public bool Play(int winRate, bool userIsOver, out OverUnderData overUnderData)
+            {
+                int min = 3;
+                int max = 18;
+                int range = max - min + 1;
+                int adjustmentRate = Math.Abs(50 - winRate);
+                int adjustmentValue = (int)Math.Round(((double)(range * adjustmentRate) / 100));
+
+                if (userIsOver) // Tài
+                {
+                    if (winRate > 50) min += adjustmentValue;
+                    else if (winRate < 50) max -= adjustmentValue;
+                }
+                else // Xỉu
+                {
+                    if (winRate > 50) max -= adjustmentValue;
+                    else if (winRate < 50) min += adjustmentValue;
+                }
+
+                var sumScore = RandomHelper.RandomWithin(min, max);
+
+
+                var dices = GenerateDicesResult(sumScore);
+                var gameIsOver = sumScore >= 11;
+                overUnderData = new OverUnderData(gameIsOver, userIsOver, sumScore, dices);
+                if (gameIsOver == userIsOver) return true;
+                return false;
+            }
+
+            public OverUnderDices GenerateDicesResult(int sumScore)
+            {
+                int sum = 0;
+                int dice_1 = 0;
+                int dice_2 = 0;
+                int dice_3 = 0;
+
+                while (sum != sumScore || dice_3 < 1 || dice_3 > 6)
+                {
+                    dice_1 = RandomHelper.RandomWithin(1, 6);
+                    dice_2 = RandomHelper.RandomWithin(1, 6);
+                    dice_3 = sumScore - dice_1 - dice_2;
+                    sum = (dice_1 + dice_2 + dice_3);
+                    // Console.WriteLine($"IN WHILE ({sumScore}): {dice_1} - {dice_2} - {dice_3}");
+                }
+
+                return new OverUnderDices(dice_1, dice_2, dice_3);
+            }
         }
+
+        // ====== TESTING ======
+        //int nWin = 0;
+        //for (int i = 0; i < 1000; i++)
+        //{
+        //    bool userPlay = RandomHelper.RandomWithin(0, 1) == 0;
+        //    var overUnderGame = new OverUnder();
+        //    var ressult = overUnderGame.Play(70, userPlay, out var d);
+        //    if (ressult) nWin++;
+        //    Console.WriteLine($"Is Winner: {ressult} | GameIsOver: {d.GameIsOver} | UserIsOver: {d.UserIsOver} | ${d.SumScore}({d.Dices.Dice_1}, {d.Dices.Dice_2}, {d.Dices.Dice_3})");
+        //}
+
+        //Console.WriteLine("=======TOTAL==========");
+        //Console.WriteLine($"{nWin}/1000");
 
         #endregion
 

@@ -5,7 +5,7 @@
         static public int RandomWithin(int min = 0, int max = int.MaxValue)
         {
             var random = new Random();
-            int randomValue = random.Next(min, max);
+            int randomValue = random.Next(min, max+1);
             return randomValue;
         }
         
