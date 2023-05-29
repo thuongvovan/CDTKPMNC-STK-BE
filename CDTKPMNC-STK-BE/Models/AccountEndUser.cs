@@ -12,5 +12,9 @@ namespace CDTKPMNC_STK_BE.Models
         [JsonIgnore]
         public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
         //public ICollection<ProductItem> ProductItems { get; set; }
+        [InverseProperty("EndUser")]
+        [JsonIgnore]
+        public virtual ICollection<CampaignEndUsers> CampaignEndUsersList { get; set; } = new List<CampaignEndUsers>();
+
     }
 }

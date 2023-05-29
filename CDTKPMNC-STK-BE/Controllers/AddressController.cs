@@ -30,21 +30,31 @@ namespace CDTKPMNC_STK_BE.Controllers
         [HttpGet("District/ProvineId")]
         public IActionResult GetDistrictsByProvineId(string ProvineId)
         {
-            var districts = _addressService.GetDistrictsByProvineId(ProvineId);
-            return Ok(new ResponseMessage(true, "OK",  new { Districts = districts }));
+            var provine = _addressService.GetProvinceById(ProvineId);
+            if (provine != null)
+            {
+                var districts = _addressService.GetDistrictsByProvineId(ProvineId);
+                return Ok(new ResponseMessage(true, "OK", new { Districts = districts }));
+            }
+            return BadRequest(new ResponseMessage(false, "ProvineId not exist."));
         }
 
         // GET /<AddressController>/Wards/760
         [HttpGet("Ward/DistrictId")]
         public IActionResult GetWardsByDistrictId(string DistrictId)
         {
-            var wards = _addressService.GetWardsByDistrictId(DistrictId);
-            return Ok(new ResponseMessage
+            var district = _addressService.GetDistrictById(DistrictId);
+            if (district != null)
             {
-                Success = true,
-                Message = "OK",
-                Data = new { Wards = wards }
-            });
+                var wards = _addressService.GetWardsByDistrict(district);
+                return Ok(new ResponseMessage
+                {
+                    Success = true,
+                    Message = "OK",
+                    Data = new { Wards = wards }
+                });
+            }
+            return BadRequest(new ResponseMessage(false, "DistrictId not exist."));
         }
     }
 }

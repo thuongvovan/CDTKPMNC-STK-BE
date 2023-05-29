@@ -42,6 +42,8 @@ namespace CDTKPMNC_STK_BE.Models
         [JsonIgnore]
         public bool IsVerified { get; set; }
         public DateTime? VerifiedAt { get; set; }
-
+        [InverseProperty("Account")]
+        [JsonIgnore]
+        public virtual ICollection<Notication> Notications { get; set; } = new List<Notication>();
     }
 }

@@ -9,11 +9,11 @@ namespace CDTKPMNC_STK_BE.Models
         [JsonIgnore]
         [ForeignKey("Account")]
         public Guid Id { get; set; }
+        [JsonIgnore]
+        public virtual Account? Account { get; set; }
         [Required]
         public string? AccessToken { get; set; }
         [Required]
         public string? RefreshToken { get; set; }
-        [JsonIgnore]
-        public virtual Account? Account { get; set; }
     }
 }

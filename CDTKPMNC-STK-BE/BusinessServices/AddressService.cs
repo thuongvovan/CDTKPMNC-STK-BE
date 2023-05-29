@@ -37,19 +37,29 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             return _provinceRepository.GetAll().ToList();
         }
 
-        public List<AddressDistrict>? GetDistrictsByProvineId(string provineId)
+        public List<AddressDistrict> GetDistrictsByProvineId(string provineId)
         {
-            if (string.IsNullOrWhiteSpace(provineId)) return null;
-            var districts = _districtRepository.GetByProvince(provineId);
-            if (districts!.Count == 0) return null;
+            var districts = _districtRepository.GetByProvince(provineId)!;
+            if (districts == null)
+            {
+                return new List<AddressDistrict>(0);
+            }
             return districts.ToList();
         }
 
-        public List<AddressWard>? GetWardsByDistrictId(string districtId)
+        public List<AddressWard> GetWardsByDistrictId(string districtId)
         {
-            if (string.IsNullOrWhiteSpace(districtId)) return null;
-            var wards = _wardRepository.GetByDistrict(districtId);
-            if (wards!.Count == 0) return null;
+            var wards = _wardRepository.GetByDistrict(districtId)!;
+            return wards.ToList();
+        }
+
+        public List<AddressWard> GetWardsByDistrict(AddressDistrict district)
+        {
+            var wards = district.Wards;
+            if (wards == null)
+            {
+                return new List<AddressWard>(0);
+            }
             return wards.ToList();
         }
     }

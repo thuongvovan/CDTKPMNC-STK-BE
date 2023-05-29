@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Microsoft.EntityFrameworkCore;
 
 namespace CDTKPMNC_STK_BE.Models
 {
@@ -33,6 +34,9 @@ namespace CDTKPMNC_STK_BE.Models
         public virtual ICollection<CampaignVoucherSeries> CampaignVoucherSeriesList { get; set; } = new List<CampaignVoucherSeries>();
         public DateTime CreatedAt { get; set; }
         public bool IsEnable { get; set; }
+        [InverseProperty("Campaign")]
+        [JsonIgnore]
+        public virtual ICollection<CampaignEndUsers> CampaignEndUsersList { get; set; } = new List<CampaignEndUsers>();
         [NotMapped]
         [JsonConverter(typeof(StringEnumConverter))]
         public CampaignStatus Status { get; set; }

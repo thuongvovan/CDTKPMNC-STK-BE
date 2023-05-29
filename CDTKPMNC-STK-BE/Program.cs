@@ -23,8 +23,9 @@ namespace CDTKPMNC_STK_BE
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("Testing")) // Testing   Default
-                        .UseLazyLoadingProxies();
+                options.UseSqlServer(builder.Configuration.GetConnectionString("Dev-new")) // Testing   Default   Dev-new
+                        .UseLazyLoadingProxies()
+                        .EnableSensitiveDataLogging();
             });
 
             builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
@@ -114,7 +115,7 @@ namespace CDTKPMNC_STK_BE
                 // dbContext.Database.EnsureDeleted();
                 // Console.WriteLine("Delete the database if it exists");
                 // Create the database and its tables
-                dbContext.Database.EnsureCreated();
+                // dbContext.Database.EnsureCreated();
                 // dbContext.Database.Migrate();
                 // Console.WriteLine("Create the database and its tables");
 

@@ -10,7 +10,6 @@ namespace CDTKPMNC_STK_BE.DataAccess.Repositories.AddressRepository
         {
             if (string.IsNullOrWhiteSpace(provinceId)) return null;
             var districts = _table.Where(d => d.ProvinceId == provinceId).ToList();
-            if (districts.Count == 0) return null;
             return districts;           
         }
 
@@ -18,18 +17,14 @@ namespace CDTKPMNC_STK_BE.DataAccess.Repositories.AddressRepository
         {
             if (province == null) return null;
             var districts =_table.Where(d => d.ProvinceId == province.Id).ToList();
-            if (districts.Count == 0) return null;
             return districts;
         }
 
         public List<AddressWard>? GetWards(string districtId)
         {
-            var district = GetById(districtId);
-            if (district != null)
-            {
-                return district.Wards.ToList();
-            }
-            return null;
+            var district = GetById(districtId)!;
+            return district.Wards.ToList();
+            
         }
     }
 }

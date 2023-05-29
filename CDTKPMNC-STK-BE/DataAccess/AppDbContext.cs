@@ -28,9 +28,14 @@ namespace CDTKPMNC_STK_BE.DataAccess
 
 
         private readonly IConfiguration _configuration;
+        private readonly String _logFilePath; // = Path.Combine(Environment.GetEnvironmentVariable("EFLOG_PATH")!, "EF_Log.txt");
+        private readonly StreamWriter _logStream; // = new StreamWriter(_logFilePath, append: true);
+
         public AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration configuration) : base(options)
         {
             _configuration = configuration;
+            _logFilePath = Path.Combine(Environment.GetEnvironmentVariable("EFLOG_PATH")!, "EF_Log.txt");
+            _logStream = new StreamWriter(_logFilePath, append: true);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -61,16 +66,24 @@ namespace CDTKPMNC_STK_BE.DataAccess
             //{
             //    relationship.DeleteBehavior = DeleteBehavior.NoAction;
             //}
-
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            /*
-            var connectionString = _configuration.GetConnectionString("Default");
-            optionsBuilder.UseSqlServer(connectionString)
-                .UseLazyLoadingProxies();
-            */
+            optionsBuilder.LogTo(_logStream.WriteLine, LogLevel.Error)
+                          .EnableSensitiveDataLogging();
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            _logStream.Dispose();
+        }
+
+        public override async ValueTask DisposeAsync()
+        {
+            await base.DisposeAsync();
+            await _logStream.DisposeAsync();
         }
     }
 }
