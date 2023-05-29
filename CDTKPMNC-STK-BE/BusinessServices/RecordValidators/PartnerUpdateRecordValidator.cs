@@ -6,7 +6,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
 {
     public class PartnerUpdateRecordValidator : AbstractValidator<PartnerUpdateRecord>
     {
-        public PartnerUpdateRecordValidator(AddressService addressService, CompanyService companyService)
+        public PartnerUpdateRecordValidator(AccountPartner currentPartner, AddressService addressService, CompanyService companyService)
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
 
@@ -22,7 +22,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
             RuleFor(partner => partner.Company)
                 .Must((partner, company) => !(partner!.PartnerType == PartnerType.Company && company == null))
                 .WithMessage("{PropertyName} is required.")
-                .SetValidator(new CompanyRecordValidator(addressService, companyService));
+                .SetValidator(new CompanyRecordUpdateValidator(currentPartner, addressService, companyService))
+                .When(p => p.PartnerType == PartnerType.Company);
         }
     }
 }
