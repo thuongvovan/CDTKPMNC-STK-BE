@@ -12,7 +12,7 @@ namespace CDTKPMNC_STK_BE.Models
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
-        public Address Address { get; set; } = null!;
+        public virtual Address Address { get; set; } = null!;
         [Column(TypeName = "time(0)")]
         public TimeOnly OpenTime { get; set; }
         [Column(TypeName = "time(0)")]

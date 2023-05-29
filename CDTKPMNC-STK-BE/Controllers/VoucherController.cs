@@ -1,6 +1,8 @@
 ﻿using CDTKPMNC_STK_BE.BusinessServices;
+using CDTKPMNC_STK_BE.BusinessServices.AccountServices;
 using CDTKPMNC_STK_BE.BusinessServices.Records;
 using CDTKPMNC_STK_BE.Models;
+using CDTKPMNC_STK_BE.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Org.BouncyCastle.Crypto;
@@ -15,10 +17,12 @@ namespace CDTKPMNC_STK_BE.Controllers
     {
         private readonly VoucherService _voucherService;
         private readonly StoreService _storeService;
-        public VoucherController(VoucherService voucherService, StoreService storeService)
+        private readonly EndUserService _endUserService;
+        public VoucherController(VoucherService voucherService, StoreService storeService, EndUserService endUserService)
         {
             _voucherService = voucherService;
             _storeService = storeService;
+            _endUserService = endUserService;
         }
 
         // GET: /<VoucherController>/VoucherSeries/All
@@ -172,7 +176,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             return BadRequest();
         }
 
-        // GET: /<VoucherController>/All
+        // GET: /<VoucherController>/10D87262-0C2C-430E-9CC2-D4426D33F888
         [HttpGet("{storeId:Guid}")]
         [Authorize(AuthenticationSchemes = "Admin&Partner")]
         public IActionResult GetVouchers(Guid storeId)
@@ -187,6 +191,29 @@ namespace CDTKPMNC_STK_BE.Controllers
                 }
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "Store dose not exist" });
+        }
+
+        // PUT: /<VoucherController>/Share
+        [HttpPut("Share")]
+        [Authorize(AuthenticationSchemes = "EndUser")]
+        public IActionResult ShareVouchers(VoucherShareRecord voucherShareRecord)
+        {
+            var validateSummary = _voucherService.ValidateVoucherShareRecord(voucherShareRecord);
+            if (!validateSummary.IsValid)
+            {
+                return BadRequest(new ResponseMessage(false, validateSummary.ErrorMessage));
+            }
+            var accountEndUser = _endUserService.GetByUserName(voucherShareRecord.DestinationUser!);
+            if (accountEndUser == null)
+            {
+                return BadRequest(new ResponseMessage(false, "Recipient does not exist"));
+            }
+            Voucher voucher = _voucherService.GetVoucher(voucherShareRecord.VoucherCode!.Value);
+            if (voucher.EndUserId == UserId && !voucher.IsUsed && voucher.CampaignVoucherSeries.ExpiresOn.ToDateTime() >=  DateTime.Now)
+            {
+
+            }
+            return BadRequest(new ResponseMessage(false, "The voucher is not valid for use or has expired."));
         }
 
         // GET: /<VoucherController>/DeleteAll

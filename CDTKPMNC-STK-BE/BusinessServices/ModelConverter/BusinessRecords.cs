@@ -84,6 +84,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
     #region Voucher
     public record VoucherSeriesRecord(string? Name, string? Description);
     public record VoucherSeriesDeleteRecord(Guid VoucherSeriesId);
+    public record VoucherShareRecord(Guid? VoucherCode, string? DestinationUser);
 
     public class VoucherSeriesReturn
     {
@@ -135,5 +136,15 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
 
     #region Product Item
     public record ProductItemRecord(string? Name, string? Description, Guid? ProductCategoryId, float? Price, bool? IsEnable, string? ImageUrl);
+    #endregion
+
+    #region Notication
+    public class NoticaionsReturn
+    {
+        public bool HaveUnread { get; set; }
+        public int NumberUnread { get; set; }
+        public Notication[] Notications { get; set; } = new Notication[] { };
+    }
+
     #endregion
 }

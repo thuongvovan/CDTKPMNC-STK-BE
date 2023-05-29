@@ -1,5 +1,6 @@
 ﻿using CDTKPMNC_STK_BE.DataAccess.Repositories;
 using CDTKPMNC_STK_BE.DataAccess.Repositories.AddressRepository;
+using CDTKPMNC_STK_BE.DataAccess.Repositories.CampaignEndUsersRepository;
 using CDTKPMNC_STK_BE.DataAccess.Repositories.VoucherRepository;
 using CDTKPMNC_STK_BE.DataAccess.Repositories.VoucherSeriesRepository;
 using CDTKPMNC_STK_BE.Models;
@@ -22,10 +23,13 @@ namespace CDTKPMNC_STK_BE.DataAccess
         public IGameRepository _gameRepository;
         public ICampaignRepository _campaignRepository;
         public ICampaignVoucherSeriesRepository _campaignVoucherSeriesRepository;
+        public ICampaignEndUsersRepository _campaignEndUsersRepository;
         public IVoucherRepository _voucherRepository;
         public IVoucherSeriesRepository _voucherSeriesRepository;
         public IProductCategoryRepository _productCategoryRepository;
         public IProductItemRepository _productItemRepository;
+        public INoticationRepository _noticationRepository;
+
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -43,8 +47,10 @@ namespace CDTKPMNC_STK_BE.DataAccess
             _productItemRepository = new ProductItemRepository(_context);
             _campaignRepository = new CampaignRepository(_context);
             _campaignVoucherSeriesRepository = new CampaignVoucherSeriesRepository(_context);
+            _campaignEndUsersRepository = new CampaignEndUsersRepository(_context);
             _voucherRepository = new VoucherRepository(_context);
             _voucherSeriesRepository = new VoucherSeriesRepository(_context);
+            _noticationRepository = new NoticationRepository(_context);
         }
 
         public IAccountRepository<Account> AccountRepo
@@ -135,12 +141,23 @@ namespace CDTKPMNC_STK_BE.DataAccess
                 _campaignRepository ??= new CampaignRepository(_context);
                 return _campaignRepository;
             }
-        }        public ICampaignVoucherSeriesRepository CampaignVoucherSeriesRepo
+        }        
+        
+        public ICampaignVoucherSeriesRepository CampaignVoucherSeriesRepo
         {
             get
             {
                 _campaignVoucherSeriesRepository ??= new CampaignVoucherSeriesRepository(_context);
                 return _campaignVoucherSeriesRepository;
+            }
+        }
+
+        public ICampaignEndUsersRepository CampaignEndUsersRepo
+        {
+            get
+            {
+                _campaignEndUsersRepository ??= new CampaignEndUsersRepository(_context);
+                return _campaignEndUsersRepository;
             }
         }
 
@@ -177,6 +194,15 @@ namespace CDTKPMNC_STK_BE.DataAccess
             {
                 _productItemRepository ??= new ProductItemRepository(_context);
                 return _productItemRepository;
+            }
+        }
+
+        public INoticationRepository NoticationRepo
+        {
+            get
+            {
+                _noticationRepository ??= new NoticationRepository(_context);
+                return _noticationRepository;
             }
         }
 

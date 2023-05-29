@@ -4,6 +4,7 @@ using CDTKPMNC_STK_BE.BusinessServices.Records;
 using CDTKPMNC_STK_BE.BusinessServices.RecordValidators;
 using CDTKPMNC_STK_BE.DataAccess;
 using CDTKPMNC_STK_BE.DataAccess.Repositories;
+using CDTKPMNC_STK_BE.DataAccess.Repositories.CampaignEndUsersRepository;
 using CDTKPMNC_STK_BE.Models;
 using CDTKPMNC_STK_BE.Utilities;
 
@@ -18,6 +19,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         private readonly IStoreRepository _storeRepository;
         private readonly IVoucherSeriesRepository _voucherSeriesRepo;
         private readonly IAccountEndUserRepository _accountEndUserRepo;
+        private readonly ICampaignRepository _campaignRepo;
+
 
         public VoucherService(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
@@ -25,6 +28,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             _voucherSeriesRepo = _unitOfWork.VoucherSeriesRepo;
             _storeRepository = _unitOfWork.StoreRepo;
             _accountEndUserRepo = _unitOfWork.AccountEndUserRepo;
+            _campaignRepo = _unitOfWork.CampaignRepo;
         }
 
         public VoucherSeriesReturn? ToVoucherSeriesReturn(VoucherSeries? voucherSeries)
@@ -167,13 +171,14 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             _voucherSeriesRepo.Delete(voucherSeries);
         }
 
-        public Voucher RandomVoucher(Campaign campaign, Guid UserId)
+        public Voucher RandomVoucher(CampaignEndUsers campainEndUser)
         {
-            var randomCampaignVoucherSeries = RandomCampaignVoucherSeries(campaign);
+            var randomCampaignVoucherSeries = RandomCampaignVoucherSeries(campainEndUser.Campaign);
             var voucher = new Voucher
             {
                 CampaignVoucherSeries = randomCampaignVoucherSeries,
-                EndUserId = UserId,
+                EndUserId = campainEndUser.EndUserId,
+                CampaignEndUsers = campainEndUser,
                 CreatedAt = DateTime.Now
             };
             randomCampaignVoucherSeries.Vouchers.Add(voucher);
@@ -249,6 +254,20 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             return campaignVoucherSeriesList;
 
         }
+
+        public ValidationSummary ValidateVoucherShareRecord(VoucherShareRecord? voucherShareRecord)
+        {
+            if (voucherShareRecord == null)
+            {
+                return new ValidationSummary(false, "Voucher share info is required.");
+            }
+            var validator = new VoucherShareRecordValidator();
+            var result = validator.Validate(voucherShareRecord);
+            return result.GetSummary();
+        }
+
+
+
 
         public void DeleteAllVouchers()
         {

@@ -20,8 +20,9 @@ namespace CDTKPMNC_STK_BE.Controllers
         private readonly OtpService _otpService;
         private readonly GameService _gameService;
         private readonly StoreService _storeService;
+        private readonly NoticationService _noticationService;
 
-        public EndUserController(EndUserService endUserService, EmailService emailService, OtpService otpService, GameService gameService, StoreService storeService)
+        public EndUserController(EndUserService endUserService, EmailService emailService, OtpService otpService, GameService gameService, StoreService storeService, NoticationService noticationService)
         {
             // _partnerService = partnerService;
             _endUserService = endUserService;
@@ -29,6 +30,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             _otpService = otpService;
             _gameService = gameService;
             _storeService = storeService;
+            _noticationService = noticationService;
         }
 
         #region Account
@@ -278,6 +280,22 @@ namespace CDTKPMNC_STK_BE.Controllers
                 return Ok(new ResponseMessage { Success = true, Message = "Get game detail successful.", Data = new { Game = game } });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "gameId is not valid." });
+        }
+        #endregion
+
+        #region
+        // GET /<EndUserController>/Game/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
+        [HttpGet("Notications")]
+        [Authorize(AuthenticationSchemes = "EndUser")]
+        public IActionResult GetNotications()
+        {
+            AccountEndUser? accountEndUser = _endUserService.GetById(UserId);
+            if (accountEndUser != null)
+            {
+                var notications = _noticationService.GetNoticationByUser(UserId);
+                return Ok(new ResponseMessage { Success = true, Message = "Get notications successful.", Data = new { Notications = notications } });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = "Invalid UserId." });
         }
         #endregion
     }

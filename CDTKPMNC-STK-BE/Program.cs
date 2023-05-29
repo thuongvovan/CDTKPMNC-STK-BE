@@ -53,6 +53,7 @@ namespace CDTKPMNC_STK_BE
             builder.Services.AddScoped<ProductItemService>();
             builder.Services.AddScoped<CampaignService>();
             builder.Services.AddScoped<VoucherService>();
+            builder.Services.AddScoped<NoticationService>();
 
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -164,13 +164,14 @@ namespace CDTKPMNC_STK_BE.Controllers
             var campaign = _campaignService.GetCampaign(campaignId);
             if (campaign != null && campaign.Game.Name == gameName)
             {
-                var canJoin = _campaignService.CheckUserCanJoin(campaign, UserId);
+                var canJoin = _campaignService.CheckUserCanJoin(campaign, UserId); // Chính lại
                 if (canJoin)
                 {
                     var isWinner = _gameService.PlayLuclyWheel(campaign.WinRate);
+                    var campainEndUser = _campaignService.MarkEndUserJoined(campaign, UserId, isWinner);
                     if (isWinner)
                     {
-                        var voucher = _voucherService.RandomVoucher(campaign, UserId);
+                        var voucher = _voucherService.RandomVoucher(campainEndUser);
                         var voucherReturn = _voucherService.ToVoucherReturn(voucher);
                         return Ok(new ResponseMessage { Success = true, Message = $"You win", Data = new { IsWinner = isWinner,  Voucher = voucherReturn } });
                     }
@@ -191,13 +192,14 @@ namespace CDTKPMNC_STK_BE.Controllers
             var campaign = _campaignService.GetCampaign(campaignId);
             if (campaign != null && campaign.Game.Name == gameName)
             {
-                var canJoin = _campaignService.CheckUserCanJoin(campaign, UserId);
+                var canJoin = _campaignService.CheckUserCanJoin(campaign, UserId); // Chính lại
                 if (canJoin)
                 {
                     var isWinner = _gameService.PlayOverUnder(campaign.WinRate, userIsOver, out var overUnderData);
+                    var campainEndUser = _campaignService.MarkEndUserJoined(campaign, UserId, isWinner);
                     if (isWinner)
                     {
-                        var voucher = _voucherService.RandomVoucher(campaign, UserId);
+                        var voucher = _voucherService.RandomVoucher(campainEndUser);
                         var voucherReturn = _voucherService.ToVoucherReturn(voucher);
                         return Ok(new ResponseMessage { Success = true, Message = $"You win", Data = new { IsWinner = isWinner, Voucher = voucherReturn, GameData = overUnderData } });
                     }

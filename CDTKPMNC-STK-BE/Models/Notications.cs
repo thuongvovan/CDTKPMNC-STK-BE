@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CDTKPMNC_STK_BE.Models
 {
@@ -7,7 +8,8 @@ namespace CDTKPMNC_STK_BE.Models
         public Guid Id { get; set; }
         [ForeignKey("Account")]
         public Guid AccountId { get; set; }
-        public virtual Account? Account { get; set; }
+        [JsonIgnore]
+        public virtual Account Account { get; set; } = null!;
         public string Title { get; set; } = null!;
         public string Message { get; set; } = null!;
         public DateTime CreateAt { get; set; }

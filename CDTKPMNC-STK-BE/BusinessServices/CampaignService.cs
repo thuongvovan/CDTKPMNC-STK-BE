@@ -9,6 +9,7 @@ using FluentValidation;
 using CDTKPMNC_STK_BE.BusinessServices.ModelConverter;
 using System.Linq;
 using CDTKPMNC_STK_BE.BusinessServices.AccountServices;
+using CDTKPMNC_STK_BE.DataAccess.Repositories.CampaignEndUsersRepository;
 
 namespace CDTKPMNC_STK_BE.BusinessServices
 {
@@ -20,10 +21,13 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         private readonly StoreService _storeService;
         private readonly VoucherService _voucherService;
         private readonly EndUserService _endUserService;
+        private readonly ICampaignEndUsersRepository _campaignEndUsersRepo;
+
         public CampaignService(IUnitOfWork unitOfWork, VoucherService voucherService, GameService gameService, StoreService storeService, EndUserService endUserService) : base(unitOfWork)
         {
             _campaignRepo = _unitOfWork.CampaignRepo;
             _campaignVoucherSeriesRepo = _unitOfWork.CampaignVoucherSeriesRepo;
+            _campaignEndUsersRepo = _unitOfWork.CampaignEndUsersRepo;
             _gameService = gameService;
             _storeService = storeService;
             _voucherService = voucherService;
@@ -410,12 +414,27 @@ namespace CDTKPMNC_STK_BE.BusinessServices
 
 
         #region Check Is end user can join
+
+        public CampaignEndUsers MarkEndUserJoined(Campaign campaign, Guid userId, bool isWinner)
+        {
+            var campaignEndUser = new CampaignEndUsers
+            {
+                Id = Guid.NewGuid(),
+                Campaign = campaign,
+                EndUserId = userId,
+                GameId = campaign.GameId,
+                IsWinner = isWinner
+            };
+            _campaignEndUsersRepo.Add(campaignEndUser);
+            return campaignEndUser;
+        }
+
         public bool CheckUserCanJoin(Campaign campaign, Guid UserId)
         {
             var endUser = _endUserService.GetById(UserId);
             if (endUser != null)
             {
-                if( endUser.Vouchers.Where(v => v.CampaignId == campaign.Id).Any() )
+                if( endUser.CampaignEndUsersList.Where(ce => ce.CampaignId == campaign.Id).Any() )
                 {
                     return false;
                 }
