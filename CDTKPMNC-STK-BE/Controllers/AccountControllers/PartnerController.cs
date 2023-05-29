@@ -116,14 +116,14 @@ namespace CDTKPMNC_STK_BE.Controllers
         [Authorize(AuthenticationSchemes = "Partner")]
         public IActionResult Update([FromBody] PartnerUpdateRecord partnerUpdateRecord)
         {
-            var validateResult = _partnerService.ValidatePartnerUpdateRecord(partnerUpdateRecord);
-            if (!validateResult.IsValid)
-            {
-                return BadRequest(new ResponseMessage { Success = false, Message = validateResult.ErrorMessage });
-            } 
             AccountPartner? accountPartner = _partnerService.GetById(UserId);
             if (accountPartner != null)
             {
+                var validateResult = _partnerService.ValidatePartnerUpdateRecord(accountPartner, partnerUpdateRecord);
+                if (!validateResult.IsValid)
+                {
+                    return BadRequest(new ResponseMessage { Success = false, Message = validateResult.ErrorMessage });
+                } 
                 accountPartner = _partnerService.UpdateAccount(accountPartner, partnerUpdateRecord);
                 return Ok(new ResponseMessage
                 {

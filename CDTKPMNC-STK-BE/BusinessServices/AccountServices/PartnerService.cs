@@ -99,13 +99,13 @@ namespace CDTKPMNC_STK_BE.BusinessServices.AccountServices
             _accountPartnerRepo.Add(accountPartner);
             return accountPartner;
         }
-        public ValidationSummary ValidatePartnerUpdateRecord(PartnerUpdateRecord? partnerUpdateRecord)
+        public ValidationSummary ValidatePartnerUpdateRecord(AccountPartner currentPartner, PartnerUpdateRecord? partnerUpdateRecord)
         {
             if (partnerUpdateRecord == null)
             {
                 return new ValidationSummary(false, "Registration infomation is required.");
             }
-            var validator = new PartnerUpdateRecordValidator(_addressService, _companyService);
+            var validator = new PartnerUpdateRecordValidator(currentPartner, _addressService, _companyService);
             var result = validator.Validate(partnerUpdateRecord);
             return result.GetSummary();
         }
