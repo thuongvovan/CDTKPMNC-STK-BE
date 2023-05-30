@@ -8,6 +8,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
         public ProductCategoryRecordValidator()
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(cat => cat.Name)
                 .NotNull().NotEmpty().WithMessage("{PropertyName} is required.");

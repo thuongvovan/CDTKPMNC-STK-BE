@@ -64,6 +64,19 @@ namespace CDTKPMNC_STK_BE.Controllers
                 Data = new { CampaignStatusValue = campaignStatusValue }
             });
         }
+
+        // GET: /<ValuesController>/GameRule
+        [HttpGet("GameRule")]
+        public IActionResult GetGameRule()
+        {
+            var gameRuleValue = Enum.GetNames(typeof(GameRule)).ToList();
+            return Ok(new ResponseMessage
+            {
+                Success = true,
+                Message = "OK",
+                Data = new { GameRuleValue = gameRuleValue }
+            });
+        }
     }
 }
 

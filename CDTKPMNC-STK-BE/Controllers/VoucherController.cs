@@ -203,15 +203,27 @@ namespace CDTKPMNC_STK_BE.Controllers
             {
                 return BadRequest(new ResponseMessage(false, validateSummary.ErrorMessage));
             }
-            var accountEndUser = _endUserService.GetByUserName(voucherShareRecord.DestinationUser!);
-            if (accountEndUser == null)
+            var recipientUser = _endUserService.GetByUserName(voucherShareRecord.DestinationUser!);
+            if (recipientUser == null)
             {
                 return BadRequest(new ResponseMessage(false, "Recipient does not exist"));
             }
-            Voucher voucher = _voucherService.GetVoucher(voucherShareRecord.VoucherCode!.Value);
-            if (voucher.EndUserId == UserId && !voucher.IsUsed && voucher.CampaignVoucherSeries.ExpiresOn.ToDateTime() >=  DateTime.Now)
+            var endUser = _endUserService.GetById(UserId);
+            if (endUser == null)
             {
-
+                return BadRequest(new ResponseMessage(false, "User does not exist"));
+            }
+            if (endUser.Id == recipientUser.Id)
+            {
+                return BadRequest(new ResponseMessage(false, "Invalid request."));
+            }
+            var voucher = _voucherService.GetVoucher(voucherShareRecord.VoucherCode!.Value);
+            if (voucher != null && voucher.EndUserId == UserId && !voucher.IsUsed && voucher.CampaignVoucherSeries.ExpiresOn.ToDateTime() >=  DateTime.Now)
+            {
+                _voucherService.ChangeVoucherOwner(recipientUser, voucher);
+                _voucherService.SendEmailShareVoucher(endUser, recipientUser, voucher);
+                _voucherService.SendNoticationShareVoucher(endUser, recipientUser, voucher);
+                return Ok(new ResponseMessage { Success = true, Message = "Share voucher Successfuly"});
             }
             return BadRequest(new ResponseMessage(false, "The voucher is not valid for use or has expired."));
         }

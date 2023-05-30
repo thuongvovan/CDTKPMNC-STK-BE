@@ -1,4 +1,5 @@
 ﻿using CDTKPMNC_STK_BE.BusinessServices.Records;
+using CDTKPMNC_STK_BE.Models;
 using CDTKPMNC_STK_BE.Utilities;
 using FluentValidation;
 
@@ -9,6 +10,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
         public CampaignInfoRecordValidator(GameService gameService) 
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(cp => cp!.Name)
                 .NotNull().NotEmpty().WithMessage("{PropertyName} is required.");
@@ -41,6 +43,17 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
 
             RuleFor(cp => cp!.IsEnable)
                 .NotNull().WithMessage("{PropertyName} is required.");
+
+            RuleFor(cp => cp!.GameRule)
+                .NotNull().NotEmpty().WithMessage("{PropertyName} is required.")
+                .Must(gameRule => Enum.GetNames(typeof(GameRule)).ToList().Contains(gameRule!.Value.ToString()))
+                .WithMessage("{PropertyName} {PropertyValue} is invalid.");
+
+            RuleFor(cp => cp!.NumberOfLimit)
+                .NotNull().When(cp => cp!.GameRule == GameRule.Limit)
+                .WithMessage("{PropertyName} is required.")
+                .GreaterThanOrEqualTo(1).WithMessage("{PropertyName} >= 1 is required.")
+                .When(cp => cp!.GameRule == GameRule.Limit);
         }
     }
 }

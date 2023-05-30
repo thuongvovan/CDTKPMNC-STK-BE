@@ -146,8 +146,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         public bool PlayLuclyWheel(int winRate)
         {
             var randomNum = RandomHelper.RandomWithin(0, 100);
-            if (randomNum < winRate) return false;
-            return true;
+            if (randomNum <= winRate) return true;
+            return false;
         }
 
         #endregion

@@ -31,7 +31,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.AccountServices
             return new List<AccountPartner>(0);
         }
 
-        public AccountPartner? GetById(Guid id)
+        new public AccountPartner? GetById(Guid id)
         {
             return _accountPartnerRepo.GetById(id);
         }

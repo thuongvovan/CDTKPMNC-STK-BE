@@ -23,9 +23,8 @@ namespace CDTKPMNC_STK_BE
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("Dev-new")) // Testing   Default   Dev-new
-                        .UseLazyLoadingProxies()
-                        .EnableSensitiveDataLogging();
+                options.UseSqlServer(builder.Configuration.GetConnectionString("Testing")) // Testing   Default   Dev-new
+                        .UseLazyLoadingProxies();
             });
 
             builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
@@ -44,6 +43,7 @@ namespace CDTKPMNC_STK_BE
             builder.Services.AddScoped<PartnerService>();
             builder.Services.AddScoped<AddressService>();
             builder.Services.AddScoped<EndUserService>();
+            builder.Services.AddScoped<AccountService<Account>>();
             builder.Services.AddScoped<OtpService>();
             builder.Services.AddScoped<CompanyService>();
             builder.Services.AddScoped<GameService>();
@@ -84,9 +84,9 @@ namespace CDTKPMNC_STK_BE
             builder.Services.AddAuthentication()
                .AddJwtBearer("PartnerNoLifetime", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, AccountType.Partner));
             builder.Services.AddAuthentication()
-               .AddJwtBearer("Admin&Partner", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, AccountType.Admin, AccountType.Partner));
+               .AddJwtBearer("Admin&Partner", jwtAuthen.CreateAuthenSchema(TokenType.Access, true, AccountType.Admin, AccountType.Partner));
             builder.Services.AddAuthentication()
-               .AddJwtBearer("Account", jwtAuthen.CreateAuthenSchema(TokenType.Access, false, AccountType.Admin, AccountType.Partner, AccountType.EndUser));
+               .AddJwtBearer("Account", jwtAuthen.CreateAuthenSchema(TokenType.Access, true, AccountType.Admin, AccountType.Partner, AccountType.EndUser));
 
             builder.Services.Configure<ApiBehaviorOptions>(options =>
             {
@@ -116,8 +116,9 @@ namespace CDTKPMNC_STK_BE
                 // dbContext.Database.EnsureDeleted();
                 // Console.WriteLine("Delete the database if it exists");
                 // Create the database and its tables
+
                 // dbContext.Database.EnsureCreated();
-                // dbContext.Database.Migrate();
+                dbContext.Database.Migrate();
                 // Console.WriteLine("Create the database and its tables");
 
                 app.UseSwagger();

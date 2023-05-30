@@ -1,4 +1,5 @@
 ﻿using CDTKPMNC_STK_BE.BusinessServices;
+using CDTKPMNC_STK_BE.BusinessServices.AccountServices;
 using CDTKPMNC_STK_BE.BusinessServices.Records;
 using CDTKPMNC_STK_BE.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -14,10 +15,12 @@ namespace CDTKPMNC_STK_BE.Controllers
     {
         private readonly CampaignService _campaignService;
         private readonly StoreService _storeService;
-        public CampaignController(CampaignService campaignService, StoreService storeService)
+        private readonly EndUserService _endUserService;
+        public CampaignController(CampaignService campaignService, StoreService storeService, EndUserService endUserService)
         {
             _campaignService = campaignService;
             _storeService = storeService;
+            _endUserService = endUserService;
         }
 
         // GET: <CampaignController>/All
@@ -269,20 +272,19 @@ namespace CDTKPMNC_STK_BE.Controllers
         [Authorize(AuthenticationSchemes = "EndUser")]
         public IActionResult CheckUserCanJoin(Guid campaignId)
         {
+            var endUser = _endUserService.GetById(UserId);
             var campaign = _campaignService.GetCampaign(campaignId);
-            if (campaign != null)
+            if (campaign != null && endUser != null)
             {
-                var canJoin = _campaignService.CheckUserCanJoin(campaign, UserId);
+                var canJoin = _campaignService.CheckUserCanJoin(campaign, endUser);
                 if (canJoin)
                 {
                     return Ok(new ResponseMessage { Success = true, Message = "Enjoy now.", Data = new { CanJoin = true} });
                 }
                 return Ok(new ResponseMessage { Success = true, Message = "Can't join.", Data = new { CanJoin = false} });
             }
-            return BadRequest(new ResponseMessage { Success = false, Message = "Campaign does not exist." });
-
+            return BadRequest(new ResponseMessage { Success = false, Message = "Campaign or User does not exist." });
         }
-
         #endregion
     }
 }

@@ -52,7 +52,7 @@
 //            }
 //        }
 
-//        public void SendRegisterOTP(Account userAccount)
+//        public void SendRegisterOTPEndUser(Account userAccount)
 //        {
 //            string subject = "Your verification code for register account CĐ-TKPMNC";
 //            string html = @$"

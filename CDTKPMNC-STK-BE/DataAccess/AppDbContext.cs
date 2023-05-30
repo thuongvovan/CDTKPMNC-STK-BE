@@ -29,14 +29,10 @@ namespace CDTKPMNC_STK_BE.DataAccess
         public DbSet<Notication> Notications { get; set; }
 
         private readonly IConfiguration _configuration;
-        private readonly String _logFilePath; // = Path.Combine(Environment.GetEnvironmentVariable("EFLOG_PATH")!, "EF_Log.txt");
-        private readonly StreamWriter _logStream; // = new StreamWriter(_logFilePath, append: true);
 
         public AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration configuration) : base(options)
         {
             _configuration = configuration;
-            _logFilePath = Path.Combine(Environment.GetEnvironmentVariable("EFLOG_PATH")!, "EF_Log.txt");
-            _logStream = new StreamWriter(_logFilePath, append: true);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -59,33 +55,19 @@ namespace CDTKPMNC_STK_BE.DataAccess
             modelBuilder.ApplyConfiguration(new ConfigStore());
             modelBuilder.ApplyConfiguration(new ConfigVoucherSeries());
             modelBuilder.ApplyConfiguration(new ConfigVoucherSeriesCampaigns());
-            modelBuilder.ApplyConfiguration(new SeedProvince());
-            modelBuilder.ApplyConfiguration(new SeedDistrict());
-            modelBuilder.ApplyConfiguration(new SeedWard());
+            //modelBuilder.ApplyConfiguration(new SeedProvince());
+            //modelBuilder.ApplyConfiguration(new SeedDistrict());
+            //modelBuilder.ApplyConfiguration(new SeedWard());
 
-            
-            //foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
-            //{
-            //    relationship.DeleteBehavior = DeleteBehavior.NoAction;
-            //}
+
+            foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            {
+                relationship.DeleteBehavior = DeleteBehavior.ClientCascade;
+            }
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.LogTo(_logStream.WriteLine, LogLevel.Error)
-                          .EnableSensitiveDataLogging();
-        }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-            _logStream.Dispose();
-        }
-
-        public override async ValueTask DisposeAsync()
-        {
-            await base.DisposeAsync();
-            await _logStream.DisposeAsync();
         }
     }
 }

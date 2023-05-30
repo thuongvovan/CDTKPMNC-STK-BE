@@ -162,5 +162,11 @@ namespace CDTKPMNC_STK_BE.BusinessServices.AccountServices
             }
             return false;
         }
+
+        public Account? GetById(Guid accountId)
+        {
+            return _accountRepo.GetById(accountId);
+        }
+
     }
 }

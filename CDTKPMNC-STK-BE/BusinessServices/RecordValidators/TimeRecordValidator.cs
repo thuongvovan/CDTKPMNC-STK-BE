@@ -8,6 +8,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
         public TimeRecordValidator() 
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(t => t!.Minute)
                 .NotNull().WithMessage("{{PropertyName}} is required.")

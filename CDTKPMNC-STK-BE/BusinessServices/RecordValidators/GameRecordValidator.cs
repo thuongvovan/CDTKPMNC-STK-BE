@@ -9,6 +9,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
         public GameRecordValidator()
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(g => g.Name)
                 .NotNull().NotEmpty()
@@ -26,8 +27,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
                 .NotNull().WithMessage("{PropertyName} is true or false.");
 
             RuleFor(g => g.ImageUrl)
-                .NotEmpty().When(g => g.ImageUrl != null)
-                .WithMessage("{PropertyName} is not empty.")
+                .NotNull().NotEmpty().WithMessage("{PropertyName} is require.")
                 .Must(i => i!.StartsWith('/')).WithMessage("{PropertyName} must be start with '/'.");
         }
     }

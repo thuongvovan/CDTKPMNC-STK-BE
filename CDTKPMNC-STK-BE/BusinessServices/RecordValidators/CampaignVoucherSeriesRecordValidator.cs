@@ -9,6 +9,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
         public CampaignVoucherSeriesRecordValidator(VoucherService voucherService)
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(vsc => vsc.VoucherSeriesId)
                 .NotNull().NotEmpty().WithMessage("{PropertyName} is required.")

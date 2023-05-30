@@ -15,6 +15,14 @@ namespace CDTKPMNC_STK_BE.Models
         FINISHED, // trong thời gian + hết voucher
         EXPIRED  // Sau thời gian
     }
+
+    public enum GameRule
+    {
+        Unlimited,
+        UntilWin,
+        Limit
+    }
+
     public class Campaign
     {
         public Guid Id { get; set; }
@@ -40,5 +48,8 @@ namespace CDTKPMNC_STK_BE.Models
         [NotMapped]
         [JsonConverter(typeof(StringEnumConverter))]
         public CampaignStatus Status { get; set; }
+        [JsonIgnore]
+        public GameRule GameRule { get; set; } = GameRule.UntilWin;
+        public int? NumberOfLimit { get; set; }
     }
 }

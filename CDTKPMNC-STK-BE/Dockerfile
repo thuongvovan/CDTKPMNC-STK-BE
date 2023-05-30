@@ -5,11 +5,9 @@ WORKDIR /app
 EXPOSE 80
 VOLUME ["/app/Upload"]
 VOLUME ["/app/wwwroot"]
-VOLUME ["/app/Logs"]
 ENV ASPNETCORE_ENVIRONMENT="Testing"
 ENV UPLOAD_REQUEST_PATH="/Upload"
 ENV UPLOAD_DIRECTORY="/app/Upload"
-ENV EFLOG_PATH="/Logs"
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src

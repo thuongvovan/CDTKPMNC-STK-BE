@@ -54,42 +54,6 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 return false;
             }
         }
-
-        public void SendRegisterOTP(Account userAccount)
-        {
-            string subject = "Your verification code for register account CĐ-TKPMNC";
-            string html = @$"
-                Dear {userAccount.Name},<br/>
-                <br/>
-                Your Otp is {userAccount.Otp?.RegisterOtp}.<br/>
-                Please enter this code on our application to verify your account.<br/>
-                <br/>
-                Thanks you,<br/>
-                Thương - Khôi - Sơn
-                ";
-            if (userAccount.UserName is not null)
-            {
-                Send(userAccount.UserName, subject, html);
-            }
-        }
-
-        public void SendResetPasswordOTP(Account userAccount)
-        {
-            string subject = "Your verification code for reset password CĐ-TKPMNC";
-            string html = @$"
-                Dear {userAccount.Name},<br/>
-                <br/>
-                Your Otp is {userAccount.Otp?.ResetPasswordOtp}.<br/>
-                Please enter this code on our application to verify your password changed.<br/>
-                <br/>
-                Thanks you,<br/>
-                Thương - Khôi - Sơn
-                ";
-            if (userAccount.UserName is not null)
-            {
-                Send(userAccount.UserName, subject, html);
-            }
-        }
     }
 }
 

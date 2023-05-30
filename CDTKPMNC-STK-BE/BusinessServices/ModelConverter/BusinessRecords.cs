@@ -58,7 +58,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
 
     #region Campaign
     public record CampaignCreateRecord(CampaignInfoRecord? CampaignInfo, CampaignVoucherSeriesRecord[]? CampaignVoucherSeriesList);
-    public record CampaignInfoRecord(string? Name, string? Description, DateRecord? StartDate, DateRecord? EndDate, Guid? GameId, int? WinRate ,bool? IsEnable);
+    public record CampaignInfoRecord(string? Name, string? Description, DateRecord? StartDate, DateRecord? EndDate, Guid? GameId, int? WinRate, GameRule? GameRule, int? NumberOfLimit, bool? IsEnable);
     public record CampaignVoucherSeriesRecord(Guid? VoucherSeriesId, int? Quantity, DateRecord? ExpiresOn);
     public class CampaignReturn
     {
@@ -77,6 +77,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
         public CampaignVoucherSeriesReturn[] CampaignVoucherList { get; set; } = null!;
         [JsonConverter(typeof(StringEnumConverter))]
         public CampaignStatus Status { get; set; }
+        public GameRule GameRule { get; set; }
+        public int? NumberOfLimit { get; set; }
     }
 
     #endregion
@@ -143,7 +145,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
     {
         public bool HaveUnread { get; set; }
         public int NumberUnread { get; set; }
-        public Notication[] Notications { get; set; } = new Notication[] { };
+        public Notication[] Notications { get; set; } =  Array.Empty<Notication>();
     }
 
     #endregion

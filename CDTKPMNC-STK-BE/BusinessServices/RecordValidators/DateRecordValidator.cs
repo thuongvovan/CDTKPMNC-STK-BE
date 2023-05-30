@@ -8,6 +8,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
         public DateRecordValidator() 
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(d => d!.Year)
                 .NotNull().NotEmpty().WithMessage("Year is required.")

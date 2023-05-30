@@ -7,6 +7,7 @@ using CDTKPMNC_STK_BE.DataAccess.Repositories;
 using CDTKPMNC_STK_BE.DataAccess.Repositories.CampaignEndUsersRepository;
 using CDTKPMNC_STK_BE.Models;
 using CDTKPMNC_STK_BE.Utilities;
+using System.Runtime.CompilerServices;
 
 namespace CDTKPMNC_STK_BE.BusinessServices
 {
@@ -19,16 +20,18 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         private readonly IStoreRepository _storeRepository;
         private readonly IVoucherSeriesRepository _voucherSeriesRepo;
         private readonly IAccountEndUserRepository _accountEndUserRepo;
-        private readonly ICampaignRepository _campaignRepo;
+        private readonly EmailService _emailService;
+        private readonly NoticationService _noticationService;
 
 
-        public VoucherService(IUnitOfWork unitOfWork) : base(unitOfWork)
+        public VoucherService(IUnitOfWork unitOfWork, EmailService emailService, NoticationService noticationService) : base(unitOfWork)
         {
             _voucherRepo = _unitOfWork.VoucherRepo;
             _voucherSeriesRepo = _unitOfWork.VoucherSeriesRepo;
             _storeRepository = _unitOfWork.StoreRepo;
             _accountEndUserRepo = _unitOfWork.AccountEndUserRepo;
-            _campaignRepo = _unitOfWork.CampaignRepo;
+            _emailService = emailService;
+            _noticationService = noticationService;
         }
 
         public VoucherSeriesReturn? ToVoucherSeriesReturn(VoucherSeries? voucherSeries)
@@ -201,6 +204,52 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             return randomCampaignVoucherSeries;
         }
 
+        public void NotifyGetVoucher(AccountEndUser recipientUser, Voucher voucher)
+        {
+            var voucherName = voucher.CampaignVoucherSeries.VoucherSeries.Name;
+            var voucherDecription = voucher.CampaignVoucherSeries.VoucherSeries.Description;
+            var shop = voucher.CampaignVoucherSeries.Campaign.Store.Name;
+            var voucherCode = voucher.VoucherCode.ToString().ToUpper();
+            var expineOn = voucher.CampaignVoucherSeries.ExpiresOn;
+
+            SendEmailGetVoucher(recipientUser, voucherName, voucherDecription, shop, voucherCode, expineOn);
+            SendNoticationGetVoucher(recipientUser, voucherName, shop, voucherCode, expineOn);
+        }
+
+        public void SendEmailGetVoucher(AccountEndUser recipientUser, string voucherName, string voucherDecription, string shop, string voucherCode, DateOnly expineOn)
+        {
+            string recipientSubject = "[CĐ-TKPMNC] Received a gift voucher";
+            string recipientHtml = @$"
+                Hi {recipientUser.Name},<br/>
+                <br/>
+                
+                You have received a gift voucher from {shop} Shop.
+                Gift voucher information as follows:
+                <ul>
+                    <li>Voucher: {voucherName}</li>
+                    <li>Decription: {voucherDecription}</li>
+                    <li>Shop: {shop}</li>
+                    <li>Voucher Code: {voucherCode}</li>
+                    <li>Expine on: {expineOn}</li>                      
+                </ul>
+                <br/>
+                Thanks you,<br/>
+                Thương - Khôi - Sơn
+                ";
+            if (recipientUser.UserName is not null)
+            {
+                _emailService.Send(recipientUser.UserName, recipientSubject, recipientHtml);
+            }
+        }
+
+        public void SendNoticationGetVoucher(AccountEndUser recipientUser, string voucherName, string shop, string voucherCode, DateOnly expineOn)
+        {
+            string recipientTitle = "Received a gift voucher";
+            string recipientMessage = @$"You have received a gift voucher from {shop} Shop. Voucher code {voucherCode} | {voucherName} - {shop} | expine on {expineOn}";
+            _noticationService.Send(recipientUser, recipientTitle, recipientMessage);
+        }
+
+
         public VoucherReturn ToVoucherReturn(Voucher voucher)
         {
             var voucherReturn = new VoucherReturn
@@ -266,8 +315,89 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             return result.GetSummary();
         }
 
+        public Voucher? GetVoucher(Guid voucherCode)
+        {
+            return _voucherRepo.GetById(voucherCode);
+        }
 
+        public void ChangeVoucherOwner(AccountEndUser recipientUser, Voucher voucher)
+        {
+            voucher.EndUser = recipientUser;
+            voucher.EndUserId = recipientUser.Id;
+            _voucherRepo.Update(voucher);
+        }
 
+        public void SendEmailShareVoucher(AccountEndUser senderUser ,AccountEndUser recipientUser, Voucher voucher)
+        {
+            var voucherName = voucher.CampaignVoucherSeries.VoucherSeries.Name;
+            var voucherDecription = voucher.CampaignVoucherSeries.VoucherSeries.Description;
+            var shop = voucher.CampaignVoucherSeries.Campaign.Store.Name;
+            var voucherCode = voucher.VoucherCode.ToString().ToUpper();
+            var expineOn = voucher.CampaignVoucherSeries.ExpiresOn.ToString();
+
+            string recipientSubject = "[CĐ-TKPMNC] You received a gift from a friend";
+            string recipientHtml = @$"
+                Hi {recipientUser.Name},<br/>
+                <br/>
+                
+                You have received a gift voucher from your friend ({senderUser.Name} - {senderUser.UserName}).
+                Gift voucher information as follows:
+                <ul>
+                    <li>Voucher: {voucherName}</li>
+                    <li>Decription: {voucherDecription}</li>
+                    <li>Shop: {shop}</li>
+                    <li>Voucher Code: {voucherCode}</li>
+                    <li>Expine on: {expineOn}</li>                      
+                </ul>
+                <br/>
+                Thanks you,<br/>
+                Thương - Khôi - Sơn
+                ";
+            if (recipientUser.UserName is not null)
+            {
+                _emailService.Send(recipientUser.UserName, recipientSubject, recipientHtml);
+            }
+
+            string senderSubject = "[CĐ-TKPMNC] You sent a gift voucher to your friend";
+            string senderHtml = @$"
+                Hi {senderUser.Name},<br/>
+                <br/>
+                
+                You sent a gift voucher to your friend ({recipientUser.Name} - {recipientUser.UserName}) successful.
+                Gift voucher information as follows:
+                <ul>
+                    <li>Voucher: {voucherName}</li>
+                    <li>Decription: {voucherDecription}</li>
+                    <li>Shop: {shop}</li>
+                    <li>Voucher Code: {voucherCode}</li>
+                    <li>Expine on: {expineOn}</li>                    
+                </ul>
+                <br/>
+                Thanks you,<br/>
+                Thương - Khôi - Sơn
+                ";
+            if (senderUser.UserName is not null)
+            {
+                _emailService.Send(senderUser.UserName, senderSubject, senderHtml);
+            }
+        }
+
+        public void SendNoticationShareVoucher(AccountEndUser senderUser, AccountEndUser recipientUser, Voucher voucher)
+        {
+            var voucherName = voucher.CampaignVoucherSeries.VoucherSeries.Name;
+            var shop = voucher.CampaignVoucherSeries.Campaign.Store.Name;
+            var voucherCode = voucher.VoucherCode;
+            var expineOn = voucher.CampaignVoucherSeries.ExpiresOn.ToString();
+
+            string recipientTitle = "Received a gift from a friend";
+            string recipientMessage = @$"You received a gift from a friend. Voucher code {voucherCode} | {voucherName} - {shop} | expine on {expineOn}";
+            _noticationService.Send(recipientUser, recipientTitle, recipientMessage);
+
+            string senderTitle = "Successfully sent a voucher to your friend";
+            string senderMessage = @$"Successfully sent a voucher to your friend. Voucher code {voucherCode} | {voucherName} - {shop} | expine on {expineOn}";
+            _noticationService.Send(senderUser, senderTitle, senderMessage);
+
+        }
 
         public void DeleteAllVouchers()
         {

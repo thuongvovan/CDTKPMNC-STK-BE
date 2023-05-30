@@ -29,7 +29,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.AccountServices
             return new List<AccountEndUser>(0);
         }
 
-        public AccountEndUser? GetById(Guid id)
+        new public AccountEndUser? GetById(Guid id)
         {
             return _accountEndUserRepo.GetById(id);
         }

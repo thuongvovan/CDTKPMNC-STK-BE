@@ -78,7 +78,9 @@ namespace CDTKPMNC_STK_BE.BusinessServices.ModelConverter
                 Status = GetCampaignStatus(campaign),
                 CampaignVoucherList = campaign.CampaignVoucherSeriesList
                                               .Select(cvs => ToCampaignVoucherSeriesReturn(cvs))
-                                              .ToArray()
+                                              .ToArray(),
+                GameRule = campaign.GameRule,
+                NumberOfLimit = campaign.NumberOfLimit
             };
             return campaignReturn;
         }

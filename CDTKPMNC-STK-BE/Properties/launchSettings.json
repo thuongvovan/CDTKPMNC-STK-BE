@@ -7,7 +7,6 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "UPLOAD_REQUEST_PATH": "/Upload",
         "UPLOAD_DIRECTORY": "D:\\CDTKPMNC\\Upload",
-        "EFLOG_PATH": "D:\\CDTKPMNC\\Logs"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5019"

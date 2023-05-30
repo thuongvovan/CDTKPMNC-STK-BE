@@ -24,7 +24,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.AccountServices
             return _accountAdminRepo.GetAll().ToList();
         }
 
-        public AccountAdmin? GetById(Guid id)
+        new public AccountAdmin? GetById(Guid id)
         {
             return _accountAdminRepo.GetById(id);
         }

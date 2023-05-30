@@ -80,7 +80,7 @@ namespace CDTKPMNC_STK_BE.Controllers
 
         // GET: <ImageController>/UploadImage
         [HttpPost("Upload")]
-        // [Authorize(AuthenticationSchemes = "Account")]
+        [Authorize(AuthenticationSchemes = "Account")]
         public async Task<IActionResult> UploadImage(IFormFile file)
         {
             if (file == null || file.Length == 0)

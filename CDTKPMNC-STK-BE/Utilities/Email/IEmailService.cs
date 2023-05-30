@@ -11,7 +11,7 @@
 //        int Port { get; set; }
 //        SecureSocketOptions SecureSocketOption { get; set; }
 //        bool Send(string to, string subject, string html);
-//        void SendRegisterOTP(Account account);
+//        void SendRegisterOTPEndUser(Account account);
 //        void SendResetPasswordOTP(Account account);
 //    }
 //}

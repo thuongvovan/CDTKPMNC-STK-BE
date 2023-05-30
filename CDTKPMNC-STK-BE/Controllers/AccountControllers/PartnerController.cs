@@ -16,14 +16,12 @@ namespace CDTKPMNC_STK_BE.Controllers
     public class PartnerController : CommonController
     {
         private readonly PartnerService _partnerService;
-        private readonly EmailService _emailService;
         private readonly OtpService _otpService;
         private readonly StoreService _storeService;
         private readonly GameService _gameService;
-        public PartnerController(PartnerService partnerService, StoreService storeService, EmailService emailService, OtpService otpService, GameService gameService) 
+        public PartnerController(PartnerService partnerService, StoreService storeService, OtpService otpService, GameService gameService)
         {
             _partnerService = partnerService;
-            _emailService = emailService;
             _otpService = otpService;
             _storeService = storeService;
             _gameService = gameService;
@@ -84,7 +82,8 @@ namespace CDTKPMNC_STK_BE.Controllers
             }
             var accountPartner = _partnerService.CreateAccount(partnerRegistrationRecord);
             _otpService.GenerateRegisterOtp(accountPartner);
-            _emailService.SendRegisterOTP(accountPartner);
+            _otpService.SendRegisterOTPPartner(accountPartner);
+            // _emailService.SendRegisterOTP(accountPartner);
             return Ok(new ResponseMessage
             {
                 Success = true,
@@ -123,7 +122,7 @@ namespace CDTKPMNC_STK_BE.Controllers
                 if (!validateResult.IsValid)
                 {
                     return BadRequest(new ResponseMessage { Success = false, Message = validateResult.ErrorMessage });
-                } 
+                }
                 accountPartner = _partnerService.UpdateAccount(accountPartner, partnerUpdateRecord);
                 return Ok(new ResponseMessage
                 {
@@ -237,7 +236,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             {
                 _partnerService.SetNewPasswordPending(accountPartner, resetPasswordRecord);
                 _otpService.GenerateResetPasswordOtp(accountPartner);
-                _emailService.SendResetPasswordOTP(accountPartner);
+                _otpService.SendResetPasswordOTP(accountPartner);
                 return Ok(new ResponseMessage { Success = true, Message = "Please check your email to verify this change." });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "UserName does not exist" });
@@ -258,6 +257,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             if (isMatched)
             {
                 _partnerService.ApproveNewPassword(accountPartner!);
+                _partnerService.GenerateToken(accountPartner!, UserType);
                 return Ok(new ResponseMessage(true, "Change password successfully.", new { Account = accountPartner, Token = accountPartner!.AccountToken }));
             }
             return BadRequest(new ResponseMessage(false, "Incorrect OTP."));
@@ -279,9 +279,9 @@ namespace CDTKPMNC_STK_BE.Controllers
             if (isVerified)
             {
                 var store = _storeService.AddStore(storeRecord, UserId);
-                return Ok(new ResponseMessage { Success = true, Message = "Create a successful store. The request is being reviewed by the administrator", Data = new { Store = store }});
+                return Ok(new ResponseMessage { Success = true, Message = "Create a successful store. The request is being reviewed by the administrator", Data = new { Store = store } });
             }
-            return BadRequest(new ResponseMessage { Success = false, Message = "Store is really existed" });            
+            return BadRequest(new ResponseMessage { Success = false, Message = "Store is really existed" });
         }
 
         // PUT /<PartnerController>/Store/Update
@@ -295,7 +295,7 @@ namespace CDTKPMNC_STK_BE.Controllers
                 return BadRequest(new ResponseMessage(false, validateSummary.ErrorMessage));
             }
             var store = _storeService.GetById(UserId);
-            if (store != null )
+            if (store != null)
             {
                 _storeService.UpdateStore(store, storeRecord);
                 return Ok(new ResponseMessage { Success = true, Message = "Store has been updated.", Data = new { Store = store } });

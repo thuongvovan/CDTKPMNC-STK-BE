@@ -19,11 +19,13 @@ namespace CDTKPMNC_STK_BE.Controllers
         private readonly GameService _gameService;
         private readonly CampaignService _campaignService;
         private readonly VoucherService _voucherService;
-        public GameController(GameService gameService, CampaignService campaignService, VoucherService voucherService)
+        private readonly EndUserService _endUserService;
+        public GameController(GameService gameService, CampaignService campaignService, VoucherService voucherService, EndUserService endUserService)
         {
             _gameService = gameService;
             _campaignService = campaignService;
             _voucherService = voucherService;
+            _endUserService = endUserService;
         }
 
         // POST /<UserController>/Create
@@ -162,24 +164,30 @@ namespace CDTKPMNC_STK_BE.Controllers
         {
             var gameName = "Vòng Quay May Mắn";
             var campaign = _campaignService.GetCampaign(campaignId);
-            if (campaign != null && campaign.Game.Name == gameName)
+            if (campaign == null || campaign.Game.Name != gameName)
             {
-                var canJoin = _campaignService.CheckUserCanJoin(campaign, UserId); // Chính lại
-                if (canJoin)
-                {
-                    var isWinner = _gameService.PlayLuclyWheel(campaign.WinRate);
-                    var campainEndUser = _campaignService.MarkEndUserJoined(campaign, UserId, isWinner);
-                    if (isWinner)
-                    {
-                        var voucher = _voucherService.RandomVoucher(campainEndUser);
-                        var voucherReturn = _voucherService.ToVoucherReturn(voucher);
-                        return Ok(new ResponseMessage { Success = true, Message = $"You win", Data = new { IsWinner = isWinner,  Voucher = voucherReturn } });
-                    }
-                    return Ok(new ResponseMessage { Success = true, Message = $"You lose", Data = new { IsWinner = isWinner } });
-                }
-                return BadRequest(new ResponseMessage { Success = false, Message = $"You are joined before." });
+                return BadRequest(new ResponseMessage { Success = false, Message = $"Campaign does not exist or {gameName} game not avalible for this campaign" });
             }
-            return BadRequest(new ResponseMessage { Success = false, Message = $"Campaign does not exist or {gameName} game not avalible for this campaign" });
+            var endUser = _endUserService.GetById(UserId);
+            if (endUser == null)
+            {
+                return BadRequest(new ResponseMessage { Success = false });
+            }
+            var canJoin = _campaignService.CheckUserCanJoin(campaign, endUser); 
+            if (canJoin)
+            {
+                var isWinner = _gameService.PlayLuclyWheel(campaign.WinRate);
+                var campainEndUser = _campaignService.MarkEndUserJoined(campaign, UserId, isWinner);
+                if (isWinner)
+                {
+                    var voucher = _voucherService.RandomVoucher(campainEndUser);
+                    _voucherService.NotifyGetVoucher(endUser, voucher);
+                    var voucherReturn = _voucherService.ToVoucherReturn(voucher);
+                    return Ok(new ResponseMessage { Success = true, Message = $"You win", Data = new { IsWinner = isWinner,  Voucher = voucherReturn } });
+                }
+                return Ok(new ResponseMessage { Success = true, Message = $"You lose", Data = new { IsWinner = isWinner } });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = $"You are joined before." });
         }
 
         // 2: "Tài Xỉu"
@@ -190,24 +198,30 @@ namespace CDTKPMNC_STK_BE.Controllers
         {
             var gameName = "Tài Xỉu";
             var campaign = _campaignService.GetCampaign(campaignId);
-            if (campaign != null && campaign.Game.Name == gameName)
+            if (campaign == null || campaign.Game.Name != gameName)
             {
-                var canJoin = _campaignService.CheckUserCanJoin(campaign, UserId); // Chính lại
-                if (canJoin)
-                {
-                    var isWinner = _gameService.PlayOverUnder(campaign.WinRate, userIsOver, out var overUnderData);
-                    var campainEndUser = _campaignService.MarkEndUserJoined(campaign, UserId, isWinner);
-                    if (isWinner)
-                    {
-                        var voucher = _voucherService.RandomVoucher(campainEndUser);
-                        var voucherReturn = _voucherService.ToVoucherReturn(voucher);
-                        return Ok(new ResponseMessage { Success = true, Message = $"You win", Data = new { IsWinner = isWinner, Voucher = voucherReturn, GameData = overUnderData } });
-                    }
-                    return Ok(new ResponseMessage { Success = true, Message = $"You lose", Data = new { IsWinner = isWinner, GameData = overUnderData } });
-                }
-                return BadRequest(new ResponseMessage { Success = false, Message = $"You are joined before." });
+                return BadRequest(new ResponseMessage { Success = false, Message = $"Campaign does not exist or {gameName} game not avalible for this campaign" });
             }
-            return BadRequest(new ResponseMessage { Success = false, Message = $"Campaign does not exist or {gameName} game not avalible for this campaign" });
+            var endUser = _endUserService.GetById(UserId);
+            if (endUser == null)
+            {
+                return BadRequest(new ResponseMessage { Success = false });
+            }
+            var canJoin = _campaignService.CheckUserCanJoin(campaign, endUser); 
+            if (canJoin)
+            {
+                var isWinner = _gameService.PlayOverUnder(campaign.WinRate, userIsOver, out var overUnderData);
+                var campainEndUser = _campaignService.MarkEndUserJoined(campaign, UserId, isWinner);
+                if (isWinner)
+                {
+                    var voucher = _voucherService.RandomVoucher(campainEndUser);
+                    _voucherService.NotifyGetVoucher(endUser, voucher);
+                    var voucherReturn = _voucherService.ToVoucherReturn(voucher);
+                    return Ok(new ResponseMessage { Success = true, Message = $"You win", Data = new { IsWinner = isWinner, Voucher = voucherReturn, GameData = overUnderData } });
+                }
+                return Ok(new ResponseMessage { Success = true, Message = $"You lose", Data = new { IsWinner = isWinner, GameData = overUnderData } });
+            }
+            return BadRequest(new ResponseMessage { Success = false, Message = $"You are joined before." });
         }
     }
 }

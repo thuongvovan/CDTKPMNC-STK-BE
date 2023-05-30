@@ -20,10 +20,9 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         private readonly GameService _gameService;
         private readonly StoreService _storeService;
         private readonly VoucherService _voucherService;
-        private readonly EndUserService _endUserService;
         private readonly ICampaignEndUsersRepository _campaignEndUsersRepo;
 
-        public CampaignService(IUnitOfWork unitOfWork, VoucherService voucherService, GameService gameService, StoreService storeService, EndUserService endUserService) : base(unitOfWork)
+        public CampaignService(IUnitOfWork unitOfWork, VoucherService voucherService, GameService gameService, StoreService storeService) : base(unitOfWork)
         {
             _campaignRepo = _unitOfWork.CampaignRepo;
             _campaignVoucherSeriesRepo = _unitOfWork.CampaignVoucherSeriesRepo;
@@ -31,7 +30,6 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             _gameService = gameService;
             _storeService = storeService;
             _voucherService = voucherService;
-            _endUserService = endUserService;
         }
 
         //WAITING,  Enable + trước thời gian
@@ -189,6 +187,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices
                 StartDate = campaignCreateRecord!.CampaignInfo!.StartDate!.ToDateOnly(),
                 GameId = campaignCreateRecord!.CampaignInfo!.GameId!.Value,
                 WinRate = campaignCreateRecord!.CampaignInfo!.WinRate!.Value,
+                GameRule = campaignCreateRecord!.CampaignInfo!.GameRule!.Value,
+                NumberOfLimit = campaignCreateRecord!.CampaignInfo!.NumberOfLimit,
                 IsEnable = campaignCreateRecord!.CampaignInfo!.IsEnable!.Value
             };
             foreach (var voucherSeriesCampaignRecord in campaignCreateRecord!.CampaignVoucherSeriesList!)
@@ -317,6 +317,12 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             campaign.GameId = campaignInfoRecord!.GameId!.Value;
             campaign.WinRate = campaignInfoRecord!.WinRate!.Value;
             campaign.IsEnable = campaignInfoRecord!.IsEnable!.Value;
+            campaign.GameRule = campaignInfoRecord!.GameRule!.Value;
+            campaign.NumberOfLimit = null;
+            if (campaign.GameRule == GameRule.Limit)
+            {
+                campaign.NumberOfLimit = campaignInfoRecord.NumberOfLimit;
+            }
             _campaignRepo.Update(campaign);
             return CampaignConverter.ToCampaignReturn(campaign)!;
         }
@@ -429,12 +435,25 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             return campaignEndUser;
         }
 
-        public bool CheckUserCanJoin(Campaign campaign, Guid UserId)
+        public bool CheckUserCanJoin(Campaign campaign, AccountEndUser endUser)
         {
-            var endUser = _endUserService.GetById(UserId);
-            if (endUser != null)
+            GameRule gameRule = campaign.GameRule;
+
+            if (endUser == null) return false;
+            if (gameRule == GameRule.Unlimited) return true;
+            else if (gameRule == GameRule.UntilWin)
             {
-                if( endUser.CampaignEndUsersList.Where(ce => ce.CampaignId == campaign.Id).Any() )
+                var campaignEndUsers = _campaignEndUsersRepo.GetByUserWinCampaign(campaign, endUser);
+                if (campaignEndUsers != null && campaignEndUsers.Any())
+                {
+                    return false;
+                }
+                return true;
+            }
+            else if (gameRule == GameRule.Limit)
+            {
+                var campaignEndUsers = _campaignEndUsersRepo.GetByUserCampaign(campaign, endUser);
+                if(campaignEndUsers != null && campaignEndUsers.Count >= campaign.NumberOfLimit!.Value)
                 {
                     return false;
                 }

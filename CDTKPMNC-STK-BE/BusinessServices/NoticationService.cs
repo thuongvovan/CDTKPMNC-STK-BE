@@ -41,5 +41,30 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         {
              return GetNoticationByUser(user.Id);
         }
+
+        public Notication? GetById(Guid noticationId)
+        {
+            return _noticationRepo.GetById(noticationId);
+        }
+
+        public void MarkAsRead(Notication notication)
+        {
+            notication!.IsRead = true;
+            _noticationRepo.Update(notication);
+        }
+
+        public void Send(Account recipientUser, string title, string message)
+        {
+            var notication = new Notication
+            {
+                CreateAt = DateTime.Now,
+                Title = title,
+                Message = message,
+                Account = recipientUser,
+                AccountId = recipientUser.Id,
+                IsRead = false
+            };
+            _noticationRepo.Add(notication);
+        }
     }
 }

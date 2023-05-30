@@ -9,6 +9,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
         public StoreRecordValidator(AddressService addressService)
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(store => store.Name)
                 .NotNull().NotEmpty().WithMessage("{PropertyName} is required.");

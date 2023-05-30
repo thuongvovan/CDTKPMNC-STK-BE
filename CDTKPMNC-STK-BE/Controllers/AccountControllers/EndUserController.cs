@@ -1,7 +1,6 @@
 ﻿using CDTKPMNC_STK_BE.Models;
 using CDTKPMNC_STK_BE.Utilities;
 using Microsoft.AspNetCore.Mvc;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using CDTKPMNC_STK_BE.BusinessServices;
 using CDTKPMNC_STK_BE.BusinessServices.AccountServices;
@@ -16,21 +15,17 @@ namespace CDTKPMNC_STK_BE.Controllers
     {
         // private readonly PartnerService _partnerService;
         private readonly EndUserService _endUserService;
-        private readonly EmailService _emailService;
         private readonly OtpService _otpService;
         private readonly GameService _gameService;
         private readonly StoreService _storeService;
-        private readonly NoticationService _noticationService;
 
-        public EndUserController(EndUserService endUserService, EmailService emailService, OtpService otpService, GameService gameService, StoreService storeService, NoticationService noticationService)
+        public EndUserController(EndUserService endUserService, OtpService otpService, GameService gameService, StoreService storeService)
         {
             // _partnerService = partnerService;
             _endUserService = endUserService;
-            _emailService = emailService;
             _otpService = otpService;
             _gameService = gameService;
             _storeService = storeService;
-            _noticationService = noticationService;
         }
 
         #region Account
@@ -93,7 +88,8 @@ namespace CDTKPMNC_STK_BE.Controllers
 
             accountEndUser = _endUserService.CreateAccountEndUser(userRegistrationRecord);
             _otpService.GenerateRegisterOtp(accountEndUser);
-            _emailService.SendRegisterOTP(accountEndUser);
+            _otpService.SendRegisterOTPEndUser(accountEndUser);
+            // _emailService.SendRegisterOTP(accountEndUser);
             return Ok(new ResponseMessage
             {
                 Success = true,
@@ -206,7 +202,8 @@ namespace CDTKPMNC_STK_BE.Controllers
             {
                 _endUserService.SetNewPasswordPending(accountEndUser, resetPasswordRecord);
                 _otpService.GenerateResetPasswordOtp(accountEndUser);
-                _emailService.SendResetPasswordOTP(accountEndUser);
+                _otpService.SendResetPasswordOTP(accountEndUser);
+                // _emailService.SendResetPasswordOTP(accountEndUser);
                 return Ok(new ResponseMessage { Success = true, Message = "Please check your email to verify this change." });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "UserName does not exist" });
@@ -280,22 +277,6 @@ namespace CDTKPMNC_STK_BE.Controllers
                 return Ok(new ResponseMessage { Success = true, Message = "Get game detail successful.", Data = new { Game = game } });
             }
             return BadRequest(new ResponseMessage { Success = false, Message = "gameId is not valid." });
-        }
-        #endregion
-
-        #region
-        // GET /<EndUserController>/Game/ECE26B11-E820-4184-2D7A-08DB4FD1F7BC
-        [HttpGet("Notications")]
-        [Authorize(AuthenticationSchemes = "EndUser")]
-        public IActionResult GetNotications()
-        {
-            AccountEndUser? accountEndUser = _endUserService.GetById(UserId);
-            if (accountEndUser != null)
-            {
-                var notications = _noticationService.GetNoticationByUser(UserId);
-                return Ok(new ResponseMessage { Success = true, Message = "Get notications successful.", Data = new { Notications = notications } });
-            }
-            return BadRequest(new ResponseMessage { Success = false, Message = "Invalid UserId." });
         }
         #endregion
     }

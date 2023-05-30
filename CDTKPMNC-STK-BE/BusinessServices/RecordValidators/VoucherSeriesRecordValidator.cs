@@ -10,6 +10,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
         public VoucherSeriesRecordValidator() 
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(vs => vs.Name)
                 .NotNull().NotEmpty().WithMessage("{PropertyName} is required.");

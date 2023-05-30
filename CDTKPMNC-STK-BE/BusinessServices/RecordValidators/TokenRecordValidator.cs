@@ -8,6 +8,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
         public TokenRecordValidator() 
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(add => add.Token)
                 .NotNull().NotEmpty().WithMessage("{PropertyName} is not empty.");

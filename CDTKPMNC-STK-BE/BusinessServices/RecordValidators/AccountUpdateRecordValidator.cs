@@ -10,6 +10,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
         {
 
             ClassLevelCascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
+
             RuleFor(user => user!.Name)
                 .NotNull().NotEmpty().WithMessage("{PropertyName} is required.");
 

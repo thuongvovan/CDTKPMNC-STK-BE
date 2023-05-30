@@ -10,6 +10,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices.RecordValidators
         public AddressRecordValidator(AddressService addressService) 
         {
             ClassLevelCascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(add => add!.WardId)
                 .NotNull().NotEmpty().WithMessage("WardId is required.")
