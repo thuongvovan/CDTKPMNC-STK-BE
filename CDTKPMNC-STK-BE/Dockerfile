@@ -11,10 +11,12 @@ ENV UPLOAD_DIRECTORY="/app/Upload"
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["CDTKPMNC-STK-BE/CDTKPMNC-STK-BE.csproj", "CDTKPMNC-STK-BE/"]
+# COPY ["CDTKPMNC-STK-BE/CDTKPMNC-STK-BE.csproj", "CDTKPMNC-STK-BE/"]
+COPY ["CDTKPMNC-STK-BE.csproj", "CDTKPMNC-STK-BE/"]
 RUN dotnet restore "CDTKPMNC-STK-BE/CDTKPMNC-STK-BE.csproj"
-COPY . .
 WORKDIR "/src/CDTKPMNC-STK-BE"
+COPY . .
+# WORKDIR "/src/CDTKPMNC-STK-BE"
 RUN dotnet build "CDTKPMNC-STK-BE.csproj" -c Release -o /app/build
 
 FROM build AS publish

@@ -1,0 +1,20 @@
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                sh 'docker build -t 192.168.1.101:5000/cdtkpmnc-api -f ./CDTKPMNC-STK-BE/Dockerfile ./CDTKPMNC-STK-BE'
+                sh 'docker push 192.168.1.101:5000/cdtkpmnc-api'
+                sh 'docker rmi 192.168.1.101:5000/cdtkpmnc-api'
+                sh 'docker image prune -f'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sshagent(credentials: ['ssh_key']) {
+                    sh 'ssh -o StrictHostKeyChecking=no -l root 192.168.1.101 sh /root/build-script/cdtkpmnc-api.sh'
+                }
+            }
+        }
+    }
+}

@@ -6,7 +6,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "UPLOAD_REQUEST_PATH": "/Upload",
-        "UPLOAD_DIRECTORY": "D:\\CDTKPMNC\\Upload",
+        "UPLOAD_DIRECTORY": "E:\\CDTKPMNC\\Upload"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5019"
