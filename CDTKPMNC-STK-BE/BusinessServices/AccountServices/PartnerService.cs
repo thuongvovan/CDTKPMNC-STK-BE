@@ -142,6 +142,20 @@ namespace CDTKPMNC_STK_BE.BusinessServices.AccountServices
             return accountPartner;
         }
 
+        #region Count partner
+        
+        public int CountAll()
+        {
+            return _accountPartnerRepo.GetAll().Count();
+        }
+
+        public int CountVerified()
+        {
+            return _accountPartnerRepo.GetAll().Where(p => p.IsVerified).Count();
+        }
+
+        #endregion
+
         #region Company
 
         public ValidationSummary ValidateCompanyRecord(CompanyRecord? companyRecord)

@@ -10,6 +10,7 @@ using CDTKPMNC_STK_BE.BusinessServices.ModelConverter;
 using System.Linq;
 using CDTKPMNC_STK_BE.BusinessServices.AccountServices;
 using CDTKPMNC_STK_BE.DataAccess.Repositories.CampaignEndUsersRepository;
+using System.Xml.Linq;
 
 namespace CDTKPMNC_STK_BE.BusinessServices
 {
@@ -116,7 +117,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             return CampaignConverter.ToCampaignReturn(campain);
         }
 
-        public List<CampaignReturn> GetListCampaign() 
+        public List<CampaignReturn> GetListCampaign()
         {
             var campaignList = _campaignRepo
                         .GetAll()
@@ -158,10 +159,10 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             var endDate = campaignCreateRecord.CampaignInfo!.EndDate!.ToDateTime();
             var name = campaignCreateRecord.CampaignInfo!.Name!;
             var isEnable = campaignCreateRecord.CampaignInfo!.IsEnable!.Value;
-            var campaigns = store.Campaigns.Where(c =>  (c.IsEnable && isEnable && ((c.StartDate.ToDateTime() <= startDate && c.EndDate.ToDateTime() >= startDate) ||
+            var campaigns = store.Campaigns.Where(c => (c.IsEnable && isEnable && ((c.StartDate.ToDateTime() <= startDate && c.EndDate.ToDateTime() >= startDate) ||
                                                                                     (c.StartDate.ToDateTime() <= endDate && c.EndDate.ToDateTime() >= endDate))) ||
                                                         (c.Name.ToLower() == name.ToLower()));
-            
+
             if (!campaigns!.Any())
             {
                 return true;
@@ -353,7 +354,7 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         }
 
         public void UpdateCampaignVoucherSeries(Campaign campaign, CampaignVoucherSeries campaignVoucherSeries, CampaignVoucherSeriesRecord campaignVoucherSeriesRecord)
-            {
+        {
 
             campaignVoucherSeries.CampaignId = campaign.Id;
             campaignVoucherSeries.VoucherSeriesId = campaignVoucherSeriesRecord.VoucherSeriesId!.Value;
@@ -453,13 +454,39 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             else if (gameRule == GameRule.Limit)
             {
                 var campaignEndUsers = _campaignEndUsersRepo.GetByUserCampaign(campaign, endUser);
-                if(campaignEndUsers != null && campaignEndUsers.Count >= campaign.NumberOfLimit!.Value)
+                if (campaignEndUsers != null && campaignEndUsers.Count >= campaign.NumberOfLimit!.Value)
                 {
                     return false;
                 }
                 return true;
             }
             return false;
+        }
+
+        #endregion
+
+
+        #region For dashboard
+
+        public int CountAll()
+        {
+            return _campaignRepo.GetAll().Count();
+        }
+
+        public IEnumerable<(CampaignStatus, int)> CountAllByStatus()
+        {
+            var campaignList = GetListCampaign();
+            var countGroup = campaignList.GroupBy( c => c.Status)
+                                         .Select(g => (g.Key, g.Count()));
+            return countGroup;
+        }
+
+        public IEnumerable<(Guid , string, int)> CountAllByGame()
+        {
+            var campaignList = GetListCampaign();
+            var countGroup = campaignList.GroupBy(c => new { c.GameName, c.GameId })
+                                         .Select(g => (g.Key.GameId, g.Key.GameName, g.Count()));
+            return countGroup;
         }
 
         #endregion

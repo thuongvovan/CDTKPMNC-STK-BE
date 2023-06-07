@@ -107,5 +107,20 @@ namespace CDTKPMNC_STK_BE.BusinessServices.AccountServices
             _accountEndUserRepo.Update(accountEndUser);
             return accountEndUser;
         }
+
+        #region For Dashboard
+
+        public int CountAll()
+        {
+            return _accountEndUserRepo.GetAll().Count();
+        }
+
+        public int CountVerified()
+        {
+            return _accountEndUserRepo.GetAll().Where(e => e.IsVerified).Count();
+        }
+
+        #endregion
+
     }
 }
