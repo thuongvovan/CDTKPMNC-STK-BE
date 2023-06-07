@@ -222,17 +222,17 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         public int CountNeedApproved()
         {
             var needApproveList = _storeRepo.GetNeedApproval();
-            return needApproveList != null ? needApproveList.Count() : 0;
+            return needApproveList != null ? needApproveList.Count : 0;
         }
         public int CountApproved()
         {
             var needApproved = _storeRepo.GetApproved();
-            return needApproved != null ? needApproved.Count() : 0;
+            return needApproved != null ? needApproved.Count : 0;
         }
         public int CountRejected()
         {
             var rejected = _storeRepo.GetRejected();
-            return rejected != null ? rejected.Count() : 0;
+            return rejected != null ? rejected.Count : 0;
         }
         #endregion
 

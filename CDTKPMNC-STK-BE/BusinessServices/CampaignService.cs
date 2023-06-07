@@ -468,12 +468,12 @@ namespace CDTKPMNC_STK_BE.BusinessServices
 
         #region For dashboard
 
-        public int CountAll()
+        public int Count()
         {
             return _campaignRepo.GetAll().Count();
         }
 
-        public IEnumerable<(CampaignStatus, int)> CountAllByStatus()
+        public IEnumerable<(CampaignStatus, int)> CountByStatus()
         {
             var campaignList = GetListCampaign();
             var countGroup = campaignList.GroupBy( c => c.Status)
@@ -487,6 +487,38 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             var countGroup = campaignList.GroupBy(c => new { c.GameName, c.GameId })
                                          .Select(g => (g.Key.GameId, g.Key.GameName, g.Count()));
             return countGroup;
+        }
+
+        public int Count(Guid storeId)
+        {
+            return _campaignRepo.GetAll().Where(c => c.StoreId == storeId).Count();
+        }
+
+        public IEnumerable<(CampaignStatus, int)> CountByStatus(Guid storeId)
+        {
+            var campaignList = GetListCampaign(storeId);
+            var countGroup = campaignList.GroupBy(c => c.Status)
+                                         .Select(g => (g.Key, g.Count()));
+            return countGroup;
+        }
+
+        public int CountNumberOfPlay(Guid storeId)
+        {
+            return _campaignEndUsersRepo.GetAll().Where(ce => ce.Campaign.StoreId == storeId) .Count();
+        }
+
+        public int CountNumberOfPlayer(Guid storeId)
+        {
+            return _campaignEndUsersRepo.GetAll()
+                                        .Where(ce => ce.Campaign.StoreId == storeId)
+                                        .Select(ce => ce.EndUserId)
+                                        .Distinct()
+                                        .Count();
+        }
+
+        public int CountNumberOfPVoucher(Guid storeId)
+        {
+            return _voucherService.GetVoucherPartner(storeId).Count;
         }
 
         #endregion

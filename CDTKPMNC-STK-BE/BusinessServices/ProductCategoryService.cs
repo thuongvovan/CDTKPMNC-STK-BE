@@ -134,5 +134,14 @@ namespace CDTKPMNC_STK_BE.BusinessServices
             }
             return null;
         }
+
+        #region for Dasboard
+
+        public int CountAll()
+        {
+            return _productCategoryRepo.GetAll().Count();
+        }
+
+        #endregion
     }
 }

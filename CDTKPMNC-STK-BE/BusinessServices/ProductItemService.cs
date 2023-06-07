@@ -254,5 +254,34 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         {
             _productItemRepo.Delete(productItem);
         }
+
+        #region
+        public int CountAll()
+        {
+            return _productItemRepo.GetAll().Count();
+        }
+
+        public int CountAll(Guid storeId)
+        {
+            return _productItemRepo.GetAllByStore(storeId).Count;
+        }
+
+        public IEnumerable<(Guid, string , int)> CountByCaregory()
+        {
+            var productItems = _productItemRepo.GetAll();
+            var productItemsByCat = productItems.GroupBy(c => new { ProductCategoryName = c.ProductCategory.Name, c.ProductCategoryId})
+                                         .Select(g => (g.Key.ProductCategoryId, g.Key.ProductCategoryName,  g.Count()));
+            return productItemsByCat;
+        }
+
+        public IEnumerable<(Guid, string, int)> CountByCaregory(Guid storeId)
+        {
+            var productItems = _productItemRepo.GetAllByStore(storeId);
+            var productItemsByCat = productItems.GroupBy(c => new { ProductCategoryName = c.ProductCategory.Name, c.ProductCategoryId })
+                                         .Select(g => (g.Key.ProductCategoryId, g.Key.ProductCategoryName, g.Count()));
+            return productItemsByCat;
+        }
+
+        #endregion
     }
 }
