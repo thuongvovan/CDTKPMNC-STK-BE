@@ -149,4 +149,12 @@ namespace CDTKPMNC_STK_BE.BusinessServices.Records
     }
 
     #endregion
+
+    #region Cache
+    public record PartnerCount(int All, int Verified);
+    public record StoreCount(int All, int NeedApproved, int Approved, int Rejected);
+    public record EndUserCount(int All, int Verified);
+
+    #endregion
+
 }

@@ -2,8 +2,10 @@
 using CDTKPMNC_STK_BE.BusinessServices.AccountServices;
 using CDTKPMNC_STK_BE.BusinessServices.Records;
 using CDTKPMNC_STK_BE.Models;
+using CDTKPMNC_STK_BE.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -16,28 +18,46 @@ namespace CDTKPMNC_STK_BE.Controllers
         private readonly CampaignService _campaignService;
         private readonly StoreService _storeService;
         private readonly EndUserService _endUserService;
-        public CampaignController(CampaignService campaignService, StoreService storeService, EndUserService endUserService)
+        private readonly IDistributedCache _cache;
+        public CampaignController(CampaignService campaignService, StoreService storeService, EndUserService endUserService, IDistributedCache cache)
         {
             _campaignService = campaignService;
             _storeService = storeService;
             _endUserService = endUserService;
+            _cache = cache;
         }
 
         // GET: <CampaignController>/All
         [HttpGet("All")]
         [Authorize(AuthenticationSchemes = "Admin&Partner")]
-        public IActionResult GetListCampaign()
+        public async Task<IActionResult> GetListCampaign()
         {
+            // Lay cache
+            var cacheId = $"{UserId}_Campaign_All";
+            var listCampaign = await _cache.GetRecordAsync<List<CampaignReturn>?>(cacheId);
+            if (listCampaign != null)
+            {
+                if (UserType == AccountType.Admin)
+                {
+                    return Ok(new ResponseMessage { Success = true, Message = "Successfuly get all campaign.", Data = new { ListCampaign = listCampaign } });
+                }
+                else if (UserType == AccountType.Partner)
+                {
+                    return Ok(new ResponseMessage { Success = true, Message = "Successfuly get all your store campaign.", Data = new { ListCampaign = listCampaign } });
+                }
+            }
+            // Khong co cache
             if (UserType == AccountType.Admin)
             {
-                var listCampaignAll = _campaignService.GetListCampaign();
-                return Ok(new ResponseMessage { Success = true, Message = "Successfuly get all campaign.", Data = new { ListCampaign = listCampaignAll } });
+                listCampaign = _campaignService.GetListCampaign();
+                return Ok(new ResponseMessage { Success = true, Message = "Successfuly get all campaign.", Data = new { ListCampaign = listCampaign } });
             }
             else if (UserType == AccountType.Partner)
             {
-                var listCampaign = _campaignService.GetListCampaign(UserId);
+                listCampaign = _campaignService.GetListCampaign(UserId);
                 return Ok(new ResponseMessage { Success = true, Message = "Successfuly get all your store campaign.", Data = new { ListCampaign = listCampaign } });
             }
+            await _cache.SetRecordAsync(cacheId, listCampaign, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
             return BadRequest(new ResponseMessage { Success = false, Message = "Invalid request." });
         }
 

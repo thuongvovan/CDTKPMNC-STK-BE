@@ -27,6 +27,11 @@ namespace CDTKPMNC_STK_BE
                         .UseLazyLoadingProxies();
             });
 
+            builder.Services.AddStackExchangeRedisCache(options => {
+                options.Configuration = builder.Configuration.GetValue<string>("RedisConnection");
+                options.InstanceName = "CDTKPMNC_Redis_";
+            });
+
             builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
             //var dbContext = new AppDbContext(builder.Configuration);
@@ -69,7 +74,6 @@ namespace CDTKPMNC_STK_BE
             
             builder.Services.AddAuthorization();
             builder.Services.AddRouting();
-
 
             builder.Services.AddAuthentication()
                 .AddJwtBearer("EndUser", jwtAuthen.CreateAuthenSchema(TokenType.Access, true, AccountType.EndUser));

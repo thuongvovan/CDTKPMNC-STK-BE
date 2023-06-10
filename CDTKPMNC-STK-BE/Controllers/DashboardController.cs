@@ -1,10 +1,13 @@
 ﻿using CDTKPMNC_STK_BE.BusinessServices;
 using CDTKPMNC_STK_BE.BusinessServices.AccountServices;
+using CDTKPMNC_STK_BE.BusinessServices.Records;
 using CDTKPMNC_STK_BE.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Org.BouncyCastle.Crypto;
 using System;
+using static CDTKPMNC_STK_BE.Utilities.CacheHelper;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -20,7 +23,9 @@ namespace CDTKPMNC_STK_BE.Controllers
         private readonly CampaignService _campaignService;
         private readonly ProductCategoryService _productCategoryService;
         private readonly ProductItemService _ProductItemService;
-        public DashboardController(PartnerService partnerService, EndUserService endUserService, StoreService storeService, CampaignService campaignService, ProductCategoryService productCategoryService, ProductItemService productItemService) 
+        private readonly IDistributedCache _cache;
+
+        public DashboardController(PartnerService partnerService, EndUserService endUserService, StoreService storeService, CampaignService campaignService, ProductCategoryService productCategoryService, ProductItemService productItemService, IDistributedCache cache) 
         {
             _partnerService = partnerService;
             _endUserService = endUserService;
@@ -28,93 +33,151 @@ namespace CDTKPMNC_STK_BE.Controllers
             _campaignService = campaignService;
             _productCategoryService = productCategoryService;
             _ProductItemService = productItemService;
+            _cache = cache;
         }
 
         #region For admin
         // GET: <DashboardController>/Admin/PartnerCount
         [HttpGet("Admin/PartnerCount")]
         [Authorize(AuthenticationSchemes = "Admin")]
-        public IActionResult CountPartner()
+        public async Task<IActionResult> CountPartner()
         {
-            var nPartnerAll = _partnerService.CountAll();
-            var nPartnerVerified = _partnerService.CountVerified();
-            return Ok(new ResponseMessage(true, "OK", new { All = nPartnerAll, Verified = nPartnerVerified }));
+            var cacheId = $"{UserId}_Dashboard_CountPartner";
+            var returnData = await _cache.GetRecordAsync<PartnerCount>(cacheId);
+            if (returnData == null)
+            {
+                var nPartnerAll = _partnerService.CountAll();
+                var nPartnerVerified = _partnerService.CountVerified();
+                returnData = new PartnerCount(nPartnerAll, nPartnerVerified);
+                await _cache.SetRecordAsync(cacheId, returnData, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
+            return Ok(new ResponseMessage(true, "OK", returnData));
         }
+
 
         // GET: <DashboardController>/Admin/StoreCount
         [HttpGet("Admin/StoreCount")]
         [Authorize(AuthenticationSchemes = "Admin")]
-        public IActionResult CountStore()
+        public async Task<IActionResult> CountStore()
         {
-            var nAll = _storeService.CountAll();
-            var nNeedApproved = _storeService.CountNeedApproved();
-            var nApproved = _storeService.CountApproved();
-            var nRejected = _storeService.CountRejected();
-            return Ok(new ResponseMessage(true, "OK", new { All = nAll, NeedApproved = nNeedApproved, Approved  = nApproved, Rejected = nRejected }));
-
+            var cacheId = $"{UserId}_Dashboard_StoreCount";
+            var returnData = await _cache.GetRecordAsync<StoreCount>(cacheId);
+            if (returnData == null)
+            {
+                var nAll = _storeService.CountAll();
+                var nNeedApproved = _storeService.CountNeedApproved();
+                var nApproved = _storeService.CountApproved();
+                var nRejected = _storeService.CountRejected();
+                returnData = new StoreCount(nAll, nNeedApproved, nApproved, nRejected);
+                await _cache.SetRecordAsync(cacheId, returnData, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
+            return Ok(new ResponseMessage(true, "OK", returnData));
         }
 
         // GET: <DashboardController>/Admin/EndUserCount
         [HttpGet("Admin/EndUserCount")]
         [Authorize(AuthenticationSchemes = "Admin")]
-        public IActionResult CountEndUser()
+        public async Task<IActionResult> CountEndUser()
         {
-            var nEndUserAll = _endUserService.CountAll();
-            var nEndUserVerified = _endUserService.CountVerified();
-            return Ok(new ResponseMessage(true, "OK", new { All = nEndUserAll, Verified = nEndUserVerified }));
+            var cacheId = $"{UserId}_Dashboard_EndUserCount";
+            var returnData = await _cache.GetRecordAsync<EndUserCount>(cacheId);
+            if (returnData == null)
+            {
+                var nEndUserAll = _endUserService.CountAll();
+                var nEndUserVerified = _endUserService.CountVerified();
+                returnData = new EndUserCount(nEndUserAll, nEndUserVerified);
+                await _cache.SetRecordAsync(cacheId, returnData, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
+            return Ok(new ResponseMessage(true, "OK", returnData));
         }
 
         // GET: <DashboardController>/Admin/CampaignCount
         [HttpGet("Admin/CampaignCount")]
         [Authorize(AuthenticationSchemes = "Admin")]
-        public IActionResult CountAllCampaign()
+        public async Task<IActionResult> CountAllCampaign()
         {
-            var nCampaign = _campaignService.Count();
+            var cacheId = $"{UserId}_Dashboard_CampaignCount";
+            var nCampaign = await _cache.GetRecordAsync<int?>(cacheId);
+            if (nCampaign == null)
+            {
+                nCampaign = _campaignService.Count();
+                await _cache.SetRecordAsync(cacheId, nCampaign, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
             return Ok(new ResponseMessage(true, "OK", new { All = nCampaign }));
         }
 
         // GET: <DashboardController>/Admin/CampaignCountByStatus
         [HttpGet("Admin/CampaignCountByStatus")]
         [Authorize(AuthenticationSchemes = "Admin")]
-        public IActionResult CountByCampaignyStatus()
+        public async Task<IActionResult> CountByCampaignyStatus()
         {
-            var campaignCount = _campaignService.CountByStatus();
+            var cacheId = $"{UserId}_Dashboard_CampaignCountByStatus";
+            var campaignCount = await _cache.GetRecordAsync<IEnumerable<(CampaignStatus, int)>>(cacheId);
+            if (campaignCount == null)
+            {
+                campaignCount = _campaignService.CountByStatus();
+                await _cache.SetRecordAsync(cacheId, campaignCount, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
             return Ok(new ResponseMessage(true, "OK", new { campaignCount }));
         }
 
         // GET: <DashboardController>/Admin/CampaignCountByStatus
         [HttpGet("Admin/CampaignCountByGame")]
         [Authorize(AuthenticationSchemes = "Admin")]
-        public IActionResult CountByCampaignyGame()
+        public async Task<IActionResult> CountByCampaignyGame()
         {
-            var campaignCount = _campaignService.CountAllByGame();
-            return Ok(new ResponseMessage(true, "OK", new { campaignCount }));
+            var cacheId = $"{UserId}_Dashboard_CampaignCountByGame";
+            var campaignCount = await _cache.GetRecordAsync<IEnumerable<(Guid, string ,int)>>(cacheId);
+            if (campaignCount == null)
+            {
+                campaignCount = _campaignService.CountAllByGame();
+                await _cache.SetRecordAsync(cacheId, campaignCount, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
+            return Ok(new ResponseMessage(true, "OK", new { campaignCount }));   
         }
 
         // GET: <DashboardController>/Admin/CategoryCount
         [HttpGet("Admin/ProductCategoryCount")]
         [Authorize(AuthenticationSchemes = "Admin")]
-        public IActionResult CountProductCategoryAll()
+        public async Task<IActionResult> CountProductCategoryAll()
         {
-            var nCategory = _productCategoryService.CountAll();
+            var cacheId = $"{UserId}_Dashboard_ProductCategoryCount";
+            var nCategory = await _cache.GetRecordAsync<int?>(cacheId);
+            if (nCategory == null)
+            {
+                nCategory = _productCategoryService.CountAll();
+                await _cache.SetRecordAsync(cacheId, nCategory, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
             return Ok(new ResponseMessage(true, "OK", new { nCategory }));
         }
 
         // GET: <DashboardController>/Admin/ItemCount
         [HttpGet("Admin/ProductItemCount")]
         [Authorize(AuthenticationSchemes = "Admin")]
-        public IActionResult ProductItemCountAll()
+        public async Task< IActionResult> ProductItemCountAll()
         {
-            var nItem = _ProductItemService.CountAll();
+            var cacheId = $"{UserId}_Dashboard_ProductItemCount";
+            var nItem = await _cache.GetRecordAsync<int?>(cacheId);
+            if (nItem == null)
+            {
+                nItem = _ProductItemService.CountAll();
+                await _cache.SetRecordAsync(cacheId, nItem, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
             return Ok(new ResponseMessage(true, "OK", new { nItem }));
         }
 
         // GET: <DashboardController>/Admin/ItemCountByCategory
         [HttpGet("Admin/ItemCountByCategory")]
         [Authorize(AuthenticationSchemes = "Admin")]
-        public IActionResult CountProductItemByCategory()
+        public async Task<IActionResult> CountProductItemByCategory()
         {
-            var nItemByCategory = _ProductItemService.CountByCaregory();
+            var cacheId = $"{UserId}_Dashboard_ItemCountByCategory";
+            var nItemByCategory = await _cache.GetRecordAsync<IEnumerable<(Guid, string,int)>>(cacheId);
+            if (nItemByCategory == null)
+            {
+                nItemByCategory = _ProductItemService.CountByCaregory();
+                await _cache.SetRecordAsync(cacheId, nItemByCategory, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
             return Ok(new ResponseMessage(true, "OK", new { nItemByCategory }));
         }
 
@@ -125,63 +188,105 @@ namespace CDTKPMNC_STK_BE.Controllers
         // GET: <DashboardController>/Partner/CampaignCount
         [HttpGet("Partner/CampaignCount")]
         [Authorize(AuthenticationSchemes = "Partner")]
-        public IActionResult CountCampaign()
+        public async Task<IActionResult> CountCampaign()
         {
-            var nCampaign = _campaignService.Count(UserId);
+            var cacheId = $"{UserId}_Dashboard_CampaignCount";
+            var nCampaign = await _cache.GetRecordAsync<int?>(cacheId);
+            if (nCampaign == null)
+            {
+                nCampaign = _campaignService.Count(UserId);
+                await _cache.SetRecordAsync(cacheId, nCampaign, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
             return Ok(new ResponseMessage(true, "OK", new { nCampaign }));
         }
 
         // GET: <DashboardController>/Partner/CampaignCountByStatus
         [HttpGet("Partner/CampaignCountByStatus")]
         [Authorize(AuthenticationSchemes = "Partner")]
-        public IActionResult CountByCampaignyStatusStore()
+        public async Task<IActionResult> CountByCampaignyStatusStore()
         {
-            var campaignCount = _campaignService.CountByStatus(UserId);
+            var cacheId = $"{UserId}_Dashboard_CampaignCountByStatus";
+            var campaignCount = await _cache.GetRecordAsync<IEnumerable<(CampaignStatus, int)>>(cacheId);
+            if (campaignCount == null)
+            {
+                campaignCount = _campaignService.CountByStatus(UserId);
+                await _cache.SetRecordAsync(cacheId, campaignCount, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
             return Ok(new ResponseMessage(true, "OK", new { campaignCount }));
         }
 
         // GET: <DashboardController>/Partner/TotalNumberOfPlay
         [HttpGet("Partner/TotalNumberOfPlay")]
         [Authorize(AuthenticationSchemes = "Partner")]
-        public IActionResult CountNumberOfPlayStore()
+        public async Task<IActionResult> CountNumberOfPlayStore()
         {
-            var TotalNumberOfPlay = _campaignService.CountNumberOfPlay(UserId);
+            var cacheId = $"{UserId}_Dashboard_TotalNumberOfPlay";
+            var TotalNumberOfPlay = await _cache.GetRecordAsync<int?>(cacheId);
+            if (TotalNumberOfPlay == null)
+            {
+                TotalNumberOfPlay = _campaignService.CountNumberOfPlay(UserId);
+                await _cache.SetRecordAsync(cacheId, TotalNumberOfPlay, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
             return Ok(new ResponseMessage(true, "OK", new { TotalNumberOfPlay }));
         }
 
         // GET: <DashboardController>/Partner/TotalNumberOfPlayer
         [HttpGet("Partner/TotalNumberOfPlayer")]
         [Authorize(AuthenticationSchemes = "Partner")]
-        public IActionResult CountNumberOfPlayerStore()
+        public async Task<IActionResult> CountNumberOfPlayerStore()
         {
-            var NumberOfPlayer = _campaignService.CountNumberOfPlayer(UserId);
+            var cacheId = $"{UserId}_Dashboard_TotalNumberOfPlayer";
+            var NumberOfPlayer = await _cache.GetRecordAsync<int?>(cacheId);
+            if (NumberOfPlayer == null)
+            {
+                NumberOfPlayer = _campaignService.CountNumberOfPlayer(UserId);
+                await _cache.SetRecordAsync(cacheId, NumberOfPlayer, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
             return Ok(new ResponseMessage(true, "OK", new { NumberOfPlayer }));
         }
 
         // GET: <DashboardController>/Partner/TotalNumberOfVoucher
         [HttpGet("Partner/TotalNumberOfVoucher")]
         [Authorize(AuthenticationSchemes = "Partner")]
-        public IActionResult CountNumberOfPVoucherStore()
+        public async Task<IActionResult> CountNumberOfPVoucherStore()
         {
-            var NumberOfPVoucher = _campaignService.CountNumberOfPVoucher(UserId);
+            var cacheId = $"{UserId}_Dashboard_TotalNumberOfVoucher";
+            var NumberOfPVoucher = await _cache.GetRecordAsync<int?>(cacheId);
+            if (NumberOfPVoucher == null)
+            {
+                NumberOfPVoucher = _campaignService.CountNumberOfPVoucher(UserId);
+                await _cache.SetRecordAsync(cacheId, NumberOfPVoucher, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
             return Ok(new ResponseMessage(true, "OK", new { NumberOfPVoucher }));
         }
 
         // GET: <DashboardController>/Partner/ItemCount
         [HttpGet("Partner/ProductItemCount")]
         [Authorize(AuthenticationSchemes = "Partner")]
-        public IActionResult ProductItemCountStore()
+        public async Task<IActionResult> ProductItemCountStore()
         {
-            var nItem = _ProductItemService.CountAll(UserId);
+            var cacheId = $"{UserId}_Dashboard_ProductItemCount";
+            var nItem = await _cache.GetRecordAsync<int?>(cacheId);
+            if (nItem == null)
+            {
+                nItem = _ProductItemService.CountAll(UserId);
+                await _cache.SetRecordAsync(cacheId, nItem, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
             return Ok(new ResponseMessage(true, "OK", new { nItem }));
         }
 
         // GET: <DashboardController>/Partner/ItemCountByCategory
         [HttpGet("Partner/ItemCountByCategory")]
         [Authorize(AuthenticationSchemes = "Partner")]
-        public IActionResult CountProductItemByCategoryStore()
+        public async Task<IActionResult> CountProductItemByCategoryStore()
         {
-            var nItemByCategory = _ProductItemService.CountByCaregory(UserId);
+            var cacheId = $"{UserId}_Dashboard_ItemCountByCategory";
+            var nItemByCategory = await _cache.GetRecordAsync<IEnumerable<(Guid, string, int)>>(cacheId);
+            if (nItemByCategory == null)
+            {
+                nItemByCategory = _ProductItemService.CountByCaregory(UserId);
+                await _cache.SetRecordAsync(cacheId, nItemByCategory, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(2)).ConfigureAwait(false);
+            }
             return Ok(new ResponseMessage(true, "OK", new { nItemByCategory }));
         }
 

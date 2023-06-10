@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using CDTKPMNC_STK_BE.BusinessServices;
 using CDTKPMNC_STK_BE.BusinessServices.AccountServices;
 using CDTKPMNC_STK_BE.BusinessServices.Records;
+using Microsoft.Extensions.Caching.Distributed;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 namespace CDTKPMNC_STK_BE.Controllers
@@ -18,14 +19,15 @@ namespace CDTKPMNC_STK_BE.Controllers
         private readonly OtpService _otpService;
         private readonly GameService _gameService;
         private readonly StoreService _storeService;
-
-        public EndUserController(EndUserService endUserService, OtpService otpService, GameService gameService, StoreService storeService)
+        private readonly IDistributedCache _cache;
+        public EndUserController(EndUserService endUserService, OtpService otpService, GameService gameService, StoreService storeService, IDistributedCache cache)
         {
             // _partnerService = partnerService;
             _endUserService = endUserService;
             _otpService = otpService;
             _gameService = gameService;
             _storeService = storeService;
+            _cache = cache;
         }
 
         #region Account
@@ -258,9 +260,15 @@ namespace CDTKPMNC_STK_BE.Controllers
         // GET /<EndUserController>/Store/All
         [HttpGet("Store/All")]
         [Authorize(AuthenticationSchemes = "Account")]
-        public IActionResult GetAllStore()
+        public async Task<IActionResult> GetAllStore()
         {
-            var stores = _storeService.E_GetAll();
+            var cacheId = $"EndUser_StoreList";
+            var stores = await _cache.GetRecordAsync<List<StoreReturn_E>>(cacheId);
+            if (stores == null)
+            {
+                stores = _storeService.E_GetAll();
+                await _cache.SetRecordAsync(cacheId, stores, TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(1)).ConfigureAwait(false);
+            }
             return Ok(new ResponseMessage { Success = true, Message = "Get the store list successfully.", Data = new { Stores = stores } });
         }
         #endregion
