@@ -5,6 +5,7 @@ using CDTKPMNC_STK_BE.Models;
 using CDTKPMNC_STK_BE.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Org.BouncyCastle.Crypto;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -18,11 +19,13 @@ namespace CDTKPMNC_STK_BE.Controllers
         private readonly VoucherService _voucherService;
         private readonly StoreService _storeService;
         private readonly EndUserService _endUserService;
-        public VoucherController(VoucherService voucherService, StoreService storeService, EndUserService endUserService)
+        private readonly IDistributedCache _cache;
+        public VoucherController(VoucherService voucherService, StoreService storeService, EndUserService endUserService, IDistributedCache cache)
         {
             _voucherService = voucherService;
             _storeService = storeService;
             _endUserService = endUserService;
+            _cache = cache;
         }
 
         // GET: /<VoucherController>/VoucherSeries/All
@@ -220,6 +223,8 @@ namespace CDTKPMNC_STK_BE.Controllers
             var voucher = _voucherService.GetVoucher(voucherShareRecord.VoucherCode!.Value);
             if (voucher != null && voucher.EndUserId == UserId && !voucher.IsUsed && voucher.CampaignVoucherSeries.ExpiresOn.ToDateTime() >=  DateTime.Now)
             {
+                _cache.RemoveAsync($"{UserId}_NoticationList");
+                _cache.RemoveAsync($"{recipientUser.Id}_NoticationList");
                 _voucherService.ChangeVoucherOwner(recipientUser, voucher);
                 _voucherService.SendEmailShareVoucher(endUser, recipientUser, voucher);
                 _voucherService.SendNoticationShareVoucher(endUser, recipientUser, voucher);

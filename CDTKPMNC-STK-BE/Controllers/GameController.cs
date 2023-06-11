@@ -6,6 +6,7 @@ using CDTKPMNC_STK_BE.BusinessServices;
 using CDTKPMNC_STK_BE.BusinessServices.Records;
 using CDTKPMNC_STK_BE.BusinessServices.AccountServices;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Caching.Distributed;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -20,12 +21,14 @@ namespace CDTKPMNC_STK_BE.Controllers
         private readonly CampaignService _campaignService;
         private readonly VoucherService _voucherService;
         private readonly EndUserService _endUserService;
-        public GameController(GameService gameService, CampaignService campaignService, VoucherService voucherService, EndUserService endUserService)
+        private readonly IDistributedCache _cache;
+        public GameController(GameService gameService, CampaignService campaignService, VoucherService voucherService, EndUserService endUserService, IDistributedCache cache)
         {
             _gameService = gameService;
             _campaignService = campaignService;
             _voucherService = voucherService;
             _endUserService = endUserService;
+            _cache = cache;
         }
 
         // POST /<UserController>/Create
@@ -182,6 +185,7 @@ namespace CDTKPMNC_STK_BE.Controllers
                 {
                     var voucher = _voucherService.RandomVoucher(campainEndUser);
                     _voucherService.NotifyGetVoucher(endUser, voucher);
+                    _cache.RemoveAsync($"{UserId}_NoticationList");
                     var voucherReturn = _voucherService.ToVoucherReturn(voucher);
                     return Ok(new ResponseMessage { Success = true, Message = $"You win", Data = new { IsWinner = isWinner,  Voucher = voucherReturn } });
                 }
@@ -216,6 +220,7 @@ namespace CDTKPMNC_STK_BE.Controllers
                 {
                     var voucher = _voucherService.RandomVoucher(campainEndUser);
                     _voucherService.NotifyGetVoucher(endUser, voucher);
+                    _cache.RemoveAsync($"{UserId}_NoticationList");
                     var voucherReturn = _voucherService.ToVoucherReturn(voucher);
                     return Ok(new ResponseMessage { Success = true, Message = $"You win", Data = new { IsWinner = isWinner, Voucher = voucherReturn, GameData = overUnderData } });
                 }

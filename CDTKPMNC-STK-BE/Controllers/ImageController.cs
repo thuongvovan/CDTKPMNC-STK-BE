@@ -24,59 +24,59 @@ namespace CDTKPMNC_STK_BE.Controllers
             _webRootPath = _environment.WebRootPath;
         }
 
-        // GET: <ImageController>/StoreBanner
-        [HttpGet("StoreBanner")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public PhysicalFileResult GetStoreBanner()
-        {
-            var random = new Random();
-            var folderPath = Path.Combine(_webRootPath, "DummyImages", "StoreBanners");
-            string[] files = Directory.GetFiles(folderPath);
-            string[] shuffledFiles = files.OrderBy(x => random.Next()).ToArray();
-            string randomFile = shuffledFiles[random.Next(shuffledFiles.Length)];
-            return PhysicalFile(randomFile, "image/jpeg");
-        }
+        //// GET: <ImageController>/StoreBanner
+        //[HttpGet("StoreBanner")]
+        //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        //public PhysicalFileResult GetStoreBanner()
+        //{
+        //    var random = new Random();
+        //    var folderPath = Path.Combine(_webRootPath, "DummyImages", "StoreBanners");
+        //    string[] files = Directory.GetFiles(folderPath);
+        //    string[] shuffledFiles = files.OrderBy(x => random.Next()).ToArray();
+        //    string randomFile = shuffledFiles[random.Next(shuffledFiles.Length)];
+        //    return PhysicalFile(randomFile, "image/jpeg");
+        //}
 
-        // GET: <ImageController>/StoreBanner/Name
-        [HttpGet("StoreBanner/Name")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult GetStoreBannerName()
-        {
-            var random = new Random();
-            var folderPath = Path.Combine(_webRootPath, "DummyImages", "StoreBanners");
-            string[] files = Directory.GetFiles(folderPath);
-            string[] shuffledFiles = files.OrderBy(x => random.Next()).ToArray();
-            string randomFile = shuffledFiles[random.Next(shuffledFiles.Length)];
-            string fileRoute = randomFile.Replace(_webRootPath, "");
-            return Ok(new ResponseMessage(true, "Random store banner path", new { BannerPath = fileRoute }));
-        }
+        //// GET: <ImageController>/StoreBanner/Name
+        //[HttpGet("StoreBanner/Name")]
+        //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        //public IActionResult GetStoreBannerName()
+        //{
+        //    var random = new Random();
+        //    var folderPath = Path.Combine(_webRootPath, "DummyImages", "StoreBanners");
+        //    string[] files = Directory.GetFiles(folderPath);
+        //    string[] shuffledFiles = files.OrderBy(x => random.Next()).ToArray();
+        //    string randomFile = shuffledFiles[random.Next(shuffledFiles.Length)];
+        //    string fileRoute = randomFile.Replace(_webRootPath, "");
+        //    return Ok(new ResponseMessage(true, "Random store banner path", new { BannerPath = fileRoute }));
+        //}
 
-        // GET: <ImageController>/ProductItem
-        [HttpGet("ProductItem")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public PhysicalFileResult GetProductItemImage()
-        {
-            var random = new Random();
-            var folderPath = Path.Combine(_webRootPath, "DummyImages", "ProductItems");
-            string[] files = Directory.GetFiles(folderPath);
-            string[] shuffledFiles = files.OrderBy(x => random.Next()).ToArray();
-            string randomFile = shuffledFiles[random.Next(shuffledFiles.Length)];
-            return PhysicalFile(randomFile, "image/jpeg");
-        }
+        //// GET: <ImageController>/ProductItem
+        //[HttpGet("ProductItem")]
+        //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        //public PhysicalFileResult GetProductItemImage()
+        //{
+        //    var random = new Random();
+        //    var folderPath = Path.Combine(_webRootPath, "DummyImages", "ProductItems");
+        //    string[] files = Directory.GetFiles(folderPath);
+        //    string[] shuffledFiles = files.OrderBy(x => random.Next()).ToArray();
+        //    string randomFile = shuffledFiles[random.Next(shuffledFiles.Length)];
+        //    return PhysicalFile(randomFile, "image/jpeg");
+        //}
 
-        // GET: <ImageController>/ProductItem/Name
-        [HttpGet("ProductItem/Name")]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult GetProductItemImageName()
-        {
-            var random = new Random();
-            var folderPath = Path.Combine(_webRootPath, "DummyImages", "ProductItems");
-            string[] files = Directory.GetFiles(folderPath);
-            string[] shuffledFiles = files.OrderBy(x => random.Next()).ToArray();
-            string randomFile = shuffledFiles[random.Next(shuffledFiles.Length)];
-            string fileRoute = randomFile.Replace(_webRootPath, "");
-            return Ok(new ResponseMessage(true, "Random product item image path", new { ImagePath = fileRoute }));
-        }
+        //// GET: <ImageController>/ProductItem/Name
+        //[HttpGet("ProductItem/Name")]
+        //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        //public IActionResult GetProductItemImageName()
+        //{
+        //    var random = new Random();
+        //    var folderPath = Path.Combine(_webRootPath, "DummyImages", "ProductItems");
+        //    string[] files = Directory.GetFiles(folderPath);
+        //    string[] shuffledFiles = files.OrderBy(x => random.Next()).ToArray();
+        //    string randomFile = shuffledFiles[random.Next(shuffledFiles.Length)];
+        //    string fileRoute = randomFile.Replace(_webRootPath, "");
+        //    return Ok(new ResponseMessage(true, "Random product item image path", new { ImagePath = fileRoute }));
+        //}
 
         // GET: <ImageController>/UploadImage
         [HttpPost("Upload")]

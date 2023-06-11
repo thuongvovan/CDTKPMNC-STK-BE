@@ -12,7 +12,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 sshagent(credentials: ['ssh_key']) {
-                    sh 'ssh -o StrictHostKeyChecking=no -l root 192.168.1.101 sh /root/build-script/cdtkpmnc-api.sh'
+                    sh 'ssh -o StrictHostKeyChecking=no -l root 192.168.1.102 sh /root/build-script/update-cdtkpmnc-stack.sh'
                 }
             }
         }
