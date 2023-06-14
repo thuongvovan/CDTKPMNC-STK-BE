@@ -56,7 +56,7 @@ namespace CDTKPMNC_STK_BE.Utilities
         }
         public string GenerateAccessToken(Guid userId, AccountType userType)
         {
-            return GenerateJwtToken(userId, userType, TokenType.Access, 2);
+            return GenerateJwtToken(userId, userType, TokenType.Access, 30);
         }
 
         public string GenerateRefreshToken(Guid userId, AccountType userType)
