@@ -6,6 +6,7 @@ using CDTKPMNC_STK_BE.BusinessServices.AccountServices;
 using CDTKPMNC_STK_BE.BusinessServices.Records;
 using CDTKPMNC_STK_BE.BusinessServices;
 using Org.BouncyCastle.Tls;
+using Microsoft.Extensions.Caching.Distributed;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -19,12 +20,14 @@ namespace CDTKPMNC_STK_BE.Controllers
         private readonly StoreService _storeService;
         private readonly PartnerService _partnerService;
         private readonly EndUserService _endUserService;
-        public AdminController(AdminService adminService, PartnerService partnerService, EndUserService endUserService, StoreService storeService)
+        private readonly IDistributedCache _cache;
+        public AdminController(AdminService adminService, PartnerService partnerService, EndUserService endUserService, StoreService storeService, IDistributedCache cache)
         {
             _adminService = adminService;
             _storeService = storeService;
             _partnerService = partnerService;
             _endUserService = endUserService;
+            _cache = cache;
         }
         #region Sign-in_Sign-up
         // POST /<AdminController>/Login
@@ -263,6 +266,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             if (store != null)
             {
                 _storeService.Approve(store);
+                _cache.Remove($"EndUser_StoreList");
                 return Ok(new ResponseMessage(true, "Approved store successfully.",new { Store = store } ));
             }
             return BadRequest(new ResponseMessage(false,"storeId is not valid."));
@@ -277,6 +281,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             if (store != null)
             {
                 _storeService.Reject(store);
+                _cache.Remove($"EndUser_StoreList");
                 return Ok(new ResponseMessage(true, "Reject store successfully.", new { Store = store }));
             }
             return BadRequest(new ResponseMessage(false, "storeId is not valid."));
@@ -291,6 +296,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             if (store != null)
             {
                 _storeService.Enable(store);
+                _cache.Remove($"EndUser_StoreList");
                 return Ok(new ResponseMessage(true, "Enable store successfully.", new { Store = store }));
             }
             return BadRequest(new ResponseMessage(false, "storeId is not valid."));
@@ -305,6 +311,7 @@ namespace CDTKPMNC_STK_BE.Controllers
             if (store != null)
             {
                 _storeService.Disable(store);
+                _cache.Remove($"EndUser_StoreList");
                 return Ok(new ResponseMessage(true, "Disable store successfully.", new { Store = store }));
             }
             return BadRequest(new ResponseMessage(false, "storeId is not valid."));

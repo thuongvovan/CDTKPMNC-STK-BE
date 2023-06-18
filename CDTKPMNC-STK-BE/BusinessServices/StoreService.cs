@@ -37,6 +37,8 @@ namespace CDTKPMNC_STK_BE.BusinessServices
         {
             var stores = _storeRepo
                          .GetAll()
+                         .Where(s => (s.IsApproved ?? false ))
+                         .Where(s => s.IsEnable)
                          .Select(s => StoreConverter.ToStoreReturn_E(s))
                          .ToList();
             return stores;
